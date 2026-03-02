@@ -1,8 +1,6 @@
 package com.guildflow.backend.controller;
 
-import com.guildflow.backend.dto.ClassResponse;
-import com.guildflow.backend.dto.CreateClassRequest;
-import com.guildflow.backend.dto.UserResponse;
+import com.guildflow.backend.dto.*;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.service.ClassService;
 import jakarta.validation.Valid;
@@ -84,5 +82,27 @@ public class ClassController {
             @AuthenticationPrincipal User user) {
         List<UserResponse> students = classService.getClassStudents(id, user);
         return ResponseEntity.ok(students);
+    }
+
+    @GetMapping("/{id}/progress-summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<List<StudentProgressSummary>> getClassProgressSummary(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(classService.getClassProgressSummary(id, user));
+    }
+
+    @GetMapping("/students/{studentId}/profile")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<StudentProfileResponse> getStudentProfile(
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(classService.getStudentProfile(studentId, user));
+    }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SystemStatsResponse> getSystemStats(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(classService.getSystemStats(user));
     }
 }

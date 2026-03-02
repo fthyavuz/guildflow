@@ -1,0 +1,106 @@
+<div class="page-container fade-in">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="grad-text">Quest Log</h1>
+            <p class="subtitle">Track your progress and complete your training</p>
+        </div>
+    </header>
+
+    <div class="goals-grid" *ngIf="goals$ | async as goals; else loading">
+        <div class="goal-card glass-card" *ngFor="let goal of goals">
+            <div class="goal-header">
+                <div class="title-area">
+                    <h2>{{ goal.title }}</h2>
+                    <span class="overall-perc" [style.color]="getProgressColor(goal.overallProgress)">
+                        {{ goal.overallProgress | number:'1.0-0' }}%
+                    </span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" [style.width.%]="goal.overallProgress"
+                        [style.background-color]="getProgressColor(goal.overallProgress)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="tasks-list">
+                <div class="task-item" *ngFor="let task of goal.tasks">
+                    <div class="task-info">
+                        <div class="task-meta">
+                            <span class="task-name">{{ task.title }}</span>
+                            <span class="task-values">
+                                {{ task.currentValue }} / {{ task.targetValue }}
+                                {{ task.taskType === 'NUMBER' ? 'units' : 'checks' }}
+                            </span>
+                        </div>
+                        <div class="task-pb-mini">
+                            <div class="fill" [style.width.%]="task.progressPercentage"
+                                [style.background-color]="getProgressColor(task.progressPercentage)">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-complete"
+                        (click)="task.taskType === 'CHECKBOX' ? quickLog(task) : openSubmitDialog(task)"
+                        [class.done]="task.progressPercentage >= 100"
+                        [title]="task.taskType === 'CHECKBOX' ? 'Quick log for today' : 'Enter amount'">
+                        <svg *ngIf="task.progressPercentage < 100" xmlns="http://www.w3.org/2000/svg" width="18"
+                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        <svg *ngIf="task.progressPercentage >= 100" xmlns="http://www.w3.org/2000/svg" width="18"
+                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state glass" *ngIf="goals.length === 0">
+            <div class="icon">📜</div>
+            <h3>No Active Quests</h3>
+            <p>Your mentor hasn't assigned any goals yet. Enjoy the calm before the storm!</p>
+        </div>
+    </div>
+
+    <!-- Progress Submission Modal -->
+    <div class="modal-overlay" *ngIf="selectedTask" (click)="closeDialog()">
+        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Log Progress</h3>
+                <button class="close-btn" (click)="closeDialog()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <p class="task-label">Effort for: <strong>{{ selectedTask.title }}</strong></p>
+
+                <div class="input-area" *ngIf="selectedTask.taskType === 'NUMBER'">
+                    <label>Amount completed today:</label>
+                    <input type="number" [(ngModel)]="submissionValue" placeholder="e.g. 5" class="glass-input"
+                        autofocus>
+                </div>
+
+                <div class="input-area" *ngIf="selectedTask.taskType === 'CHECKBOX'">
+                    <p class="confirm-text">Are you sure you want to mark this task as completed for today?</p>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" (click)="closeDialog()">Not yet</button>
+                <button class="btn-primary"
+                    [disabled]="isSubmitting || (selectedTask.taskType === 'NUMBER' && submissionValue === null)"
+                    (click)="submitProgress()">
+                    {{ isSubmitting ? 'Recording...' : 'Record Progress' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #loading>
+        <div class="loader-container">
+            <div class="spinner large"></div>
+            <p>Gathering your progress records...</p>
+        </div>
+    </ng-template>
+</div>

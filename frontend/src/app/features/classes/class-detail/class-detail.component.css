@@ -1,0 +1,335 @@
+.page-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--accent-cyan);
+    transform: translateX(-3px);
+}
+
+.class-header {
+    padding: 3rem;
+    border-radius: 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.header-info h1 {
+    font-size: 3.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.header-info .description {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    max-width: 800px;
+}
+
+.header-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: right;
+}
+
+.stat-item .label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.stat-item .value {
+    font-size: 2rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+}
+
+.status-active {
+    color: var(--accent-cyan);
+}
+
+.roster-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.section-header p {
+    color: var(--text-muted);
+}
+
+.student-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.student-card {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.progress-indicator {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+}
+
+.circular-chart {
+    display: block;
+    width: 72px;
+    height: 72px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 2.5;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke: var(--accent-cyan);
+    transition: stroke-dasharray 1s ease;
+}
+
+.avatar-glow {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.125rem;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
+.student-info {
+    flex-grow: 1;
+}
+
+.student-info h3 {
+    font-size: 1.125rem;
+    margin-bottom: 0.3rem;
+}
+
+.progress-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.pct {
+    color: var(--accent-cyan);
+    font-weight: 700;
+}
+
+.dot {
+    opacity: 0.3;
+}
+
+.card-action {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--accent-purple);
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
+.btn-icon.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Enrollment Management */
+.enrollment-management {
+    margin-top: 3rem;
+    padding: 2rem;
+    border-radius: 24px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.glass-input-sm {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    color: white;
+    width: 300px;
+}
+
+.available-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.available-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.available-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.s-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.s-name {
+    font-weight: 600;
+}
+
+.s-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.add-btn {
+    background: transparent;
+    border: 1px solid var(--accent-cyan);
+    color: var(--accent-cyan);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+    background: var(--accent-cyan);
+    color: black;
+}
+
+.no-results {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+}
+
+.empty-state {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem;
+    text-align: center;
+    border: 2px dashed var(--glass-border);
+}
+
+.empty-state .icon {
+    font-size: 3rem;
+}
+
+.loader-container {
+    height: calc(100vh - 4rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .class-header {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+    }
+
+    .stat-item {
+        text-align: left;
+    }
+
+    .student-grid {
+        grid-template-columns: 1fr;
+    }
+}

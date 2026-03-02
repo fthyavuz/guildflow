@@ -31,6 +31,12 @@ public class MeetingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(meetingService.createMeeting(request, user));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<MeetingResponse>> getMyMeetings(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(meetingService.getMyMeetings(user));
+    }
+
     @GetMapping("/class/{classId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<List<MeetingResponse>> getMeetingsForClass(

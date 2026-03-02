@@ -1,0 +1,86 @@
+<div class="page-container fade-in">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="grad-text">Council Meetings</h1>
+            <p class="subtitle">Synchronize with your guild members</p>
+        </div>
+        <div class="header-actions" *ngIf="(user$ | async)?.role === 'MENTOR'">
+            <button class="btn btn-primary" routerLink="/meetings/new">+ Schedule New Session</button>
+        </div>
+    </header>
+
+    <div class="meeting-layout">
+        <section class="meeting-section">
+            <h2 class="section-title">Upcoming Sessions</h2>
+            <div class="meeting-grid" *ngIf="upcomingMeetings$ | async as meetings; else loading">
+                <div class="glass-card meeting-card upcoming" *ngFor="let meeting of meetings">
+                    <div class="card-glow"></div>
+                    <div class="meeting-time">
+                        <span class="day">{{ meeting.startTime | date:'dd' }}</span>
+                        <span class="month">{{ meeting.startTime | date:'MMM' }}</span>
+                    </div>
+                    <div class="meeting-info">
+                        <div class="header-row">
+                            <span class="class-badge">{{ meeting.className }}</span>
+                            <span class="time-tag">
+                                {{ meeting.startTime | date:'HH:mm' }} - {{ meeting.endTime | date:'HH:mm' }}
+                            </span>
+                        </div>
+                        <h3>{{ meeting.title }}</h3>
+                        <p class="description">{{ meeting.description }}</p>
+                        <div class="location-row">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            {{ meeting.location }}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary btn-sm">Join Call</button>
+                    </div>
+                </div>
+
+                <div class="empty-state glass" *ngIf="meetings.length === 0">
+                    <div class="icon">📅</div>
+                    <h3>No Sessions Scheduled</h3>
+                    <p>Peace reigns in the guild. No meetings are currently on the horizon.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="meeting-section past-sessions">
+            <h2 class="section-title">Archive</h2>
+            <div class="meeting-list" *ngIf="pastMeetings$ | async as pastMeetings">
+                <div class="glass-card past-card" *ngFor="let meeting of pastMeetings">
+                    <div class="past-info">
+                        <span class="date">{{ meeting.startTime | date:'MMMM dd, yyyy' }}</span>
+                        <h4>{{ meeting.title }}</h4>
+                        <span class="class-name">{{ meeting.className }}</span>
+                    </div>
+                    <div class="past-actions">
+                        <button class="btn-icon" title="View Minutes">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <ng-template #loading>
+        <div class="loader-container">
+            <div class="spinner large"></div>
+            <p>Consulting the stars for your meetings...</p>
+        </div>
+    </ng-template>
+</div>

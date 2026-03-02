@@ -1,0 +1,271 @@
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.nav-header {
+    margin-bottom: 2rem;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--accent-purple);
+    transform: translateX(-5px);
+}
+
+.form-hero {
+    text-align: center;
+    margin-bottom: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.icon-orb {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+    margin-bottom: 0.5rem;
+}
+
+.form-hero h1 {
+    font-size: 2.8rem;
+    margin: 0;
+}
+
+.form-hero p {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+.main-form {
+    padding: 3rem;
+    border-radius: 2.5rem;
+}
+
+.section {
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-left: 0.5rem;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.date-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.date-row .glass-input {
+    flex: 1;
+}
+
+.to {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.toggle-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+}
+
+.student-selection {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+}
+
+.select-hint {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.student-pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.student-pill {
+    padding: 0.6rem 1.25rem;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    user-select: none;
+    color: var(--text-secondary);
+}
+
+.student-pill.active {
+    background: rgba(34, 211, 238, 0.2);
+    color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+}
+
+.student-pill input {
+    display: none;
+}
+
+.task-row {
+    padding: 1.5rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+}
+
+.glass-sub {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.task-num {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.btn-remove {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.input-row.mini {
+    gap: 1rem;
+}
+
+.glass-input-sm.full {
+    width: 100%;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.lg {
+    padding: 1.25rem 3.5rem;
+    font-size: 1.2rem;
+    border-radius: 16px;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}

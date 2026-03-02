@@ -26,7 +26,7 @@ public class EvaluationService {
         User student = userRepository.findById(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        if (student.getRole() != Role.STUDENT) {
+        if (student == null || student.getRole() != Role.STUDENT) {
             throw new RuntimeException("User is not a student");
         }
 
@@ -45,10 +45,15 @@ public class EvaluationService {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
+        if (currentUser == null || currentUser.getRole() == null) {
+            throw new RuntimeException("Access denied: Invalid user state");
+        }
+
         // Only Admin, the Mentor who wrote it, the Parent of the student, or the
         // student themselves
-        if (currentUser.getRole() != Role.ADMIN &&
-                currentUser.getRole() != Role.MENTOR &&
+        Role role = currentUser.getRole();
+        if (role != Role.ADMIN &&
+                role != Role.MENTOR &&
                 !currentUser.getId().equals(studentId)) {
             // Further security check for Mentor
             // Ideally, we'd check if the mentor is managing the student's class

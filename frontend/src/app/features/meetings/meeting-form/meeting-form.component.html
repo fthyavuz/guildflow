@@ -1,0 +1,78 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/meetings" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Cancel and Return
+        </a>
+    </div>
+
+    <div class="form-hero">
+        <h1 class="grad-text">Schedule Council Session</h1>
+        <p>Prepare the grounds for knowledge sharing</p>
+    </div>
+
+    <div class="form-container glass-card">
+        <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="classId">Target Guild</label>
+                    <select id="classId" formControlName="classId" class="glass-input">
+                        <option value="" disabled>Select a Class</option>
+                        <option *ngFor="let cls of classes$ | async" [value]="cls.id">
+                            {{ cls.name }} ({{ cls.educationLevel }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="title">Session Title</label>
+                    <input id="title" type="text" formControlName="title" placeholder="e.g. Advanced Algebra Workshop"
+                        class="glass-input">
+                </div>
+
+                <div class="input-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" formControlName="description" rows="3"
+                        placeholder="What will be discussed?" class="glass-input"></textarea>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group">
+                    <label for="startTime">Start Time</label>
+                    <input id="startTime" type="datetime-local" formControlName="startTime" class="glass-input">
+                </div>
+                <div class="input-group">
+                    <label for="endTime">End Time</label>
+                    <input id="endTime" type="datetime-local" formControlName="endTime" class="glass-input">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="location">Sanctuary / Location</label>
+                    <input id="location" type="text" formControlName="location" placeholder="Zoom Link or Room Number"
+                        class="glass-input">
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="toggle-container">
+                        <input type="checkbox" formControlName="recurring">
+                        <span class="checkmark"></span>
+                        Weekly Recurrence (Auto-schedule for 13 weeks)
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="meetingForm.invalid || isSubmitting">
+                    {{ isSubmitting ? 'Summoning...' : 'Initiate Session' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

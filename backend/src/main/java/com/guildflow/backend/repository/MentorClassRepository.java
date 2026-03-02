@@ -12,4 +12,6 @@ public interface MentorClassRepository extends JpaRepository<MentorClass, Long> 
     List<MentorClass> findByMentorAndActiveTrue(User mentor);
 
     List<MentorClass> findByActiveTrue();
+
+    long countByActiveTrue();
 }

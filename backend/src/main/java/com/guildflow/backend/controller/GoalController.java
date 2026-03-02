@@ -1,5 +1,6 @@
 package com.guildflow.backend.controller;
 
+import com.guildflow.backend.dto.GoalProgressResponse;
 import com.guildflow.backend.dto.GoalRequest;
 import com.guildflow.backend.dto.GoalResponse;
 import com.guildflow.backend.model.User;
@@ -39,7 +40,7 @@ public class GoalController {
 
     @GetMapping("/my-goals")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<List<GoalResponse>> getMyGoals(@AuthenticationPrincipal User student) {
-        return ResponseEntity.ok(goalService.getGoalsForStudent(student));
+    public ResponseEntity<List<GoalProgressResponse>> getMyGoals(@AuthenticationPrincipal User student) {
+        return ResponseEntity.ok(goalService.getStudentGoalsWithProgress(student));
     }
 }

@@ -1,0 +1,15 @@
+export interface User {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: 'ADMIN' | 'MENTOR' | 'STUDENT' | 'PARENT';
+}
+
+export interface AuthResponse {
+    accessToken: string;
+    refreshToken: string;
+    user: User;
+}
+
+export type UserResponse = User;

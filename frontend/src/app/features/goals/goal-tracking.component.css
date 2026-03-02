@@ -1,0 +1,222 @@
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.goal-card {
+    padding: 2rem;
+    border-radius: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.goal-card:hover {
+    transform: translateY(-5px);
+}
+
+.goal-header {
+    margin-bottom: 0.5rem;
+}
+
+.title-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.title-area h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.overall-perc {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.progress-bar-container {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Task Items */
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.task-info {
+    flex: 1;
+}
+
+.task-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.task-name {
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.task-values {
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.task-pb-mini {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.task-pb-mini .fill {
+    height: 100%;
+    transition: width 0.8s ease;
+}
+
+.btn-complete {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-complete:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-complete.done {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: #4ade80;
+    color: #4ade80;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.5;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+.input-area {
+    margin: 1.5rem 0;
+}
+
+.input-area label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.glass-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    color: white;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2.5rem;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .goals-grid {
+        grid-template-columns: 1fr;
+    }
+}

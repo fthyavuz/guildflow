@@ -1,0 +1,60 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/classes" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Cancel and Return
+        </a>
+    </div>
+
+    <div class="form-hero">
+        <h1 class="grad-text">{{ isEditMode ? 'Modify Guild' : 'Found a New Guild' }}</h1>
+        <p>{{ isEditMode ? 'Refine the structure of your academy' : 'Establish a sanctuary for knowledge and growth' }}
+        </p>
+    </div>
+
+    <div class="form-container glass-card">
+        <form [formGroup]="classForm" (ngSubmit)="onSubmit()">
+            <div class="form-section">
+                <div class="input-group">
+                    <label for="name">Guild Name</label>
+                    <input id="name" type="text" formControlName="name" placeholder="e.g. Alchemists of Algebra"
+                        class="glass-input">
+                </div>
+
+                <div class="input-group">
+                    <label for="educationLevel">Education Level</label>
+                    <select id="educationLevel" formControlName="educationLevel" class="glass-input">
+                        <option value="" disabled>Select Level</option>
+                        <option *ngFor="let level of educationLevels" [value]="level">{{ level }}</option>
+                    </select>
+                </div>
+
+                <div class="input-group" *ngIf="currentUserRole === 'ADMIN'">
+                    <label for="mentorId">Assign Master (Mentor)</label>
+                    <select id="mentorId" formControlName="mentorId" class="glass-input">
+                        <option [value]="null" disabled>Select a Mentor</option>
+                        <option *ngFor="let mentor of mentors$ | async" [value]="mentor.id">
+                            {{ mentor.firstName }} {{ mentor.lastName }} ({{ mentor.email }})
+                        </option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="description">Guild Manifesto / Description</label>
+                    <textarea id="description" formControlName="description" rows="4"
+                        placeholder="What is the focus of this guild?" class="glass-input"></textarea>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary" [disabled]="classForm.invalid || isSubmitting">
+                    {{ isSubmitting ? 'Channeling...' : (isEditMode ? 'Update Sanctuary' : 'Establish Guild') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

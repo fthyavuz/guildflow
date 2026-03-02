@@ -1,0 +1,185 @@
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.meeting-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Meeting Cards */
+.meeting-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.meeting-card {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    border-radius: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.meeting-card:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.meeting-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--grad-primary);
+    min-width: 80px;
+    border-radius: 1.25rem;
+    color: white;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+
+.meeting-time .day {
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.meeting-time .month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.meeting-info {
+    flex: 1;
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.class-badge {
+    font-size: 0.75rem;
+    background: rgba(99, 102, 241, 0.15);
+    color: #818cf8;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.time-tag {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.meeting-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.location-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+}
+
+/* Past Sessions */
+.past-sessions {
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    padding-left: 2rem;
+}
+
+.meeting-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.past-card {
+    padding: 1rem;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.past-info .date {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.past-info h4 {
+    font-size: 1rem;
+    margin: 0.2rem 0;
+}
+
+.past-info .class-name {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .meeting-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .past-sessions {
+        border-left: none;
+        padding-left: 0;
+        margin-top: 3rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .meeting-card {
+        flex-direction: column;
+    }
+
+    .meeting-time {
+        flex-direction: row;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        min-width: auto;
+    }
+
+    .card-actions {
+        padding-left: 0;
+        margin-top: 1rem;
+    }
+}

@@ -1,0 +1,126 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a [routerLink]="['/classes', classId]" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Cancel Quest
+        </a>
+    </div>
+
+    <div class="form-hero">
+        <div class="icon-orb">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+        </div>
+        <h1 class="grad-text">Forging a New Quest</h1>
+        <p>Define a goal that leads your guild to mastery</p>
+    </div>
+
+    <div class="form-grid">
+        <div class="glass-card main-form">
+            <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+                <!-- General Info -->
+                <div class="section">
+                    <h3 class="section-title">Quest Identity</h3>
+                    <div class="input-group">
+                        <label>Quest Title</label>
+                        <input type="text" formControlName="title" placeholder="e.g. The 100-Page Alchemist"
+                            class="glass-input">
+                    </div>
+
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label>Quest Category</label>
+                            <select formControlName="goalTypeId" class="glass-input">
+                                <option [value]="null" disabled>Select Category</option>
+                                <option *ngFor="let type of goalTypes$ | async" [value]="type.id">{{ type.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Timeline</label>
+                            <div class="date-row">
+                                <input type="date" formControlName="startDate" class="glass-input">
+                                <span class="to">to</span>
+                                <input type="date" formControlName="endDate" class="glass-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scope -->
+                <div class="section">
+                    <h3 class="section-title">Quest Scope</h3>
+                    <div class="toggle-group glass-input">
+                        <span>Enroll all guild scholars in this quest?</span>
+                        <label class="switch">
+                            <input type="checkbox" formControlName="applyToAll">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="student-selection fade-in" *ngIf="!goalForm.get('applyToAll')?.value">
+                        <p class="select-hint">Select the members for this specific quest:</p>
+                        <div class="student-pill-list">
+                            <label class="student-pill" *ngFor="let s of students$ | async"
+                                [class.active]="goalForm.get('studentIds')?.value.includes(s.id)">
+                                <input type="checkbox" [checked]="goalForm.get('studentIds')?.value.includes(s.id)"
+                                    (change)="toggleStudentSelection(s.id, $event)">
+                                {{ s.firstName }} {{ s.lastName }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks -->
+                <div class="section">
+                    <div class="section-header">
+                        <h3 class="section-title">Trial Stages (Tasks)</h3>
+                        <button type="button" class="btn-sm btn-ghost" (click)="addTask()">+ Add Stage</button>
+                    </div>
+
+                    <div formArrayName="tasks" class="tasks-container">
+                        <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i"
+                            class="task-row glass-sub">
+                            <div class="task-info">
+                                <div class="task-header">
+                                    <span class="task-num">Stage #{{ i + 1 }}</span>
+                                    <button type="button" class="btn-remove" (click)="removeTask(i)">&times;</button>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" formControlName="title"
+                                        placeholder="Stage name (e.g. Read Chapter 1)" class="glass-input-sm full">
+                                </div>
+                                <div class="input-row mini">
+                                    <div class="input-group mini">
+                                        <select formControlName="taskType" class="glass-input-sm half">
+                                            <option value="NUMBER">Unit Count (Summed)</option>
+                                            <option value="CHECKBOX">Pulse Tracker (Frequency)</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group mini">
+                                        <input type="number" formControlName="targetValue" placeholder="Target"
+                                            class="glass-input-sm half">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary lg"
+                        [disabled]="goalForm.invalid || tasks.length === 0 || isSubmitting">
+                        {{ isSubmitting ? 'Summoning Quest...' : 'Release Quest to Guild' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

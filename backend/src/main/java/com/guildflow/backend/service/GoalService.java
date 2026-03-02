@@ -16,169 +16,232 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GoalService {
 
-    private final GoalTypeRepository goalTypeRepository;
-    private final GoalRepository goalRepository;
-    private final GoalTaskRepository goalTaskRepository;
-    private final GoalStudentRepository goalStudentRepository;
-    private final TaskProgressRepository taskProgressRepository;
-    private final GoalStudentReviewRepository reviewRepository;
-    private final MentorClassRepository classRepository;
-    private final UserRepository userRepository;
-    private final ClassStudentRepository classStudentRepository;
+        private final GoalTypeRepository goalTypeRepository;
+        private final GoalRepository goalRepository;
+        private final GoalTaskRepository goalTaskRepository;
+        private final GoalStudentRepository goalStudentRepository;
+        private final TaskProgressRepository taskProgressRepository;
+        private final GoalStudentReviewRepository reviewRepository;
+        private final MentorClassRepository classRepository;
+        private final UserRepository userRepository;
+        private final ClassStudentRepository classStudentRepository;
 
-    // --- Goal Types (Admin only managed via Controller) ---
+        // --- Goal Types (Admin only managed via Controller) ---
 
-    public List<GoalTypeResponse> getAllGoalTypes() {
-        return goalTypeRepository.findByActiveTrue().stream()
-                .map(GoalTypeResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public GoalTypeResponse createGoalType(String name, String description) {
-        GoalType type = GoalType.builder()
-                .name(name)
-                .description(description)
-                .build();
-        return GoalTypeResponse.fromEntity(goalTypeRepository.save(type));
-    }
-
-    // --- Goals (Mentor) ---
-
-    @Transactional
-    public GoalResponse createGoal(GoalRequest request, User mentor) {
-        MentorClass mentorClass = classRepository.findById(request.getClassId())
-                .orElseThrow(() -> new RuntimeException("Class not found"));
-
-        // Security check
-        if (mentor.getRole() != Role.ADMIN && !mentorClass.getMentor().getId().equals(mentor.getId())) {
-            throw new RuntimeException("Access denied: You are not the mentor of this class");
+        public List<GoalTypeResponse> getAllGoalTypes() {
+                return goalTypeRepository.findByActiveTrue().stream()
+                                .map(GoalTypeResponse::fromEntity)
+                                .collect(Collectors.toList());
         }
 
-        GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
-                .orElseThrow(() -> new RuntimeException("Goal type not found"));
-
-        Goal goal = Goal.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .mentorClass(mentorClass)
-                .goalType(goalType)
-                .applyToAll(request.isApplyToAll())
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .build();
-
-        // Save goal first to get ID
-        Goal savedGoal = goalRepository.save(goal);
-
-        // Add Tasks
-        List<GoalTask> tasks = request.getTasks().stream()
-                .map(tr -> GoalTask.builder()
-                        .goal(savedGoal)
-                        .title(tr.getTitle())
-                        .description(tr.getDescription())
-                        .taskType(tr.getTaskType())
-                        .targetValue(tr.getTargetValue())
-                        .sortOrder(tr.getSortOrder() != null ? tr.getSortOrder() : 0)
-                        .build())
-                .collect(Collectors.toList());
-
-        goalTaskRepository.saveAll(tasks);
-        savedGoal.setTasks(tasks);
-
-        // Map Students if not applyToAll
-        if (!request.isApplyToAll() && request.getStudentIds() != null) {
-            List<GoalStudent> studentMappings = request.getStudentIds().stream()
-                    .map(sid -> {
-                        User student = userRepository.findById(sid)
-                                .orElseThrow(() -> new RuntimeException("Student not found: " + sid));
-                        return GoalStudent.builder().goal(savedGoal).student(student).build();
-                    })
-                    .collect(Collectors.toList());
-            goalStudentRepository.saveAll(studentMappings);
+        @Transactional
+        public GoalTypeResponse createGoalType(String name, String description) {
+                GoalType type = GoalType.builder()
+                                .name(name)
+                                .description(description)
+                                .build();
+                return GoalTypeResponse.fromEntity(goalTypeRepository.save(type));
         }
 
-        return GoalResponse.fromEntity(savedGoal);
-    }
+        // --- Goals (Mentor) ---
 
-    public List<GoalResponse> getGoalsForClass(Long classId, User user) {
-        MentorClass mentorClass = classRepository.findById(classId)
-                .orElseThrow(() -> new RuntimeException("Class not found"));
+        @Transactional
+        public GoalResponse createGoal(GoalRequest request, User mentor) {
+                MentorClass mentorClass = classRepository.findById(request.getClassId())
+                                .orElseThrow(() -> new RuntimeException("Class not found"));
 
-        return goalRepository.findByMentorClassAndActiveTrue(mentorClass).stream()
-                .map(GoalResponse::fromEntity)
-                .collect(Collectors.toList());
-    }
+                if (mentor == null || mentor.getRole() == null) {
+                        throw new RuntimeException("Access denied: Invalid mentor state");
+                }
 
-    // --- Student View ---
+                User classMentor = mentorClass.getMentor();
+                if (classMentor == null
+                                || (mentor.getRole() != Role.ADMIN && !classMentor.getId().equals(mentor.getId()))) {
+                        throw new RuntimeException("Access denied: You are not the mentor of this class");
+                }
 
-    public List<GoalResponse> getGoalsForStudent(User student) {
-        // 1. Get student's current active class
-        ClassStudent activeEnrollment = classStudentRepository.findByStudentAndActiveTrue(student)
-                .orElse(null);
+                GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
+                                .orElseThrow(() -> new RuntimeException("Goal type not found"));
 
-        if (activeEnrollment == null)
-            return Collections.emptyList();
+                Goal goal = Goal.builder()
+                                .title(request.getTitle())
+                                .description(request.getDescription())
+                                .mentorClass(mentorClass)
+                                .goalType(goalType)
+                                .applyToAll(request.isApplyToAll())
+                                .startDate(request.getStartDate())
+                                .endDate(request.getEndDate())
+                                .build();
 
-        // 2. Fetch "applyToAll" goals for that class
-        List<Goal> classGoals = goalRepository.findByMentorClassAndActiveTrue(activeEnrollment.getMentorClass())
-                .stream().filter(Goal::getApplyToAll).collect(Collectors.toList());
+                // Save goal first to get ID
+                Goal savedGoal = goalRepository.save(goal);
 
-        // 3. Fetch specific mappings (when NOT applyToAll)
-        List<Goal> privateGoals = goalStudentRepository.findByStudent(student)
-                .stream().map(GoalStudent::getGoal).collect(Collectors.toList());
+                // Add Tasks
+                List<GoalTask> tasks = request.getTasks().stream()
+                                .map(tr -> GoalTask.builder()
+                                                .goal(savedGoal)
+                                                .title(tr.getTitle())
+                                                .description(tr.getDescription())
+                                                .taskType(tr.getTaskType())
+                                                .targetValue(tr.getTargetValue())
+                                                .sortOrder(tr.getSortOrder() != null ? tr.getSortOrder() : 0)
+                                                .build())
+                                .collect(Collectors.toList());
 
-        // 4. Combine and convert
-        classGoals.addAll(privateGoals);
-        return classGoals.stream().distinct().map(GoalResponse::fromEntity).collect(Collectors.toList());
-    }
+                goalTaskRepository.saveAll(tasks);
+                savedGoal.setTasks(tasks);
 
-    // --- Progress (Student) ---
+                // Map Students if not applyToAll
+                if (!request.isApplyToAll() && request.getStudentIds() != null) {
+                        List<GoalStudent> studentMappings = request.getStudentIds().stream()
+                                        .map(sid -> {
+                                                User student = userRepository.findById(sid)
+                                                                .orElseThrow(() -> new RuntimeException(
+                                                                                "Student not found: " + sid));
+                                                return GoalStudent.builder().goal(savedGoal).student(student).build();
+                                        })
+                                        .collect(Collectors.toList());
+                        goalStudentRepository.saveAll(studentMappings);
+                }
 
-    @Transactional
-    public void submitProgress(ProgressRequest request, User student) {
-        GoalTask task = goalTaskRepository.findById(request.getTaskId())
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-
-        // Find or create daily progress
-        TaskProgress progress = taskProgressRepository
-                .findByTaskAndStudentAndEntryDate(task, student, request.getEntryDate())
-                .orElse(TaskProgress.builder()
-                        .task(task)
-                        .student(student)
-                        .entryDate(request.getEntryDate())
-                        .build());
-
-        progress.setNumericValue(request.getNumericValue());
-        progress.setBooleanValue(request.getBooleanValue());
-
-        taskProgressRepository.save(progress);
-    }
-
-    // --- Mentor Review ---
-
-    @Transactional
-    public void submitReview(GoalReviewRequest request, User mentor) {
-        Goal goal = goalRepository.findById(request.getGoalId())
-                .orElseThrow(() -> new RuntimeException("Goal not found"));
-
-        if (mentor.getRole() != Role.ADMIN && !goal.getMentorClass().getMentor().getId().equals(mentor.getId())) {
-            throw new RuntimeException("Access denied: You are not the mentor of this goal");
+                return GoalResponse.fromEntity(savedGoal);
         }
 
-        User student = userRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+        public List<GoalResponse> getGoalsForClass(Long classId, User user) {
+                MentorClass mentorClass = classRepository.findById(classId)
+                                .orElseThrow(() -> new RuntimeException("Class not found"));
 
-        GoalStudentReview review = reviewRepository
-                .findByGoalAndStudent(goal, student)
-                .orElse(GoalStudentReview.builder()
-                        .goal(goal)
-                        .student(student)
-                        .build());
+                return goalRepository.findByMentorClassAndActiveTrue(mentorClass).stream()
+                                .map(GoalResponse::fromEntity)
+                                .collect(Collectors.toList());
+        }
 
-        review.setCompleted(request.getCompleted());
-        review.setComment(request.getComment());
+        // --- Student View ---
 
-        reviewRepository.save(review);
-    }
+        public List<GoalResponse> getGoalsForStudent(User student) {
+                // 1. Get student's current active class
+                ClassStudent activeEnrollment = classStudentRepository.findByStudentAndActiveTrue(student)
+                                .orElse(null);
+
+                if (activeEnrollment == null || activeEnrollment.getMentorClass() == null)
+                        return Collections.emptyList();
+
+                // 2. Fetch "applyToAll" goals for that class
+                List<Goal> classGoals = goalRepository.findByMentorClassAndActiveTrue(activeEnrollment.getMentorClass())
+                                .stream().filter(Goal::getApplyToAll).collect(Collectors.toList());
+
+                // 3. Fetch specific mappings (when NOT applyToAll)
+                List<Goal> privateGoals = goalStudentRepository.findByStudent(student)
+                                .stream().map(GoalStudent::getGoal).collect(Collectors.toList());
+
+                // 4. Combine and convert
+                classGoals.addAll(privateGoals);
+                return classGoals.stream().distinct().map(GoalResponse::fromEntity).collect(Collectors.toList());
+        }
+
+        public List<GoalProgressResponse> getStudentGoalsWithProgress(User student) {
+                List<GoalResponse> goals = getGoalsForStudent(student);
+
+                return goals.stream().map(g -> {
+                        List<TaskProgressResponse> taskProgresses = g.getTasks().stream().map(t -> {
+                                GoalTask task = goalTaskRepository.findById(t.getId()).orElseThrow();
+                                List<TaskProgress> entries = taskProgressRepository
+                                                .findByTaskAndStudentOrderByEntryDateDesc(task, student);
+
+                                Double currentVal = 0.0;
+                                if (t.getTaskType() == com.guildflow.backend.model.enums.TaskType.NUMBER) {
+                                        currentVal = entries.stream()
+                                                        .mapToDouble(e -> e.getNumericValue() != null
+                                                                        ? e.getNumericValue()
+                                                                        : 0.0)
+                                                        .sum();
+                                } else if (t.getTaskType() == com.guildflow.backend.model.enums.TaskType.CHECKBOX) {
+                                        currentVal = (double) entries.stream()
+                                                        .filter(e -> Boolean.TRUE.equals(e.getBooleanValue()))
+                                                        .count();
+                                }
+
+                                double percentage = t.getTargetValue() > 0 ? (currentVal / t.getTargetValue()) * 100
+                                                : 0;
+                                if (percentage > 100)
+                                        percentage = 100;
+
+                                return TaskProgressResponse.builder()
+                                                .taskId(t.getId())
+                                                .title(t.getTitle())
+                                                .taskType(t.getTaskType())
+                                                .targetValue(t.getTargetValue())
+                                                .currentValue(currentVal)
+                                                .progressPercentage(percentage)
+                                                .build();
+                        }).collect(Collectors.toList());
+
+                        double overallProgress = taskProgresses.isEmpty() ? 0
+                                        : taskProgresses.stream()
+                                                        .mapToDouble(TaskProgressResponse::getProgressPercentage)
+                                                        .average().orElse(0.0);
+
+                        return GoalProgressResponse.builder()
+                                        .goalId(g.getId())
+                                        .title(g.getTitle())
+                                        .tasks(taskProgresses)
+                                        .overallProgress(overallProgress)
+                                        .build();
+                }).collect(Collectors.toList());
+        }
+
+        // --- Progress (Student) ---
+
+        @Transactional
+        public void submitProgress(ProgressRequest request, User student) {
+                GoalTask task = goalTaskRepository.findById(request.getTaskId())
+                                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+                // Find or create daily progress
+                TaskProgress progress = taskProgressRepository
+                                .findByTaskAndStudentAndEntryDate(task, student, request.getEntryDate())
+                                .orElse(TaskProgress.builder()
+                                                .task(task)
+                                                .student(student)
+                                                .entryDate(request.getEntryDate())
+                                                .build());
+
+                progress.setNumericValue(request.getNumericValue());
+                progress.setBooleanValue(request.getBooleanValue());
+
+                taskProgressRepository.save(progress);
+        }
+
+        // --- Mentor Review ---
+
+        @Transactional
+        public void submitReview(GoalReviewRequest request, User mentor) {
+                Goal goal = goalRepository.findById(request.getGoalId())
+                                .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+                if (mentor == null || mentor.getRole() == null) {
+                        throw new RuntimeException("Access denied: Invalid user state");
+                }
+
+                User classMentor = goal.getMentorClass().getMentor();
+                if (classMentor == null
+                                || (mentor.getRole() != Role.ADMIN && !classMentor.getId().equals(mentor.getId()))) {
+                        throw new RuntimeException("Access denied: You are not the mentor of this goal");
+                }
+
+                User student = userRepository.findById(request.getStudentId())
+                                .orElseThrow(() -> new RuntimeException("Student not found"));
+
+                GoalStudentReview review = reviewRepository
+                                .findByGoalAndStudent(goal, student)
+                                .orElse(GoalStudentReview.builder()
+                                                .goal(goal)
+                                                .student(student)
+                                                .build());
+
+                review.setCompleted(request.getCompleted());
+                review.setComment(request.getComment());
+
+                reviewRepository.save(review);
+        }
 }

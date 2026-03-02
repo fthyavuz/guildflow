@@ -1,0 +1,137 @@
+<div class="page-container fade-in" *ngIf="data$ | async as data; else loading">
+    <div class="nav-header">
+        <a routerLink="/classes" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            All Classes
+        </a>
+        <div class="actions">
+            <button class="btn btn-secondary"
+                *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                [routerLink]="['/goals/new']" [queryParams]="{ classId: classId }">Assign New Quest</button>
+            <button class="btn btn-primary">Schedule Session</button>
+        </div>
+    </div>
+
+    <header class="class-header glass">
+        <div class="header-info">
+            <span class="level-badge">{{ data.class.educationLevel }}</span>
+            <h1 class="grad-text">{{ data.class.name }}</h1>
+            <p class="description">{{ data.class.description }}</p>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="label">Total Scholars</span>
+                <span class="value">{{ data.students.length }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Status</span>
+                <span class="value status-active">ACTIVE</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="roster-section">
+        <div class="section-header">
+            <h2>Guild Roster</h2>
+            <p>{{ data.students.length }} students enrolled</p>
+        </div>
+
+        <div class="student-grid" *ngIf="data.students.length > 0; else noStudents">
+            <div class="glass-card student-card" *ngFor="let student of data.students"
+                [routerLink]="['/students', student.studentId]">
+
+                <div class="progress-indicator" [style.--progress]="student.averageProgress">
+                    <div class="avatar-glow">
+                        <span class="initials">{{ student.firstName[0] }}</span>
+                    </div>
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" [attr.stroke-dasharray]="student.averageProgress + ', 100'"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                </div>
+
+                <div class="student-info">
+                    <h3>{{ student.firstName }} {{ student.lastName }}</h3>
+                    <div class="progress-meta">
+                        <span class="pct">{{ student.averageProgress | number:'1.0-0' }}% Mastery</span>
+                        <span class="dot">•</span>
+                        <span class="goals">{{ student.activeGoalsCount }} Quests</span>
+                    </div>
+                </div>
+
+                <div class="card-action">
+                    <button class="btn-icon danger"
+                        *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                        (click)="$event.stopPropagation(); removeStudent(student.studentId)" title="Remove from Guild">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                    </button>
+                    <button class="btn-icon" [routerLink]="['/students', student.studentId]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10 9 9 9 8 9" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrollment Panel (Visible only to Admin/Mentor) -->
+        <div class="enrollment-management glass"
+            *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
+            <div class="panel-header">
+                <h3>Enroll New Scholar</h3>
+                <div class="search-box">
+                    <input type="text" [(ngModel)]="searchTerm" placeholder="Search by name or email..."
+                        class="glass-input-sm">
+                </div>
+            </div>
+
+            <div class="available-list" *ngIf="getAvailableStudents(data.allStudents, data.students) as available">
+                <div class="available-item" *ngFor="let s of available">
+                    <div class="s-info">
+                        <span class="s-name">{{ s.firstName }} {{ s.lastName }}</span>
+                        <span class="s-email">{{ s.email }}</span>
+                    </div>
+                    <button class="add-btn" (click)="addStudent(s.id)">
+                        + Add to Guild
+                    </button>
+                </div>
+                <div class="no-results" *ngIf="available.length === 0">
+                    No matching unassigned scholars found.
+                </div>
+            </div>
+        </div>
+
+        <ng-template #noStudents>
+            <div class="empty-state glass">
+                <div class="icon">👥</div>
+                <h3>No Scholars Enrolled</h3>
+                <p>This class currently has no students. Use the enrollment panel below to add members.</p>
+            </div>
+        </ng-template>
+    </section>
+</div>
+
+<ng-template #loading>
+    <div class="loader-container">
+        <div class="spinner large"></div>
+        <p>Opening the class records...</p>
+    </div>
+</ng-template>

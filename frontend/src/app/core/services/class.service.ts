@@ -1,0 +1,55 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ClassResponse } from '../models/class.model';
+import { User } from '../models/auth.model';
+import { StudentProgressSummary } from '../models/student-progress.model';
+import { StudentProfile } from '../models/student.model';
+
+@Injectable({
+    providedIn: 'root'
+})
+export class ClassService {
+    private http = inject(HttpClient);
+    private readonly apiUrl = 'http://localhost:8080/api/classes';
+
+    getClasses(): Observable<ClassResponse[]> {
+        return this.http.get<ClassResponse[]>(this.apiUrl);
+    }
+
+    getClassById(id: number): Observable<ClassResponse> {
+        return this.http.get<ClassResponse>(`${this.apiUrl}/${id}`);
+    }
+
+    getClassStudents(classId: number): Observable<User[]> {
+        return this.http.get<User[]>(`${this.apiUrl}/${classId}/students`);
+    }
+
+    getClassProgressSummary(classId: number): Observable<StudentProgressSummary[]> {
+        return this.http.get<StudentProgressSummary[]>(`${this.apiUrl}/${classId}/progress-summary`);
+    }
+
+    getSystemStats(): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/stats`);
+    }
+
+    createClass(data: any): Observable<ClassResponse> {
+        return this.http.post<ClassResponse>(this.apiUrl, data);
+    }
+
+    updateClass(id: number, data: any): Observable<ClassResponse> {
+        return this.http.put<ClassResponse>(`${this.apiUrl}/${id}`, data);
+    }
+
+    addStudentToClass(classId: number, studentId: number): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/${classId}/students/${studentId}`, {});
+    }
+
+    removeStudentFromClass(classId: number, studentId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${classId}/students/${studentId}`);
+    }
+
+    getStudentProfile(studentId: number): Observable<StudentProfile> {
+        return this.http.get<StudentProfile>(`${this.apiUrl}/students/${studentId}/profile`);
+    }
+}
