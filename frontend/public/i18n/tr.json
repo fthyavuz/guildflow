@@ -1,0 +1,81 @@
+{
+    "LANGUAGES": {
+        "TR": "Türkçe",
+        "EN": "English",
+        "DE": "Deutsch"
+    },
+    "COMMON": {
+        "WELCOME": "Hoş Geldiniz",
+        "LOGIN": "Giriş Yap",
+        "LOGOUT": "Çıkış Yap",
+        "REGISTER": "Kayıt Ol",
+        "DASHBOARD": "Panel",
+        "PROFILE": "Profil",
+        "SETTINGS": "Ayarlar",
+        "BACK_TO_DASHBOARD": "Panel'e Dön",
+        "VIEW_ALL": "Tümünü Gör",
+        "MANAGE_ALL": "Hepsini Yönet",
+        "VIEW_ALL_SESSIONS": "Tüm Oturumları Gör",
+        "LOADING": "Sınıf kayıtları inceleniyor...",
+        "VIRTUAL": "Sanal"
+    },
+    "AUTH": {
+        "EMAIL": "E-posta Adresi",
+        "EMAIL_PLACEHOLDER": "sizin@email.com",
+        "PASSWORD": "Şifre",
+        "SIGN_IN": "Platforma Giriş",
+        "SIGNING_IN": "Giriş yapılıyor...",
+        "SUBTITLE": "Potansiyelinizi Yükseltin",
+        "NEW_MEMBER": "Sınıfa yeni misiniz?",
+        "JOIN_LINK": "Üyelik için Başvur"
+    },
+    "NAV": {
+        "DASHBOARD": "Panel",
+        "MENTORS": "Mentörler",
+        "STUDENTS": "Öğrenciler",
+        "MY_GUILDS": "Sınıflar",
+        "MY_QUESTS": "Görevlerim",
+        "MEETINGS": "Toplantılar",
+        "EVENTS": "Etkinlikler",
+        "ORGANIZATION": "Organizasyon",
+        "SOURCES": "Kaynaklar",
+        "ROOMS": "Odalar",
+        "GOAL_LIBRARY": "Hedef Kütüphanesi"
+    },
+    "DASHBOARD": {
+        "WELCOME_TITLE": "Hoş Geldin, Usta",
+        "CREATE_GUILD": "+ Sınıf Oluştur",
+        "STATS": {
+            "ACTIVE_QUESTS": "Aktif Görevler",
+            "TOTAL_SCHOLARS": "Toplam Öğrenci",
+            "GUILD_SCHOLARS": "Sınıf Öğrencileri",
+            "TOTAL_MENTORS": "Toplam Mentor",
+            "MEETINGS": "Toplantılar"
+        },
+        "SECTIONS": {
+            "ACTIVE_QUESTS": "Aktif Görevler",
+            "ALL_GUILDS": "Tüm Sınıflar",
+            "MY_GUILDS": "Sınıflar",
+            "RECENT_SESSIONS": "Son Oturumlar",
+            "UPCOMING_EVENTS": "Lonca Etkinlikleri"
+        },
+        "QUEST": {
+            "TAG": "Görev",
+            "TASKS": "Görev",
+            "MASTERY": "Ustalık"
+        },
+        "EMPTY": {
+            "NO_QUESTS": "Aktif görev bulunamadı. Yeni sınavlar için daha sonra tekrar kontrol edin!",
+            "NO_SESSIONS": "Planlanmış oturum yok."
+        }
+    },
+    "CLASS_DETAIL": {
+        "ENROLL_MEMBER": "Yeni Üye Kaydet",
+        "ENROLL_SUBTITLE": "Bu sınıfa katılmak için sistemden bir öğrenci seçin",
+        "STAGING_TITLE": "Bekleyen Kayıtları İncele",
+        "SAVE_CHANGES": "Değişiklikleri Onayla ve Kaydet",
+        "SAVING": "Kaydediliyor...",
+        "SELECT": "+ Seç",
+        "ENROLL_BTN": "Öğrenci Kaydet"
+    }
+}

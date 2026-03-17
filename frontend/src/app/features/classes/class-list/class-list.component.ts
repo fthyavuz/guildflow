@@ -5,11 +5,12 @@ import { ClassService } from '../../../core/services/class.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { Observable } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-class-list',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, TranslateModule],
     templateUrl: './class-list.component.html',
     styleUrl: './class-list.component.css'
 })

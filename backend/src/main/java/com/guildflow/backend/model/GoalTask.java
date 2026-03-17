@@ -42,4 +42,8 @@ public class GoalTask {
     @Column(nullable = false)
     @Builder.Default
     private Integer sortOrder = 0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "source_id")
+    private Source source;
 }

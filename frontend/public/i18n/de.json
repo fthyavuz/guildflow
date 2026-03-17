@@ -1,0 +1,72 @@
+{
+    "LANGUAGES": {
+        "TR": "Türkisch",
+        "EN": "Englisch",
+        "DE": "Deutsch"
+    },
+    "COMMON": {
+        "WELCOME": "Willkommen",
+        "LOGIN": "Anmelden",
+        "LOGOUT": "Abmelden",
+        "REGISTER": "Registrieren",
+        "DASHBOARD": "Dashboard",
+        "PROFILE": "Profil",
+        "SETTINGS": "Einstellungen",
+        "BACK_TO_DASHBOARD": "Zurück zum Dashboard",
+        "VIEW_ALL": "Alle anzeigen",
+        "MANAGE_ALL": "Alle verwalten",
+        "VIEW_ALL_SESSIONS": "Alle Sitzungen anzeigen",
+        "LOADING": "Die Klassen-Schriftrollen werden konsultiert...",
+        "VIRTUAL": "Virtuell"
+    },
+    "AUTH": {
+        "EMAIL": "E-Mail-Adresse",
+        "EMAIL_PLACEHOLDER": "deine@email.com",
+        "PASSWORD": "Passwort",
+        "SIGN_IN": "Plattform freischalten",
+        "SIGNING_IN": "Anmeldung läuft...",
+        "SUBTITLE": "Entfalten Sie Ihr Potenzial",
+        "NEW_MEMBER": "Neu in der Klasse?",
+        "JOIN_LINK": "Mitgliedschaft anfragen"
+    },
+    "NAV": {
+        "DASHBOARD": "Dashboard",
+        "MENTORS": "Mentoren",
+        "STUDENTS": "Schüler",
+        "MY_GUILDS": "Klassen",
+        "MY_QUESTS": "Meine Quests",
+        "MEETINGS": "Sitzungen",
+        "EVENTS": "Veranstaltungen",
+        "ORGANIZATION": "Organisation",
+        "SOURCES": "Ressourcen",
+        "ROOMS": "Räume",
+        "GOAL_LIBRARY": "Zielbibliothek"
+    },
+    "DASHBOARD": {
+        "WELCOME_TITLE": "Willkommen, Meister",
+        "CREATE_GUILD": "+ Klasse erstellen",
+        "STATS": {
+            "ACTIVE_QUESTS": "Aktive Quests",
+            "TOTAL_SCHOLARS": "Gesamte Schüler",
+            "GUILD_SCHOLARS": "Klassen-Schüler",
+            "TOTAL_MENTORS": "Gesamte Mentoren",
+            "MEETINGS": "Sitzungen"
+        },
+        "SECTIONS": {
+            "ACTIVE_QUESTS": "Aktive Quests",
+            "ALL_GUILDS": "Alle Klassen",
+            "MY_GUILDS": "Klassen",
+            "RECENT_SESSIONS": "Letzte Sitzungen",
+            "UPCOMING_EVENTS": "Gildenaktivitäten"
+        },
+        "QUEST": {
+            "TAG": "Quest",
+            "TASKS": "Aufgaben",
+            "MASTERY": "Meisterschaft"
+        },
+        "EMPTY": {
+            "NO_QUESTS": "Keine aktiven Quests gefunden. Schauen Sie später für neue Prüfungen vorbei!",
+            "NO_SESSIONS": "Keine bevorstehenden Sitzungen geplant."
+        }
+    }
+}

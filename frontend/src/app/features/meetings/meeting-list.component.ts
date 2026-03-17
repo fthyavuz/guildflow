@@ -5,11 +5,12 @@ import { MeetingService } from '../../core/services/meeting.service';
 import { MeetingResponse } from '../../core/models/meeting.model';
 import { Observable, map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-meeting-list',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, TranslateModule],
     templateUrl: './meeting-list.component.html',
     styleUrl: './meeting-list.component.css'
 })

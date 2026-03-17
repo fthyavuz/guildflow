@@ -2,12 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { AuthResponse, User } from '../models/auth.model';
+import { Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
 })
 export class AuthService {
     private http = inject(HttpClient);
+    private router = inject(Router);
     private readonly apiUrl = 'http://localhost:8080/api/auth';
 
     private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
@@ -35,7 +37,20 @@ export class AuthService {
 
     private getStoredUser(): User | null {
         const userStr = localStorage.getItem('user');
-        return userStr ? JSON.parse(userStr) : null;
+        const token = localStorage.getItem('access_token');
+        
+        // If we have a user but no token, or if data is corrupted, clear everything
+        if (!userStr || !token) {
+            if (userStr || token) this.logout();
+            return null;
+        }
+
+        try {
+            return JSON.parse(userStr);
+        } catch (e) {
+            this.logout();
+            return null;
+        }
     }
 
     getAccessToken(): string | null {

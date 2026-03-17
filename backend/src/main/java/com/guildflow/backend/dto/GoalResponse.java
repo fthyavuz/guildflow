@@ -23,6 +23,7 @@ public class GoalResponse {
     private Long goalTypeId;
     private String goalTypeName;
     private boolean applyToAll;
+    private boolean isTemplate;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
@@ -33,11 +34,12 @@ public class GoalResponse {
                 .id(goal.getId())
                 .title(goal.getTitle())
                 .description(goal.getDescription())
-                .classId(goal.getMentorClass().getId())
-                .className(goal.getMentorClass().getName())
+                .classId(goal.getMentorClass() != null ? goal.getMentorClass().getId() : null)
+                .className(goal.getMentorClass() != null ? goal.getMentorClass().getName() : "Template Library")
                 .goalTypeId(goal.getGoalType().getId())
                 .goalTypeName(goal.getGoalType().getName())
                 .applyToAll(goal.getApplyToAll())
+                .isTemplate(goal.getIsTemplate())
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())
                 .createdAt(goal.getCreatedAt())

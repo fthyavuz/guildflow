@@ -1,0 +1,173 @@
+<div class="rooms-container" *ngIf="user$ | async as user">
+    <header class="rooms-header">
+        <div class="header-info">
+            <h1 class="grad-text">{{ 'NAV.ROOMS' | translate: { default: 'Room Management' } }}</h1>
+            <p class="subtitle">Manage location resources and check availability</p>
+        </div>
+        <button *ngIf="user.role === 'ADMIN'" class="btn btn-primary" (click)="openRoomForm()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add New Room
+        </button>
+    </header>
+
+    <div class="date-selector glass-card">
+        <button class="btn btn-ghost" (click)="prevDay()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <div class="current-date">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <h3>{{ getFormattedDate() }}</h3>
+        </div>
+        <button class="btn btn-ghost" (click)="nextDay()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Room Matrix -->
+    <div class="matrix-wrapper glass-card">
+        <div class="matrix-scroll-container">
+            <table class="room-matrix" *ngIf="rooms.length > 0">
+                <thead>
+                    <tr>
+                        <th class="time-col">Time</th>
+                        <th *ngFor="let room of rooms" class="room-col">
+                            <div class="room-header-content">
+                                <h4>{{ room.title }}</h4>
+                                <div class="room-meta">
+                                    <span class="capacity" title="Capacity">👥 {{ room.capacity }}</span>
+                                    <span class="overnight" *ngIf="room.canStayOvernight" title="Overnight">🌙</span>
+                                </div>
+                                <div class="room-actions" *ngIf="user.role === 'ADMIN'">
+                                    <button class="btn btn-icon edit-btn" (click)="openRoomForm(room)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                                    <button class="btn btn-icon trash-btn" (click)="deleteRoom(room.id)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let hour of timeSlots">
+                        <td class="time-cell">{{ hour.toString().padStart(2, '0') }}:00</td>
+                        <td *ngFor="let room of rooms" 
+                            class="slot-cell"
+                            [ngClass]="getSlotClass(room.id, hour)"
+                            (click)="slotClick(room.id, hour, user)">
+                            
+                            <!-- Booked State -->
+                            <div class="slot-content booked" *ngIf="getSlotBooking(room.id, hour) as booking">
+                                <div class="booking-reason">{{ booking.reason }}</div>
+                                <div class="booking-by">{{ booking.bookedByName }}</div>
+                                <div class="hover-tip" *ngIf="user.role === 'ADMIN' || booking.bookedById === user.id">
+                                    Click to cancel
+                                </div>
+                            </div>
+
+                            <!-- Free State -->
+                            <div class="slot-content free" *ngIf="!getSlotBooking(room.id, hour) && getSlotClass(room.id, hour) !== 'slot-past'">
+                                <span class="plus-icon">+</span>
+                                <div class="hover-tip">Click to book</div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="empty-state" *ngIf="rooms.length === 0">
+                <div class="empty-icon">🚪</div>
+                <h3>No rooms found</h3>
+                <p>Add some rooms to start managing location availability.</p>
+                <button *ngIf="user.role === 'ADMIN'" class="btn btn-primary mt-4" (click)="openRoomForm()">
+                    Add First Room
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" *ngIf="showBookingForm" (click)="showBookingForm = false">
+        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Book Room</h2>
+                <button class="close-btn" (click)="showBookingForm = false">&times;</button>
+            </div>
+            
+            <form [formGroup]="bookingForm" (ngSubmit)="saveBooking()">
+                <div class="form-info-banner">
+                    <p>Booking for <strong>{{ getFormattedDate() }}</strong></p>
+                    <p>Starting at <strong>{{ selectedSlot?.time?.toString()?.padStart(2, '0') }}:00</strong></p>
+                </div>
+
+                <div class="form-group">
+                    <label>Reason for Booking</label>
+                    <input type="text" class="form-control" formControlName="reason" placeholder="e.g. Mentor Session with Alex">
+                </div>
+
+                <div class="form-group">
+                    <label>Duration (Hours)</label>
+                    <input type="number" class="form-control" formControlName="durationHours" min="1" max="8">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" (click)="showBookingForm = false">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="bookingForm.invalid">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Room CRUD Modal (Admin Only) -->
+    <div class="modal-overlay" *ngIf="showRoomForm" (click)="showRoomForm = false">
+        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>{{ editingRoomId ? 'Edit Room' : 'Add New Room' }}</h2>
+                <button class="close-btn" (click)="showRoomForm = false">&times;</button>
+            </div>
+            
+            <form [formGroup]="roomForm" (ngSubmit)="saveRoom()">
+                <div class="form-group">
+                    <label>Title <span class="required">*</span></label>
+                    <input type="text" class="form-control" formControlName="title" placeholder="e.g. Conference Room A">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="form-control" formControlName="description" rows="3" placeholder="Optional details about layout or equipment"></textarea>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Capacity <span class="required">*</span></label>
+                        <input type="number" class="form-control" formControlName="capacity" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" formControlName="canStayOvernight">
+                        <span class="checkmark"></span>
+                        <span class="label-text">Allow overnight stays</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" (click)="showRoomForm = false">Cancel</button>
+                    <button type="submit" class="btn btn-primary" [disabled]="roomForm.invalid">
+                        {{ editingRoomId ? 'Update Room' : 'Create Room' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

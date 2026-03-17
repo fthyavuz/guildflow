@@ -12,4 +12,5 @@ public interface GoalTypeRepository extends JpaRepository<GoalType, Long> {
     List<GoalType> findByActiveTrue();
 
     Optional<GoalType> findByNameAndActiveTrue(String name);
+    Optional<GoalType> findByName(String name);
 }

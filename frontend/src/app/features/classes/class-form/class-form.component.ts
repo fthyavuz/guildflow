@@ -7,11 +7,12 @@ import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserResponse } from '../../../core/models/auth.model';
 import { Observable, of } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-class-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
     templateUrl: './class-form.component.html',
     styleUrl: './class-form.component.css'
 })

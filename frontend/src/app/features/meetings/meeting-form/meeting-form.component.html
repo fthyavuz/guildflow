@@ -1,17 +1,17 @@
 <div class="page-container fade-in">
     <div class="nav-header">
-        <a routerLink="/meetings" class="back-link">
+        <a routerLink="/meetings" class="btn-back">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" />
                 <polyline points="12 19 5 12 12 5" />
             </svg>
-            Cancel and Return
+            {{ 'NAV.MEETINGS' | translate }}
         </a>
     </div>
 
     <div class="form-hero">
-        <h1 class="grad-text">Schedule Council Session</h1>
+        <h1 class="grad-text">Schedule Class Meeting</h1>
         <p>Prepare the grounds for knowledge sharing</p>
     </div>
 
@@ -19,7 +19,7 @@
         <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()">
             <div class="form-section">
                 <div class="input-group">
-                    <label for="classId">Target Guild</label>
+                    <label for="classId">Select Class</label>
                     <select id="classId" formControlName="classId" class="glass-input">
                         <option value="" disabled>Select a Class</option>
                         <option *ngFor="let cls of classes$ | async" [value]="cls.id">
@@ -54,7 +54,7 @@
 
             <div class="form-section">
                 <div class="input-group">
-                    <label for="location">Sanctuary / Location</label>
+                    <label for="location">Location</label>
                     <input id="location" type="text" formControlName="location" placeholder="Zoom Link or Room Number"
                         class="glass-input">
                 </div>
@@ -70,7 +70,7 @@
 
             <div class="form-footer">
                 <button type="submit" class="btn btn-primary" [disabled]="meetingForm.invalid || isSubmitting">
-                    {{ isSubmitting ? 'Summoning...' : 'Initiate Session' }}
+                    {{ isSubmitting ? 'Scheduling...' : 'Schedule Meeting' }}
                 </button>
             </div>
         </form>

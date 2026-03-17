@@ -6,11 +6,12 @@ import { MeetingService } from '../../../core/services/meeting.service';
 import { ClassService } from '../../../core/services/class.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { Observable } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-meeting-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
     templateUrl: './meeting-form.component.html',
     styleUrl: './meeting-form.component.css'
 })

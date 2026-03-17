@@ -9,6 +9,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2.5rem;
+    width: 100%;
 }
 
 .back-link {
@@ -33,6 +34,7 @@
     grid-template-columns: 1fr auto;
     gap: 3rem;
     margin-bottom: 4rem;
+    width: 100%;
 }
 
 .header-info h1 {
@@ -81,6 +83,7 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    width: 100%;
 }
 
 .section-header h2 {
@@ -213,25 +216,101 @@
 
 /* Enrollment Management */
 .enrollment-management {
-    margin-top: 3rem;
-    padding: 2rem;
-    border-radius: 24px;
+    margin-top: 4rem;
+    padding: 3rem;
+    width: 100%;
+    border-radius: 32px;
 }
 
 .panel-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 1.5rem;
+}
+
+.header-text h3 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.header-text p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
 }
 
 .glass-input-sm {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
-    border-radius: 10px;
-    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
     color: white;
-    width: 300px;
+    width: 350px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.glass-input-sm:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+    outline: none;
+}
+
+/* Pending Enrollments Staging */
+.pending-section {
+    background: rgba(168, 85, 247, 0.05);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pending-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.pending-header h4 {
+    font-size: 1rem;
+    color: var(--accent-purple);
+}
+
+.pending-list-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pending-pill {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: white;
+}
+
+.remove-pill {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.remove-pill:hover {
+    color: #ef4444;
 }
 
 .available-list {

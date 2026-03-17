@@ -7,31 +7,133 @@
         radial-gradient(circle at bottom left, rgba(34, 211, 238, 0.05), transparent 40%);
 }
 
+/* Dashbord Specific Redesign */
+.next-meeting-hero {
+    margin-bottom: 2rem;
+    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(34, 211, 238, 0.1) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.hero-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--accent-purple);
+    opacity: 0.8;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+.meeting-big-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 3rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meeting-big-time .time {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.meeting-big-time .date {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.meeting-big-info h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.meeting-big-info p {
+    color: var(--text-secondary);
+}
+
+.admin-stat {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-stat:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mentor-name {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .hero-content {
+        gap: 1.5rem;
+    }
+
+    .meeting-big-time {
+        padding-right: 0;
+        border-right: none;
+        align-items: flex-start;
+    }
+}
+
 .sidebar {
     width: 280px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    padding: 2.5rem 1.5rem;
-    border-radius: 32px;
+    padding: 1.5rem;
+    border-radius: 24px;
     position: relative;
     overflow: hidden;
     height: calc(100vh - 3rem);
     position: sticky;
     top: 1.5rem;
+    box-shadow: var(--shadow-premium);
 }
 
 .brand h2 {
-    font-size: 1.75rem;
-    margin-bottom: 3rem;
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
     text-align: center;
 }
 
-.nav-links {
+.sidebar-action {
+    padding: 0 0.5rem;
+}
+
+.sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
     flex-grow: 1;
+    overflow-y: auto;
+    margin-right: -0.5rem;
+    padding-right: 0.5rem;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 .nav-item {
@@ -54,13 +156,99 @@
     border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
+/* Sidebar Controls */
+.sidebar-controls {
+    border-top: 1px solid var(--glass-border);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.theme-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.theme-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    border-color: var(--accent-purple);
+}
+
+.theme-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Language Switcher */
+.lang-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.lang-btn.active {
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(168, 85, 247, 0.3);
+    color: var(--accent-purple);
+}
+
+.lang-flag {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.lang-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
 .user-block {
     margin-top: auto;
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding-top: 1.5rem;
+    gap: 0.75rem;
+    padding: 1.25rem 0.5rem 0;
     border-top: 1px solid var(--glass-border);
+    width: 100%;
 }
 
 .avatar-glow {
@@ -102,13 +290,18 @@
     color: var(--text-muted);
     cursor: pointer;
     padding: 0.5rem;
-    transition: all 0.3s ease;
-    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ff5555;
+    transform: scale(1.05);
 }
 
 /* Main Content area styles */
@@ -311,26 +504,51 @@
 
 .meeting-card {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--sub-card-bg);
+    border: 1px solid var(--glass-border);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.meeting-card:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-gold);
+}
+
+.event-card-mini:hover {
+    border-color: var(--accent-purple);
 }
 
 .m-time {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 0.5rem;
+    min-width: 55px;
+    height: 55px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.m-time.event-time {
+    border-color: rgba(168, 85, 247, 0.3);
 }
 
 .m-time .day {
+    font-size: 1.1rem;
     font-weight: 800;
-    font-size: 1.125rem;
+    color: var(--accent-gold);
     line-height: 1;
+}
+
+.event-time .day {
+    color: var(--accent-purple);
 }
 
 .m-time .month {

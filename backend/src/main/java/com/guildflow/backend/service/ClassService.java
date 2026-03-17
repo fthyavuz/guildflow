@@ -16,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class ClassService {
 
     private final MentorClassRepository classRepository;
@@ -117,19 +119,33 @@ public class ClassService {
             throw new RuntimeException("User is not a student");
         }
 
-        // Deactivate old active enrollment if exists
+        // Deactivate old active enrollment in OTHER classes if exists
         classStudentRepository.findByStudentAndActiveTrue(student).ifPresent(oldEnrollment -> {
-            oldEnrollment.setActive(false);
-            oldEnrollment.setLeftAt(LocalDateTime.now());
-            classStudentRepository.save(oldEnrollment);
+            if (!oldEnrollment.getMentorClass().getId().equals(classId)) {
+                oldEnrollment.setActive(false);
+                oldEnrollment.setLeftAt(LocalDateTime.now());
+                classStudentRepository.save(oldEnrollment);
+            }
         });
 
-        ClassStudent enrollment = ClassStudent.builder()
-                .mentorClass(mentorClass)
-                .student(student)
-                .build();
+        // Check if student already has a record (active or inactive) in THIS class
+        Optional<ClassStudent> existingEnrollment = classStudentRepository.findByMentorClassAndStudent(mentorClass,
+                student);
 
-        classStudentRepository.save(enrollment);
+        if (existingEnrollment.isPresent()) {
+            ClassStudent enrollment = existingEnrollment.get();
+            if (!enrollment.getActive()) {
+                enrollment.setActive(true);
+                enrollment.setLeftAt(null);
+                classStudentRepository.save(enrollment);
+            }
+        } else {
+            ClassStudent enrollment = ClassStudent.builder()
+                    .mentorClass(mentorClass)
+                    .student(student)
+                    .build();
+            classStudentRepository.save(enrollment);
+        }
     }
 
     @Transactional

@@ -1,0 +1,70 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a [routerLink]="userType === 'MENTOR' ? '/mentors' : '/students'" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            {{ (userType === 'MENTOR' ? 'NAV.MENTORS' : 'NAV.STUDENTS') | translate }}
+        </a>
+    </div>
+
+    <div class="form-wrapper">
+        <header class="form-header glass">
+            <h1 class="grad-text">
+                <ng-container *ngIf="isEditMode; else createTitle">
+                    {{ userType === 'MENTOR' ? 'Modify Mentor' : 'Update Scholar' }}
+                </ng-container>
+                <ng-template #createTitle>
+                    {{ userType === 'MENTOR' ? 'Enlist New Mentor' : 'Register New Student' }}
+                </ng-template>
+            </h1>
+            <p class="subtitle">{{ isEditMode ? 'Keep the guild records accurate' : 'Grant access to the GuildFlow platform' }}</p>
+        </header>
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="glass-card form-card">
+            <div class="form-grid">
+                <!-- ... names ... -->
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" formControlName="firstName" class="glass-input"
+                        placeholder="e.g. Albus">
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" formControlName="lastName" class="glass-input"
+                        placeholder="e.g. Dumbledore">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" formControlName="email" class="glass-input"
+                        placeholder="wizard@guildflow.com">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="password">{{ isEditMode ? 'Update Access Key (Leave blank to keep current)' : 'Platform Access Key (Password)' }}</label>
+                    <input type="password" id="password" formControlName="password" class="glass-input"
+                        placeholder="••••••••">
+                    <small class="form-hint" *ngIf="!isEditMode">At least 6 characters required</small>
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="phone">Contact Number (Optional)</label>
+                    <input type="text" id="phone" formControlName="phone" class="glass-input"
+                        placeholder="+90 555 123 4567">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary"
+                    [routerLink]="userType === 'MENTOR' ? '/mentors' : '/students'">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isSubmitting">
+                    {{ isSubmitting ? 'Channeling...' : (isEditMode ? 'Update Profile' : (userType === 'MENTOR' ? 'Create Mentor' : 'Create Student')) }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

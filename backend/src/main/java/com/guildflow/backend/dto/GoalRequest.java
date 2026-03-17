@@ -13,11 +13,11 @@ public class GoalRequest {
     @NotBlank(message = "Goal title is required")
     private String title;
     private String description;
-    @NotNull(message = "Class ID is required")
-    private Long classId;
+    private Long classId; // Optional for templates
     @NotNull(message = "Goal type ID is required")
     private Long goalTypeId;
     private boolean applyToAll = true;
+    private boolean isTemplate = false;
     private List<Long> studentIds; // Only used if applyToAll is false
     private LocalDateTime startDate;
     private LocalDateTime endDate;

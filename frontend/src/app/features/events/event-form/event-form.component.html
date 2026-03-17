@@ -1,0 +1,52 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/events" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Events
+        </a>
+    </div>
+
+    <div class="form-wrapper">
+        <header class="form-header glass">
+            <h1 class="grad-text">{{ isEditMode ? 'Modify Organization Event' : 'Schedule New Event' }}</h1>
+            <p class="subtitle">{{ isEditMode ? 'Adjust the details of the upcoming activity' : 'Plan an exciting new activity for the entire guild' }}</p>
+        </header>
+
+        <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="glass-card form-card">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="title">Event Title</label>
+                    <input type="text" id="title" formControlName="title" class="glass-input"
+                        placeholder="e.g. Grand Chess Tournament">
+                </div>
+
+                <div class="form-group">
+                    <label for="startTime">Start Time</label>
+                    <input type="datetime-local" id="startTime" formControlName="startTime" class="glass-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="endTime">End Time</label>
+                    <input type="datetime-local" id="endTime" formControlName="endTime" class="glass-input">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="description">Event Description</label>
+                    <textarea id="description" formControlName="description" class="glass-input" rows="4"
+                        placeholder="Describe the plan, what to bring, etc."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" routerLink="/events">Cancel</button>
+                <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || isSubmitting">
+                    {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Event' : 'Schedule Event') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

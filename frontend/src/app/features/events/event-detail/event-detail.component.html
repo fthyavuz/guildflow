@@ -1,0 +1,172 @@
+<div class="page-container fade-in" *ngIf="event$ | async as event; else loading">
+    <div class="nav-header">
+        <a routerLink="/events" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Events
+        </a>
+
+        <div class="admin-actions" *ngIf="(user$ | async)?.role === 'ADMIN'">
+            <button class="btn btn-secondary btn-sm" [routerLink]="['/events/edit', event.id]">Edit Event</button>
+            <button class="btn btn-ghost btn-danger btn-sm" (click)="deleteEvent()">Delete</button>
+        </div>
+    </div>
+
+    <div class="event-layout">
+        <!-- Main Content -->
+        <div class="main-column">
+            <header class="event-header glass">
+                <div class="event-meta">
+                    <span class="event-badge">Organization Activity</span>
+                    <span class="event-date">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        {{ event.startTime | date:'EEEE, MMMM d, y' }}
+                    </span>
+                </div>
+                <h1 class="grad-text">{{ event.title }}</h1>
+                <div class="time-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{ event.startTime | date:'shortTime' }} &mdash; {{ event.endTime | date:'shortTime' }}
+                </div>
+            </header>
+
+            <section class="description-section glass-card">
+                <h3>About this event</h3>
+                <p class="description-text">{{ event.description || 'No description provided for this activity.' }}</p>
+            </section>
+
+            <section class="rsvp-section glass-card">
+                <div class="rsvp-content">
+                    <div class="rsvp-text">
+                        <h3>Will you be joining us?</h3>
+                        <p>Let the guild masters know if they should expect you.</p>
+                    </div>
+                    <div class="rsvp-actions">
+                        <button class="btn" [class.btn-primary]="event.userGoingStatus === true"
+                            [class.btn-secondary]="event.userGoingStatus !== true" (click)="rsvp(true)"
+                            [disabled]="isSubmittingRsvp">
+                            {{ event.userGoingStatus === true ? '✓ I am going' : 'Count me in!' }}
+                        </button>
+                        <button class="btn btn-ghost" [class.active-no]="event.userGoingStatus === false"
+                            (click)="rsvp(false)" [disabled]="isSubmittingRsvp">
+                            {{ event.userGoingStatus === false ? 'Not today' : 'Can\'t make it' }}
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assignments Section (For Responsible Persons) -->
+            <section class="assignments-section glass-card" *ngIf="event.assignments.length > 0 || (user$ | async)?.role === 'ADMIN'">
+                <div class="section-header">
+                    <h3>Responsible Persons & Duties</h3>
+                    <span class="badge secondary">{{ event.assignments.length }} Assigned</span>
+                </div>
+
+                <div class="assignment-list" *ngIf="event.assignments.length > 0">
+                    <div class="assignment-item" *ngFor="let assignment of event.assignments">
+                        <div class="as-user">
+                            <span class="user-avatar">{{ assignment.userName.substring(0, 1) }}</span>
+                            <div class="user-details">
+                                <span class="as-name">{{ assignment.userName }}</span>
+                                <span class="as-date">assigned at {{ assignment.assignedAt | date:'shortDate' }}</span>
+                            </div>
+                        </div>
+                        <div class="as-duty">
+                            <p>{{ assignment.dutyDescription }}</p>
+                        </div>
+                        <button class="btn-remove" *ngIf="(user$ | async)?.role === 'ADMIN'"
+                            (click)="removeAssignment(assignment.id)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin: Add Assignment Form -->
+                <div class="assignment-form-wrapper" *ngIf="(user$ | async)?.role === 'ADMIN'">
+                    <h4>Assign a Duty</h4>
+                    <form [formGroup]="assignmentForm" (ngSubmit)="assignDuty()" class="assignment-form">
+                        <div class="form-row">
+                            <select formControlName="userId" class="glass-input">
+                                <option value="" disabled selected>Select a responsible person</option>
+                                <option *ngFor="let user of allUsers$ | async" [value]="user.id">
+                                    {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
+                                </option>
+                            </select>
+                            <input type="text" formControlName="dutyDescription" class="glass-input"
+                                placeholder="What is their duty? e.g. Bring the chess clocks">
+                            <button type="submit" class="btn btn-sm btn-primary" [disabled]="assignmentForm.invalid || isSubmittingAssignment">
+                                Assign
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sidebar / Participants -->
+        <div class="side-column">
+            <section class="participants-section glass">
+                <div class="section-header">
+                    <h4>Participants</h4>
+                    <span class="badge">{{ (event.participants | filterGoing).length }} Going</span>
+                </div>
+
+                <div class="participant-list" *ngIf="event.participants.length > 0">
+                    <div class="participant-item" *ngFor="let p of event.participants | filterGoing">
+                        <span class="p-avatar" [class.mentor]="p.role === 'MENTOR'">{{ p.userName.substring(0, 1) }}</span>
+                        <div class="p-info">
+                            <span class="p-name">{{ p.userName }}</span>
+                            <span class="p-role">{{ p.role }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-participants" *ngIf="(event.participants | filterGoing).length === 0">
+                    <p>No participants yet. Be the first to join!</p>
+                </div>
+            </section>
+
+            <div class="info-card glass" *ngIf="(user$ | async)?.role === 'ADMIN'">
+                <h4>Admin Snapshot</h4>
+                <div class="snap-stats">
+                    <div class="stat">
+                        <span class="val">{{ (event.participants | filterGoing).length }}</span>
+                        <span class="lbl">Going</span>
+                    </div>
+                    <div class="stat">
+                        <span class="val">{{ (event.participants | filterNotGoing).length }}</span>
+                        <span class="lbl">Decline</span>
+                    </div>
+                    <div class="stat">
+                        <span class="val">{{ event.participants.length }}</span>
+                        <span class="lbl">Total Resp.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loading>
+    <div class="loader-container">
+        <div class="spinner large"></div>
+        <p>Opening the event parchment...</p>
+    </div>
+</ng-template>

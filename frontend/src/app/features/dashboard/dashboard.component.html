@@ -1,225 +1,470 @@
-<!-- Sidebar -->
-<aside class="glass sidebar" *ngIf="user$ | async as user">
-    <div class="brand">
-        <h2 class="grad-text">GuildFlow</h2>
-    </div>
-
-    <nav class="nav-links">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
-                <rect x="3" y="3" width="7" height="7"></rect>
-                <rect x="14" y="3" width="7" height="7"></rect>
-                <rect x="14" y="14" width="7" height="7"></rect>
-                <rect x="3" y="14" width="7" height="7"></rect>
-            </svg>
-            Dashboard
-        </a>
-        <a routerLink="/classes" routerLinkActive="active" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            My Guilds
-        </a>
-        <a *ngIf="user.role === 'STUDENT'" routerLink="/goals" routerLinkActive="active" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
-                </path>
-            </svg>
-            My Quests
-        </a>
-        <a routerLink="/meetings" routerLinkActive="active" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Meetings
-        </a>
-    </nav>
-
-    <div class="user-block">
-        <div class="avatar-glow">
-            <span class="initials">{{ user.firstName[0] }}</span>
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="glass sidebar" *ngIf="user$ | async as user">
+        <div class="brand">
+            <h2 class="grad-text">GuildFlow</h2>
         </div>
-        <div class="user-info">
-            <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
-            <p class="role">{{ user.role }}</p>
-        </div>
-        <button class="logout-btn" (click)="logout()" title="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-        </button>
-    </div>
-</aside>
 
-<!-- Main Content Area -->
-<main class="main-content" *ngIf="user$ | async as user">
-    <header class="top-bar">
-        <div>
-            <p class="date-today">{{ today | date:'fullDate' }}</p>
-            <h1>Welcome, Master <span class="grad-text">{{ user.firstName }}</span></h1>
-        </div>
-        <div class="actions">
-            <button *ngIf="user.role === 'ADMIN'" class="btn btn-primary" routerLink="/classes/new">+ Create
-                Guild</button>
-        </div>
-    </header>
+        <nav class="sidebar-nav">
+            <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                {{ 'NAV.DASHBOARD' | translate }}
+            </a>
 
-    <ng-container *ngIf="dashboardData$ | async as data; else loading">
-        <!-- Stats Row -->
-        <section class="stats-grid">
-            <ng-container *ngIf="user.role === 'STUDENT'">
-                <div class="glass-card stat-card">
-                    <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path
-                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
-                            </path>
-                        </svg></div>
-                    <div class="stat-content">
-                        <h3>Active Quests</h3>
-                        <p class="value">{{ data.goals?.length || 0 }}</p>
-                    </div>
-                </div>
-            </ng-container>
-
-            <ng-container *ngIf="user.role === 'ADMIN' || user.role === 'MENTOR'">
-                <div class="glass-card stat-card">
-                    <div class="stat-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg></div>
-                    <div class="stat-content">
-                        <h3>{{ user.role === 'ADMIN' ? 'Total Scholars' : 'Guild Scholars' }}</h3>
-                        <p class="value">{{ (user.role === 'ADMIN' ? data.stats?.totalStudents : data.classes?.length)
-                            || 0 }}</p>
-                    </div>
-                </div>
-                <div class="glass-card stat-card" *ngIf="user.role === 'ADMIN'">
-                    <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                        </svg></div>
-                    <div class="stat-content">
-                        <h3>Total Mentors</h3>
-                        <p class="value">{{ data.stats?.totalMentors || 0 }}</p>
-                    </div>
-                </div>
-            </ng-container>
-
-            <div class="glass-card stat-card">
-                <div class="stat-icon gold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- ADMIN Navigation Items -->
+            <ng-container *ngIf="user.role === 'ADMIN'">
+                <a routerLink="/mentors" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    {{ 'NAV.MENTORS' | translate }}
+                </a>
+                <a routerLink="/students" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                    {{ 'NAV.STUDENTS' | translate }}
+                </a>
+                <a routerLink="/classes" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <path d="M3 10h18V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z"></path>
+                    </svg>
+                    {{ 'NAV.MY_GUILDS' | translate }}
+                </a>
+                <a routerLink="/meetings" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{ 'NAV.MEETINGS' | translate }}
+                </a>
+                <a routerLink="/events" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                         <line x1="16" y1="2" x2="16" y2="6"></line>
                         <line x1="8" y1="2" x2="8" y2="6"></line>
-                    </svg></div>
-                <div class="stat-content">
-                    <h3>Meetings</h3>
-                    <p class="value">{{ data.meetings?.length || 0 }}</p>
-                </div>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    {{ 'NAV.EVENTS' | translate }}
+                </a>
+                <a routerLink="/sources" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    {{ 'NAV.SOURCES' | translate: { default: 'Resources' } }}
+                </a>
+                <a routerLink="/rooms" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    {{ 'NAV.ROOMS' | translate }}
+                </a>
+                <a routerLink="/goals/library" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    {{ 'NAV.GOAL_LIBRARY' | translate }}
+                </a>
+            </ng-container>
+
+            <!-- NON-ADMIN Navigation Items (Mentors, Students, Parents) -->
+            <ng-container *ngIf="user.role !== 'ADMIN'">
+                <a routerLink="/classes" routerLinkActive="active" class="nav-item" *ngIf="user.role !== 'STUDENT'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <path d="M3 10h18V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z"></path>
+                    </svg>
+                    {{ 'NAV.MY_GUILDS' | translate }}
+                </a>
+                <a *ngIf="user.role === 'STUDENT'" routerLink="/goals" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                        </path>
+                    </svg>
+                    {{ 'NAV.MY_QUESTS' | translate }}
+                </a>
+                <a routerLink="/meetings" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{ 'NAV.MEETINGS' | translate }}
+                </a>
+                <a routerLink="/events" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    {{ 'NAV.EVENTS' | translate }}
+                </a>
+                <a routerLink="/sources" routerLinkActive="active" class="nav-item" *ngIf="user.role === 'MENTOR'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    {{ 'NAV.SOURCES' | translate: { default: 'Resources' } }}
+                </a>
+                <a routerLink="/rooms" routerLinkActive="active" class="nav-item" *ngIf="user.role === 'MENTOR'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    {{ 'NAV.ROOMS' | translate }}
+                </a>
+                <a routerLink="/goals/library" routerLinkActive="active" class="nav-item" *ngIf="user.role === 'MENTOR'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    {{ 'NAV.GOAL_LIBRARY' | translate }}
+                </a>
+            </ng-container>
+        </nav>
+
+        <!-- Theme & Language Switchers -->
+        <div class="sidebar-controls">
+            <div class="theme-toggle">
+                <button (click)="themeService.toggleTheme()" class="theme-btn" [title]="'Change Theme'">
+                    <svg *ngIf="themeService.currentTheme() === 'dark'" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" class="theme-icon">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg *ngIf="themeService.currentTheme() === 'light'" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" class="theme-icon">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span>{{ themeService.currentTheme() === 'dark' ? 'Light' : 'Dark' }} Mode</span>
+                </button>
             </div>
-        </section>
 
-        <div class="content-grid">
-            <!-- Main Feed -->
-            <div class="main-feed-area">
-                <!-- STUDENT VIEW: Current Quests -->
-                <div class="glass-card feed-section" *ngIf="user.role === 'STUDENT'">
-                    <div class="section-header">
-                        <h3>Active Quests</h3>
-                        <button class="btn-ghost" routerLink="/goals">View All</button>
-                    </div>
-                    <div class="quest-list" *ngIf="data.goals && data.goals.length > 0; else noGoals">
-                        <div class="quest-item glass-sub" *ngFor="let goal of data.goals" [routerLink]="['/goals']">
-                            <div class="quest-info">
-                                <span class="quest-tag">Quest</span>
-                                <h4>{{ goal.title }}</h4>
-                                <div class="quest-meta">
-                                    <span>{{ goal.tasks.length }} Tasks</span>
-                                    <span class="sep">•</span>
-                                    <span class="perc">{{ goal.overallProgress | number:'1.0-0' }}% Mastery</span>
-                                </div>
-                            </div>
-                            <div class="quest-pb">
-                                <div class="fill" [style.width.%]="goal.overallProgress"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ADMIN/MENTOR VIEW: Top Classes -->
-                <div class="glass-card feed-section" *ngIf="user.role === 'ADMIN' || user.role === 'MENTOR'">
-                    <div class="section-header">
-                        <h3>{{ user.role === 'ADMIN' ? 'All Guilds' : 'My Guilds' }}</h3>
-                        <button class="btn-ghost" routerLink="/classes">Manage All</button>
-                    </div>
-                    <div class="class-summary-list">
-                        <div class="summary-item glass-sub" *ngFor="let cls of data.classes"
-                            [routerLink]="['/classes', cls.id]">
-                            <div class="cls-info">
-                                <span class="level">{{ cls.educationLevel }}</span>
-                                <h4>{{ cls.name }}</h4>
-                            </div>
-                            <div class="cls-action">
-                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar / Secondary Content -->
-            <div class="secondary-area">
-                <div class="glass-card session-section">
-                    <h3>Recent Sessions</h3>
-                    <div class="meeting-list" *ngIf="data.meetings && data.meetings.length > 0; else noMeetings">
-                        <div class="meeting-card" *ngFor="let m of data.meetings">
-                            <div class="m-time">
-                                <span class="day">{{ m.startTime | date:'dd' }}</span>
-                                <span class="month">{{ m.startTime | date:'MMM' }}</span>
-                            </div>
-                            <div class="m-info">
-                                <h5>{{ m.title }}</h5>
-                                <p>{{ m.startTime | date:'HH:mm' }} • {{ m.location || 'Virtual' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-ghost full-width mt-4" routerLink="/meetings">View All Sessions</button>
-                </div>
+            <div class="lang-switcher">
+                <button *ngFor="let lang of languageService.supportedLanguages" class="lang-btn"
+                    [class.active]="languageService.currentLanguage() === lang.code" (click)="setLanguage(lang.code)"
+                    [title]="lang.label" [id]="'lang-btn-' + lang.code">
+                    <span class="lang-flag">{{ lang.flag }}</span>
+                    <span class="lang-label">{{ lang.code | uppercase }}</span>
+                </button>
             </div>
         </div>
-    </ng-container>
-</main>
+
+        <div class="user-block">
+            <div class="avatar-glow">
+                <span class="initials">{{ user.firstName[0] }}</span>
+            </div>
+            <div class="user-info">
+                <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
+                <p class="role">{{ user.role }}</p>
+            </div>
+            <button class="logout-btn" (click)="logout()" [title]="'COMMON.LOGOUT' | translate">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content" *ngIf="user$ | async as user">
+        <header class="top-bar">
+            <div>
+                <p class="date-today">{{ today | date:'fullDate' }}</p>
+                <h1>{{ 'DASHBOARD.WELCOME_TITLE' | translate }}, <span class="grad-text">{{ user.firstName }}</span>
+                </h1>
+            </div>
+            <div class="actions" *ngIf="user.role === 'ADMIN' || user.role === 'MENTOR'">
+                <button class="btn btn-outline" routerLink="/goals/library" *ngIf="user.role === 'ADMIN'">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="mr-2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    Goal Library
+                </button>
+                <button class="btn btn-primary" routerLink="/classes/new" *ngIf="user.role === 'ADMIN'">Create Class</button>
+            </div>
+        </header>
+
+        <ng-container *ngIf="dashboardData$ | async as data; else loading">
+            <!-- Stats Row -->
+            <section class="stats-grid">
+                <!-- ADMIN Stats -->
+                <ng-container *ngIf="user.role === 'ADMIN'">
+                    <div class="glass-card stat-card admin-stat" routerLink="/mentors">
+                        <div class="stat-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.STATS.TOTAL_MENTORS' | translate }}</h3>
+                            <p class="value">{{ data.stats?.totalMentors || 0 }}</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card admin-stat" routerLink="/students">
+                        <div class="stat-icon gold">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.STATS.TOTAL_SCHOLARS' | translate }}</h3>
+                            <p class="value">{{ data.stats?.totalStudents || 0 }}</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card admin-stat" routerLink="/classes">
+                        <div class="stat-icon cyan">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <path d="M3 10h18V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.SECTIONS.ALL_GUILDS' | translate }}</h3>
+                            <p class="value">{{ data.classes.length || 0 }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- MENTOR Stats -->
+                <ng-container *ngIf="user.role === 'MENTOR'">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon cyan">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.STATS.GUILD_SCHOLARS' | translate }}</h3>
+                            <p class="value">{{ data.stats?.totalStudents || 0 }}</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <path d="M3 10h18V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.SECTIONS.MY_GUILDS' | translate }}</h3>
+                            <p class="value">{{ data.classes.length || 0 }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- STUDENT Stats -->
+                <ng-container *ngIf="user.role === 'STUDENT'">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path
+                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                                </path>
+                            </svg></div>
+                        <div class="stat-content">
+                            <h3>{{ 'DASHBOARD.STATS.ACTIVE_QUESTS' | translate }}</h3>
+                            <p class="value">{{ data.goals.length || 0 }}</p>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Shared Meeting Stat (except Admin who has a Next Meeting banner) -->
+                <div class="glass-card stat-card" *ngIf="user.role !== 'ADMIN'">
+                    <div class="stat-icon gold">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <path d="M3 10h18V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10z"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ 'DASHBOARD.STATS.MEETINGS' | translate }}</h3>
+                        <p class="value">{{ data.meetings.length || 0 }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="content-grid">
+                <!-- Main Feed -->
+                <div class="main-feed-area">
+                    <!-- ADMIN: Next Planned Meeting Hero -->
+                    <div class="next-meeting-hero glass-card"
+                        *ngIf="user.role === 'ADMIN' && data.meetings && data.meetings.length > 0">
+                        <div class="hero-label">NEXT PLANNED MEETING</div>
+                        <div class="hero-content">
+                            <div class="meeting-big-time">
+                                <span class="time">{{ data.meetings[0].startTime | date:'HH:mm' }}</span>
+                                <span class="date">{{ data.meetings[0].startTime | date:'MMMM dd' }}</span>
+                            </div>
+                            <div class="meeting-big-info">
+                                <h2>{{ data.meetings[0].title }}</h2>
+                                <p>{{ data.meetings[0].className }} • {{ data.meetings[0].location || 'Virtual Session'
+                                    }}</p>
+                            </div>
+                            <button class="btn btn-primary" routerLink="/meetings">View Schedule</button>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN/MENTOR VIEW: Top Classes -->
+                    <div class="glass-card feed-section" *ngIf="user.role !== 'STUDENT'">
+                        <div class="section-header">
+                            <h3>{{ (user.role === 'ADMIN' ? 'DASHBOARD.SECTIONS.ALL_GUILDS' :
+                                'DASHBOARD.SECTIONS.MY_GUILDS') | translate }}</h3>
+                            <button class="btn-ghost" routerLink="/classes">{{ 'COMMON.MANAGE_ALL' | translate
+                                }}</button>
+                        </div>
+                        <div class="class-summary-list">
+                            <div class="summary-item glass-sub" *ngFor="let cls of data.classes"
+                                [routerLink]="['/classes', cls.id]">
+                                <div class="cls-info">
+                                    <span class="level">{{ cls.educationLevel }}</span>
+                                    <h4>{{ cls.name }}</h4>
+                                    <p class="mentor-name">Mentor: {{ cls.mentorName }}</p>
+                                </div>
+                                <div class="cls-action">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STUDENT VIEW: Current Quests -->
+                    <div class="glass-card feed-section" *ngIf="user.role === 'STUDENT'">
+                        <!-- ... same as before but keeping it clean ... -->
+                        <div class="section-header">
+                            <h3>{{ 'DASHBOARD.SECTIONS.ACTIVE_QUESTS' | translate }}</h3>
+                            <button class="btn-ghost" routerLink="/goals">{{ 'COMMON.VIEW_ALL' | translate }}</button>
+                        </div>
+                        <div class="quest-list" *ngIf="data.goals && data.goals.length > 0; else noGoals">
+                            <div class="quest-item glass-sub" *ngFor="let goal of data.goals" [routerLink]="['/goals']">
+                                <div class="quest-info">
+                                    <span class="quest-tag">{{ 'DASHBOARD.QUEST.TAG' | translate }}</span>
+                                    <h4>{{ goal.title }}</h4>
+                                    <div class="quest-meta">
+                                        <span>{{ goal.tasks.length }} {{ 'DASHBOARD.QUEST.TASKS' | translate }}</span>
+                                        <span class="sep">•</span>
+                                        <span class="perc">{{ goal.overallProgress | number:'1.0-0' }}% Mastery</span>
+                                    </div>
+                                </div>
+                                <div class="quest-pb">
+                                    <div class="fill" [style.width.%]="goal.overallProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar / Secondary Content -->
+                <div class="secondary-area">
+                    <!-- Upcoming Events Section -->
+                    <div class="glass-card session-section">
+                        <h3>{{ 'DASHBOARD.SECTIONS.UPCOMING_EVENTS' | translate }}</h3>
+                        <div class="meeting-list" *ngIf="data.events && data.events.length > 0; else noEvents">
+                            <div class="meeting-card event-card-mini" *ngFor="let event of data.events"
+                                [routerLink]="['/events', event.id]">
+                                <div class="m-time event-time">
+                                    <span class="day">{{ event.startTime | date:'dd' }}</span>
+                                    <span class="month">{{ event.startTime | date:'MMM' }}</span>
+                                </div>
+                                <div class="m-info">
+                                    <h5>{{ event.title }}</h5>
+                                    <p>{{ event.startTime | date:'shortTime' }} • {{ 'NAV.ORGANIZATION' | translate }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-ghost full-width mt-4" routerLink="/events">
+                            {{ 'COMMON.VIEW_ALL' | translate }}
+                        </button>
+                    </div>
+
+                    <div class="glass-card session-section">
+                        <h3>{{ (user.role === 'ADMIN' ? 'Next Meetings' : 'DASHBOARD.SECTIONS.RECENT_SESSIONS') |
+                            translate }}</h3>
+                        <div class="meeting-list" *ngIf="data.meetings && data.meetings.length > 0; else noMeetings">
+                            <div class="meeting-card" *ngFor="let m of data.meetings.slice(0, 5)">
+                                <div class="m-time">
+                                    <span class="day">{{ m.startTime | date:'dd' }}</span>
+                                    <span class="month">{{ m.startTime | date:'MMM' }}</span>
+                                </div>
+                                <div class="m-info">
+                                    <h5>{{ m.title }}</h5>
+                                    <p>{{ m.startTime | date:'HH:mm' }} • {{ m.className }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-ghost full-width mt-4" routerLink="/meetings">
+                            {{ 'COMMON.VIEW_ALL_SESSIONS' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </main>
+
+    <ng-template #noGoals>
+        <div class="empty-placeholder">
+            <p>{{ 'DASHBOARD.EMPTY.NO_QUESTS' | translate }}</p>
+        </div>
+    </ng-template>
+
+    <ng-template #noMeetings>
+        <div class="empty-placeholder">
+            <p>{{ 'DASHBOARD.EMPTY.NO_SESSIONS' | translate }}</p>
+        </div>
+    </ng-template>
+
+    <ng-template #noEvents>
+        <div class="empty-placeholder">
+            <p>No upcoming organization events.</p>
+        </div>
+    </ng-template>
+
+    <ng-template #loading>
+        <div class="dashboard-loader">
+            <div class="spinner"></div>
+            <p>{{ 'COMMON.LOADING' | translate }}</p>
+        </div>
+    </ng-template>
 </div>
-
-<ng-template #noGoals>
-    <div class="empty-placeholder">
-        <p>No active quests found. Check back later for new trials!</p>
-    </div>
-</ng-template>
-
-<ng-template #noMeetings>
-    <div class="empty-placeholder">
-        <p>No upcoming sessions scheduled.</p>
-    </div>
-</ng-template>
-
-<ng-template #loading>
-    <div class="dashboard-loader">
-        <div class="spinner"></div>
-        <p>Consulting the guild scrolls...</p>
-    </div>
-</ng-template>

@@ -32,6 +32,36 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent)
     },
     {
+        path: 'mentors',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/mentor-list/mentor-list.component').then(m => m.MentorListComponent)
+    },
+    {
+        path: 'mentors/new',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'mentors/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'students',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/student-list/student-list.component').then(m => m.StudentListComponent)
+    },
+    {
+        path: 'students/new',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'students/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
         path: 'students/:studentId',
         canActivate: [authGuard],
         loadComponent: () => import('./features/classes/student-profile/student-profile.component').then(m => m.StudentProfileComponent)
@@ -51,10 +81,61 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./features/goals/goal-tracking.component').then(m => m.GoalTrackingComponent)
     },
+
+    {
+        path: 'events',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/events/event-list/event-list.component').then(m => m.EventListComponent)
+    },
+    {
+        path: 'events/new',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/events/event-form/event-form.component').then(m => m.EventFormComponent)
+    },
+    {
+        path: 'events/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/events/event-form/event-form.component').then(m => m.EventFormComponent)
+    },
+    {
+        path: 'events/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/events/event-detail/event-detail.component').then(m => m.EventDetailComponent)
+    },
     {
         path: 'goals/new',
         canActivate: [authGuard],
         loadComponent: () => import('./features/goals/goal-form/goal-form.component').then(m => m.GoalFormComponent)
+    },
+    {
+        path: 'goals/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/goals/goal-form/goal-form.component').then(m => m.GoalFormComponent)
+    },
+    {
+        path: 'goals/library',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/goals/goal-library/goal-library.component').then(m => m.GoalLibraryComponent)
+    },
+    {
+        path: 'goals/assign/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/goals/goal-assignment/goal-assignment.component').then(m => m.GoalAssignmentComponent)
+    },
+    {
+        path: 'goals/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/goals/goal-tracking.component').then(m => m.GoalTrackingComponent)
+    },
+    {
+        path: 'rooms',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/rooms/room-management/room-management.component').then(m => m.RoomManagementComponent)
+    },
+    {
+        path: 'sources',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/sources/source-list/source-list.component').then(m => m.SourceListComponent)
     },
     {
         path: '',

@@ -1,8 +1,16 @@
 <div class="page-container fade-in">
+    <a routerLink="/dashboard" class="btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
+    </a>
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">Council Meetings</h1>
-            <p class="subtitle">Synchronize with your guild members</p>
+            <h1 class="grad-text">Class Meetings</h1>
+            <p class="subtitle">Synchronize with your class members</p>
         </div>
         <div class="header-actions" *ngIf="(user$ | async)?.role === 'MENTOR'">
             <button class="btn btn-primary" routerLink="/meetings/new">+ Schedule New Session</button>
@@ -46,7 +54,7 @@
                 <div class="empty-state glass" *ngIf="meetings.length === 0">
                     <div class="icon">📅</div>
                     <h3>No Sessions Scheduled</h3>
-                    <p>Peace reigns in the guild. No meetings are currently on the horizon.</p>
+                    <p>No meetings are currently scheduled.</p>
                 </div>
             </div>
         </section>
@@ -80,7 +88,7 @@
     <ng-template #loading>
         <div class="loader-container">
             <div class="spinner large"></div>
-            <p>Consulting the stars for your meetings...</p>
+            <p>Gathering the scrolls of meetings...</p>
         </div>
     </ng-template>
 </div>

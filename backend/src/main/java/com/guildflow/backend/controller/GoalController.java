@@ -1,5 +1,6 @@
 package com.guildflow.backend.controller;
 
+import com.guildflow.backend.dto.GoalAssignmentRequest;
 import com.guildflow.backend.dto.GoalProgressResponse;
 import com.guildflow.backend.dto.GoalRequest;
 import com.guildflow.backend.dto.GoalResponse;
@@ -22,12 +23,33 @@ public class GoalController {
 
     private final GoalService goalService;
 
+    @GetMapping("/templates")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<List<GoalResponse>> getTemplates() {
+        return ResponseEntity.ok(goalService.getTemplates());
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR', 'STUDENT')")
+    public ResponseEntity<GoalResponse> getGoal(@PathVariable Long id) {
+        return ResponseEntity.ok(goalService.getGoalById(id));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<GoalResponse> createGoal(
             @Valid @RequestBody GoalRequest request,
             @AuthenticationPrincipal User mentor) {
         return ResponseEntity.status(HttpStatus.CREATED).body(goalService.createGoal(request, mentor));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<GoalResponse> updateGoal(
+            @PathVariable Long id,
+            @Valid @RequestBody GoalRequest request,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(goalService.updateGoal(id, request, user));
     }
 
     @GetMapping("/class/{classId}")
@@ -42,5 +64,22 @@ public class GoalController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<List<GoalProgressResponse>> getMyGoals(@AuthenticationPrincipal User student) {
         return ResponseEntity.ok(goalService.getStudentGoalsWithProgress(student));
+    }
+
+    @PostMapping("/assign-template")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<GoalResponse> assignTemplate(
+            @Valid @RequestBody GoalAssignmentRequest request,
+            @AuthenticationPrincipal User mentor) {
+        return ResponseEntity.ok(goalService.assignGoalTemplate(request, mentor));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<Void> deleteGoal(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        goalService.deleteGoal(id, user);
+        return ResponseEntity.noContent().build();
     }
 }

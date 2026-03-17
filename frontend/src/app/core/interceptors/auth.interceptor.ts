@@ -2,12 +2,14 @@ import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResp
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Observable, catchError, switchMap, throwError } from 'rxjs';
+import { Router } from '@angular/router';
 
 export const authInterceptor: HttpInterceptorFn = (
     req: HttpRequest<unknown>,
     next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
     const authService = inject(AuthService);
+    const router = inject(Router);
     const token = authService.getAccessToken();
 
     let authReq = req;
@@ -34,10 +36,18 @@ export const authInterceptor: HttpInterceptorFn = (
                     }),
                     catchError((err: any) => {
                         authService.logout();
+                        router.navigate(['/login']);
                         return throwError(() => err);
                     })
                 );
             }
+            
+            // If any other 401, just logout and redirect
+            if (error.status === 401) {
+                authService.logout();
+                router.navigate(['/login']);
+            }
+            
             return throwError(() => error);
         })
     );

@@ -1,0 +1,110 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/goals/library" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Library
+        </a>
+    </div>
+
+    <div class="form-hero">
+        <div class="icon-orb">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <polyline points="16 11 18 13 22 9" />
+            </svg>
+        </div>
+        <h1 class="grad-text">Assigning Quest</h1>
+        <p>Deploying template: <span class="highlight">{{ template?.title }}</span></p>
+    </div>
+
+    <div class="form-grid">
+        <div class="glass-card main-form">
+            <form [formGroup]="assignForm" (ngSubmit)="onSubmit()">
+                <div class="section">
+                    <h3 class="section-title">Deployment Target</h3>
+                    <div class="input-group">
+                        <label>Select Guild (Class)</label>
+                        <select formControlName="classId" class="glass-input">
+                            <option [value]="null" disabled>Select a Guild</option>
+                            <option *ngFor="let cls of classes$ | async" [value]="cls.id">
+                                {{ cls.name }} ({{ cls.educationLevel }})
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="input-row mt-4">
+                        <div class="input-group">
+                            <label>Timeline (Deadline)</label>
+                            <div class="date-row">
+                                <input type="date" formControlName="startDate" class="glass-input">
+                                <span class="to">to</span>
+                                <input type="date" formControlName="endDate" class="glass-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section" *ngIf="assignForm.get('classId')?.value">
+                    <h3 class="section-title">Member Targeting</h3>
+                    <div class="toggle-group glass-input">
+                        <span>Enroll all guild scholars in this quest?</span>
+                        <label class="switch">
+                            <input type="checkbox" formControlName="applyToAll">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="student-selection fade-in" *ngIf="!assignForm.get('applyToAll')?.value">
+                        <p class="select-hint">Select the members for this specific quest:</p>
+                        <div class="student-pill-list">
+                            <label class="student-pill" *ngFor="let s of students$ | async"
+                                [class.active]="assignForm.get('studentIds')?.value.includes(s.id)">
+                                <input type="checkbox" [checked]="assignForm.get('studentIds')?.value.includes(s.id)"
+                                    (change)="toggleStudentSelection(s.id, $event)">
+                                {{ s.firstName }} {{ s.lastName }}
+                            </label>
+                            <div class="empty-msg" *ngIf="(students$ | async)?.length === 0">
+                                No scholars found in this guild.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary lg"
+                        [disabled]="assignForm.invalid || isSubmitting">
+                        {{ isSubmitting ? 'Deploying...' : 'Assign Template' }}
+                    </button>
+                    <button type="button" class="btn btn-ghost" routerLink="/goals/library">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="side-panel">
+            <div class="glass-card summary-card">
+                <h3>Template Summary</h3>
+                <div class="template-info" *ngIf="template">
+                    <div class="info-item">
+                        <label>Category</label>
+                        <span>{{ template.goalTypeName }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Tasks</label>
+                        <span>{{ template.tasks.length }} stages</span>
+                    </div>
+                    <div class="task-list-mini">
+                        <div class="mini-task" *ngFor="let task of template.tasks">
+                            <span class="dot"></span> {{ task.title }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+.nav-header {
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+textarea.glass-input {
+    resize: vertical;
+    min-height: 120px;
+}

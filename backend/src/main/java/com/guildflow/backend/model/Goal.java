@@ -31,10 +31,18 @@ public class Goal {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id")
+    private MentorClass mentorClass;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "class_id", nullable = false)
-    private MentorClass mentorClass;
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
+    @Column(name = "is_template", nullable = false)
+    @Builder.Default
+    private Boolean isTemplate = false;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

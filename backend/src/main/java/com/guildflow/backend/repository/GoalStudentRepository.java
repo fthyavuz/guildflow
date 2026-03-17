@@ -16,4 +16,5 @@ public interface GoalStudentRepository extends JpaRepository<GoalStudent, Long> 
     List<GoalStudent> findByStudent(User student);
 
     Optional<GoalStudent> findByGoalAndStudent(Goal goal, User student);
+    void deleteByGoal(Goal goal);
 }

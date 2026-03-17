@@ -1,6 +1,5 @@
 package com.guildflow.backend.dto;
 
-import com.guildflow.backend.model.GoalTask;
 import com.guildflow.backend.model.enums.TaskType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,4 +20,5 @@ public class TaskRequest {
     private TaskType taskType;
     private Double targetValue;
     private Integer sortOrder;
+    private Long sourceId;
 }

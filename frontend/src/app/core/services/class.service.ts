@@ -17,6 +17,10 @@ export class ClassService {
         return this.http.get<ClassResponse[]>(this.apiUrl);
     }
 
+    getMentorClasses(): Observable<ClassResponse[]> {
+        return this.getClasses();
+    }
+
     getClassById(id: number): Observable<ClassResponse> {
         return this.http.get<ClassResponse>(`${this.apiUrl}/${id}`);
     }

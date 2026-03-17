@@ -32,7 +32,27 @@ export class GoalService {
         return this.http.post<any>(this.goalsApiUrl, goal);
     }
 
+    updateGoal(id: number, goal: any): Observable<any> {
+        return this.http.put<any>(`${this.goalsApiUrl}/${id}`, goal);
+    }
+
     getGoalsForClass(classId: number): Observable<any[]> {
         return this.http.get<any[]>(`${this.goalsApiUrl}/class/${classId}`);
+    }
+
+    getTemplates(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.goalsApiUrl}/templates`);
+    }
+
+    assignTemplate(assignment: any): Observable<any> {
+        return this.http.post<any>(`${this.goalsApiUrl}/assign-template`, assignment);
+    }
+
+    getGoalById(id: number): Observable<any> {
+        return this.http.get<any>(`${this.goalsApiUrl}/${id}`);
+    }
+
+    deleteGoal(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.goalsApiUrl}/${id}`);
     }
 }

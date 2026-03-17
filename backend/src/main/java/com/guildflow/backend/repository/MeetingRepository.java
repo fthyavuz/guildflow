@@ -21,4 +21,6 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     List<Meeting> findByMentorClassAndStartTimeBetween(MentorClass mentorClass, LocalDateTime start, LocalDateTime end);
 
     List<Meeting> findByRecurrenceGroupId(String recurrenceGroupId);
+
+    List<Meeting> findAllByOrderByStartTimeDesc();
 }

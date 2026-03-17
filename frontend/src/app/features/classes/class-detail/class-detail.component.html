@@ -1,17 +1,20 @@
 <div class="page-container fade-in" *ngIf="data$ | async as data; else loading">
     <div class="nav-header">
-        <a routerLink="/classes" class="back-link">
+        <a routerLink="/classes" class="btn-back">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" />
                 <polyline points="12 19 5 12 12 5" />
             </svg>
-            All Classes
+            {{ 'NAV.MY_GUILDS' | translate }}
         </a>
         <div class="actions">
             <button class="btn btn-secondary"
                 *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
                 [routerLink]="['/goals/new']" [queryParams]="{ classId: classId }">Assign New Quest</button>
+            <button class="btn btn-outline"
+                *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                (click)="scrollToEnroll()">{{ 'CLASS_DETAIL.ENROLL_BTN' | translate }}</button>
             <button class="btn btn-primary">Schedule Session</button>
         </div>
     </div>
@@ -25,7 +28,7 @@
 
         <div class="header-stats">
             <div class="stat-item">
-                <span class="label">Total Scholars</span>
+                <span class="label">Total Students</span>
                 <span class="value">{{ data.students.length }}</span>
             </div>
             <div class="stat-item">
@@ -37,7 +40,7 @@
 
     <section class="roster-section">
         <div class="section-header">
-            <h2>Guild Roster</h2>
+            <h2>Class Roster</h2>
             <p>{{ data.students.length }} students enrolled</p>
         </div>
 
@@ -69,7 +72,7 @@
                 <div class="card-action">
                     <button class="btn-icon danger"
                         *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
-                        (click)="$event.stopPropagation(); removeStudent(student.studentId)" title="Remove from Guild">
+                        (click)="$event.stopPropagation(); removeStudent(student.studentId)" title="Remove from Class">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path
@@ -93,13 +96,31 @@
         </div>
 
         <!-- Enrollment Panel (Visible only to Admin/Mentor) -->
-        <div class="enrollment-management glass"
+        <div id="enrollment-panel" class="enrollment-management glass-card"
             *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
             <div class="panel-header">
-                <h3>Enroll New Scholar</h3>
+                <div class="header-text">
+                    <h3>{{ 'CLASS_DETAIL.ENROLL_MEMBER' | translate }}</h3>
+                    <p>{{ 'CLASS_DETAIL.ENROLL_SUBTITLE' | translate }}</p>
+                </div>
                 <div class="search-box">
-                    <input type="text" [(ngModel)]="searchTerm" placeholder="Search by name or email..."
-                        class="glass-input-sm">
+                    <input type="text" [(ngModel)]="searchTerm" placeholder="Search students..." class="glass-input-sm">
+                </div>
+            </div>
+
+            <!-- Pending Enrollments Section -->
+            <div class="pending-section" *ngIf="pendingEnrollments.length > 0">
+                <div class="pending-header">
+                    <h4>{{ 'CLASS_DETAIL.STAGING_TITLE' | translate }} ({{ pendingEnrollments.length }})</h4>
+                    <button class="btn btn-primary btn-sm" [disabled]="isSaving" (click)="saveEnrollments()">
+                        {{ isSaving ? ('CLASS_DETAIL.SAVING' | translate) : ('CLASS_DETAIL.SAVE_CHANGES' | translate) }}
+                    </button>
+                </div>
+                <div class="pending-list-items">
+                    <div class="pending-pill" *ngFor="let s of pendingEnrollments">
+                        <span>{{ s.firstName }} {{ s.lastName }}</span>
+                        <button class="remove-pill" (click)="removeFromPending(s.id)">&times;</button>
+                    </div>
                 </div>
             </div>
 
@@ -109,12 +130,10 @@
                         <span class="s-name">{{ s.firstName }} {{ s.lastName }}</span>
                         <span class="s-email">{{ s.email }}</span>
                     </div>
-                    <button class="add-btn" (click)="addStudent(s.id)">
-                        + Add to Guild
-                    </button>
+                    <button class="add-btn" (click)="stageStudent(s)">{{ 'CLASS_DETAIL.SELECT' | translate }}</button>
                 </div>
                 <div class="no-results" *ngIf="available.length === 0">
-                    No matching unassigned scholars found.
+                    No matching unassigned students found.
                 </div>
             </div>
         </div>
@@ -122,7 +141,7 @@
         <ng-template #noStudents>
             <div class="empty-state glass">
                 <div class="icon">👥</div>
-                <h3>No Scholars Enrolled</h3>
+                <h3>No Students Enrolled</h3>
                 <p>This class currently has no students. Use the enrollment panel below to add members.</p>
             </div>
         </ng-template>

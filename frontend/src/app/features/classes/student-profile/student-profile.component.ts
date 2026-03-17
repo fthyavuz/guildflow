@@ -5,11 +5,12 @@ import { ClassService } from '../../../core/services/class.service';
 import { StudentProfile } from '../../../core/models/student.model';
 import { Observable, switchMap, map } from 'rxjs';
 import { Location } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-student-profile',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, TranslateModule],
     templateUrl: './student-profile.component.html',
     styleUrl: './student-profile.component.css'
 })

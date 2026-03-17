@@ -1,0 +1,81 @@
+{
+    "LANGUAGES": {
+        "TR": "Turkish",
+        "EN": "English",
+        "DE": "German"
+    },
+    "COMMON": {
+        "WELCOME": "Welcome",
+        "LOGIN": "Login",
+        "LOGOUT": "Logout",
+        "REGISTER": "Register",
+        "DASHBOARD": "Dashboard",
+        "PROFILE": "Profile",
+        "SETTINGS": "Settings",
+        "BACK_TO_DASHBOARD": "Back to Dashboard",
+        "VIEW_ALL": "View All",
+        "MANAGE_ALL": "Manage All",
+        "VIEW_ALL_SESSIONS": "View All Sessions",
+        "LOADING": "Consulting the class scrolls...",
+        "VIRTUAL": "Virtual"
+    },
+    "AUTH": {
+        "EMAIL": "Email Address",
+        "EMAIL_PLACEHOLDER": "your@email.com",
+        "PASSWORD": "Password",
+        "SIGN_IN": "Unlock Platform",
+        "SIGNING_IN": "Signing in...",
+        "SUBTITLE": "Elevate Your Potential",
+        "NEW_MEMBER": "New to the Class?",
+        "JOIN_LINK": "Inquire for Membership"
+    },
+    "NAV": {
+        "DASHBOARD": "Dashboard",
+        "MENTORS": "Mentors",
+        "STUDENTS": "Students",
+        "MY_GUILDS": "Classes",
+        "MY_QUESTS": "My Quests",
+        "MEETINGS": "Meetings",
+        "EVENTS": "Events",
+        "ORGANIZATION": "Organization",
+        "SOURCES": "Resources",
+        "ROOMS": "Rooms",
+        "GOAL_LIBRARY": "Goal Library"
+    },
+    "DASHBOARD": {
+        "WELCOME_TITLE": "Welcome, Master",
+        "CREATE_GUILD": "+ Create Class",
+        "STATS": {
+            "ACTIVE_QUESTS": "Active Quests",
+            "TOTAL_SCHOLARS": "Total Students",
+            "GUILD_SCHOLARS": "Class Students",
+            "TOTAL_MENTORS": "Total Mentors",
+            "MEETINGS": "Meetings"
+        },
+        "SECTIONS": {
+            "ACTIVE_QUESTS": "Active Quests",
+            "ALL_GUILDS": "All Classes",
+            "MY_GUILDS": "Classes",
+            "RECENT_SESSIONS": "Recent Sessions",
+            "UPCOMING_EVENTS": "Guild Activities"
+        },
+        "QUEST": {
+            "TAG": "Quest",
+            "TASKS": "Tasks",
+            "MASTERY": "Mastery"
+        },
+        "EMPTY": {
+            "NO_QUESTS": "No active quests found. Check back later for new trials!",
+            "NO_SESSIONS": "No upcoming sessions scheduled."
+        }
+    },
+    "CLASS_DETAIL": {
+        "ENROLL_MEMBER": "Enroll New Member",
+        "ENROLL_SUBTITLE": "Select a student from the system to join this class",
+        "STAGING_TITLE": "Review Pending Enrollments",
+        "SAVE_CHANGES": "Confirm & Save Changes",
+        "SAVING": "Saving...",
+        "SELECT": "+ Select",
+        "ENROLL_BTN": "Enroll Student"
+    }
+}

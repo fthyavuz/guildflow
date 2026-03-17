@@ -1,7 +1,6 @@
-.page-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+.page-header {
+    width: 100%;
+    margin-bottom: 3.5rem;
 }
 
 .meeting-layout {
@@ -9,6 +8,7 @@
     grid-template-columns: 1fr 350px;
     gap: 3rem;
     margin-top: 2rem;
+    width: 100%;
 }
 
 .section-title {

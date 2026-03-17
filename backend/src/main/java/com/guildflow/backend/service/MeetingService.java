@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class MeetingService {
 
     private final MeetingRepository meetingRepository;
@@ -105,7 +106,7 @@ public class MeetingService {
                             .collect(Collectors.toList()))
                     .orElse(new ArrayList<>());
         } else if (user.getRole() == Role.ADMIN) {
-            return meetingRepository.findAll().stream()
+            return meetingRepository.findAllByOrderByStartTimeDesc().stream()
                     .map(MeetingResponse::fromEntity)
                     .collect(Collectors.toList());
         }

@@ -15,5 +15,7 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Long
 
     List<ClassStudent> findByMentorClassAndActiveTrue(MentorClass mentorClass);
 
+    Optional<ClassStudent> findByMentorClassAndStudent(MentorClass mentorClass, User student);
+
     boolean existsByMentorClassAndStudentAndActiveTrue(MentorClass mentorClass, User student);
 }

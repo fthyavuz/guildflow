@@ -18,6 +18,7 @@ public class TaskResponse {
     private TaskType taskType;
     private Double targetValue;
     private Integer sortOrder;
+    private SourceResponse source;
 
     public static TaskResponse fromEntity(GoalTask task) {
         return TaskResponse.builder()
@@ -27,6 +28,7 @@ public class TaskResponse {
                 .taskType(task.getTaskType())
                 .targetValue(task.getTargetValue())
                 .sortOrder(task.getSortOrder())
+                .source(SourceResponse.fromEntity(task.getSource()))
                 .build();
     }
 }

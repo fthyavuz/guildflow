@@ -4,11 +4,13 @@ import { GoalService } from '../../core/services/goal.service';
 import { GoalProgress, TaskProgress } from '../../core/models/student.model';
 import { Observable, shareReplay } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-goal-tracking',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, TranslateModule, RouterModule],
     templateUrl: './goal-tracking.component.html',
     styleUrl: './goal-tracking.component.css'
 })

@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
+@Transactional
 public class GoalService {
 
         private final GoalTypeRepository goalTypeRepository;
@@ -25,8 +27,9 @@ public class GoalService {
         private final MentorClassRepository classRepository;
         private final UserRepository userRepository;
         private final ClassStudentRepository classStudentRepository;
+        private final SourceRepository sourceRepository;
 
-        // --- Goal Types (Admin only managed via Controller) ---
+        // --- Goal Types ---
 
         public List<GoalTypeResponse> getAllGoalTypes() {
                 return goalTypeRepository.findByActiveTrue().stream()
@@ -43,21 +46,24 @@ public class GoalService {
                 return GoalTypeResponse.fromEntity(goalTypeRepository.save(type));
         }
 
-        // --- Goals (Mentor) ---
-
         @Transactional
-        public GoalResponse createGoal(GoalRequest request, User mentor) {
-                MentorClass mentorClass = classRepository.findById(request.getClassId())
-                                .orElseThrow(() -> new RuntimeException("Class not found"));
-
-                if (mentor == null || mentor.getRole() == null) {
-                        throw new RuntimeException("Access denied: Invalid mentor state");
+        public GoalResponse createGoal(GoalRequest request, User creator) {
+                if (creator == null || creator.getRole() == null) {
+                        throw new RuntimeException("Access denied: Invalid user state");
                 }
 
-                User classMentor = mentorClass.getMentor();
-                if (classMentor == null
-                                || (mentor.getRole() != Role.ADMIN && !classMentor.getId().equals(mentor.getId()))) {
-                        throw new RuntimeException("Access denied: You are not the mentor of this class");
+                MentorClass mentorClass = null;
+                if (!request.isTemplate()) {
+                        if (request.getClassId() == null) {
+                                throw new RuntimeException("Class ID is required for non-template goals");
+                        }
+                        mentorClass = classRepository.findById(request.getClassId())
+                                        .orElseThrow(() -> new RuntimeException("Class not found"));
+
+                        User classMentor = mentorClass.getMentor();
+                        if (creator.getRole() != Role.ADMIN && (classMentor == null || !classMentor.getId().equals(creator.getId()))) {
+                                throw new RuntimeException("Access denied: You are not the mentor of this class");
+                        }
                 }
 
                 GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
@@ -69,8 +75,10 @@ public class GoalService {
                                 .mentorClass(mentorClass)
                                 .goalType(goalType)
                                 .applyToAll(request.isApplyToAll())
+                                .isTemplate(request.isTemplate())
                                 .startDate(request.getStartDate())
                                 .endDate(request.getEndDate())
+                                .createdBy(creator)
                                 .build();
 
                 // Save goal first to get ID
@@ -78,21 +86,29 @@ public class GoalService {
 
                 // Add Tasks
                 List<GoalTask> tasks = request.getTasks().stream()
-                                .map(tr -> GoalTask.builder()
-                                                .goal(savedGoal)
-                                                .title(tr.getTitle())
-                                                .description(tr.getDescription())
-                                                .taskType(tr.getTaskType())
-                                                .targetValue(tr.getTargetValue())
-                                                .sortOrder(tr.getSortOrder() != null ? tr.getSortOrder() : 0)
-                                                .build())
+                                .map(tr -> {
+                                        Source source = null;
+                                        if (tr.getSourceId() != null) {
+                                                source = sourceRepository.findById(tr.getSourceId())
+                                                                .orElse(null);
+                                        }
+                                        return GoalTask.builder()
+                                                        .goal(savedGoal)
+                                                        .title(tr.getTitle())
+                                                        .description(tr.getDescription())
+                                                        .taskType(tr.getTaskType())
+                                                        .targetValue(tr.getTargetValue())
+                                                        .sortOrder(tr.getSortOrder() != null ? tr.getSortOrder() : 0)
+                                                        .source(source)
+                                                        .build();
+                                })
                                 .collect(Collectors.toList());
 
                 goalTaskRepository.saveAll(tasks);
                 savedGoal.setTasks(tasks);
 
-                // Map Students if not applyToAll
-                if (!request.isApplyToAll() && request.getStudentIds() != null) {
+                // Map Students if not applyToAll and not a template
+                if (!request.isTemplate() && !request.isApplyToAll() && request.getStudentIds() != null) {
                         List<GoalStudent> studentMappings = request.getStudentIds().stream()
                                         .map(sid -> {
                                                 User student = userRepository.findById(sid)
@@ -107,6 +123,68 @@ public class GoalService {
                 return GoalResponse.fromEntity(savedGoal);
         }
 
+        @Transactional
+        public GoalResponse updateGoal(Long id, GoalRequest request, User user) {
+                Goal goal = goalRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+                // Only Admin or creator can update
+                if (user.getRole() != Role.ADMIN && !goal.getCreatedBy().getId().equals(user.getId())) {
+                        throw new RuntimeException("Access denied: You cannot update this goal");
+                }
+
+                GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
+                                .orElseThrow(() -> new RuntimeException("Goal type not found"));
+
+                goal.setTitle(request.getTitle());
+                goal.setDescription(request.getDescription());
+                goal.setGoalType(goalType);
+                goal.setApplyToAll(request.isApplyToAll());
+                goal.setStartDate(request.getStartDate());
+                goal.setEndDate(request.getEndDate());
+
+                // Update tasks: Clear and add new ones (simpler for now)
+                goal.getTasks().clear();
+                List<GoalTask> newTasks = request.getTasks().stream()
+                                .map(tr -> {
+                                        Source source = null;
+                                        if (tr.getSourceId() != null) {
+                                                source = sourceRepository.findById(tr.getSourceId())
+                                                                .orElse(null);
+                                        }
+                                        return GoalTask.builder()
+                                                        .goal(goal)
+                                                        .title(tr.getTitle())
+                                                        .description(tr.getDescription())
+                                                        .taskType(tr.getTaskType())
+                                                        .targetValue(tr.getTargetValue())
+                                                        .sortOrder(tr.getSortOrder() != null ? tr.getSortOrder() : 0)
+                                                        .source(source)
+                                                        .build();
+                                })
+                                .collect(Collectors.toList());
+
+                goal.getTasks().addAll(newTasks);
+
+                // Update student mappings if not template
+                if (!goal.getIsTemplate()) {
+                        goalStudentRepository.deleteByGoal(goal);
+                        if (!request.isApplyToAll() && request.getStudentIds() != null) {
+                                List<GoalStudent> studentMappings = request.getStudentIds().stream()
+                                                .map(sid -> {
+                                                        User student = userRepository.findById(sid)
+                                                                        .orElseThrow(() -> new RuntimeException(
+                                                                                        "Student not found: " + sid));
+                                                        return GoalStudent.builder().goal(goal).student(student).build();
+                                                })
+                                                .collect(Collectors.toList());
+                                goalStudentRepository.saveAll(studentMappings);
+                        }
+                }
+
+                return GoalResponse.fromEntity(goalRepository.save(goal));
+        }
+
         public List<GoalResponse> getGoalsForClass(Long classId, User user) {
                 MentorClass mentorClass = classRepository.findById(classId)
                                 .orElseThrow(() -> new RuntimeException("Class not found"));
@@ -114,6 +192,18 @@ public class GoalService {
                 return goalRepository.findByMentorClassAndActiveTrue(mentorClass).stream()
                                 .map(GoalResponse::fromEntity)
                                 .collect(Collectors.toList());
+        }
+
+        public List<GoalResponse> getTemplates() {
+                return goalRepository.findByIsTemplateTrueAndActiveTrue().stream()
+                                .map(GoalResponse::fromEntity)
+                                .collect(Collectors.toList());
+        }
+
+        public GoalResponse getGoalById(Long id) {
+                return goalRepository.findById(id)
+                                .map(GoalResponse::fromEntity)
+                                .orElseThrow(() -> new RuntimeException("Goal not found"));
         }
 
         // --- Student View ---
@@ -243,5 +333,81 @@ public class GoalService {
                 review.setComment(request.getComment());
 
                 reviewRepository.save(review);
+        }
+
+        @Transactional
+        public void deleteGoal(Long id, User user) {
+                Goal goal = goalRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Goal not found"));
+
+                // Only Admin or the creator can delete templates
+                if (user.getRole() != Role.ADMIN && !goal.getCreatedBy().getId().equals(user.getId())) {
+                        throw new RuntimeException("Access denied: You cannot delete this goal");
+                }
+
+                // If it's a template, we can hard delete or deactivate
+                // For simplicity and safety, let's just deactivate
+                goal.setActive(false);
+                goalRepository.save(goal);
+        }
+
+        @Transactional
+        public GoalResponse assignGoalTemplate(GoalAssignmentRequest request, User creator) {
+                Goal template = goalRepository.findById(request.getGoalId())
+                                .orElseThrow(() -> new RuntimeException("Template not found"));
+
+                if (!template.getIsTemplate()) {
+                        throw new RuntimeException("Selected goal is not a template");
+                }
+
+                MentorClass mentorClass = null;
+                if (request.getClassId() != null) {
+                        mentorClass = classRepository.findById(request.getClassId())
+                                        .orElseThrow(() -> new RuntimeException("Class not found"));
+                }
+
+                Goal newGoal = Goal.builder()
+                                .title(template.getTitle())
+                                .description(template.getDescription())
+                                .mentorClass(mentorClass)
+                                .goalType(template.getGoalType())
+                                .applyToAll(request.isApplyToAll())
+                                .isTemplate(false)
+                                .startDate(request.getStartDate())
+                                .endDate(request.getEndDate())
+                                .createdBy(creator)
+                                .build();
+
+                Goal savedGoal = goalRepository.save(newGoal);
+
+                // Clone tasks
+                List<GoalTask> clonedTasks = template.getTasks().stream()
+                                .map(t -> GoalTask.builder()
+                                                .goal(savedGoal)
+                                                .title(t.getTitle())
+                                                .description(t.getDescription())
+                                                .taskType(t.getTaskType())
+                                                .targetValue(t.getTargetValue())
+                                                .sortOrder(t.getSortOrder())
+                                                .source(t.getSource())
+                                                .build())
+                                .collect(Collectors.toList());
+
+                goalTaskRepository.saveAll(clonedTasks);
+                savedGoal.setTasks(clonedTasks);
+
+                // Assign to students if not applyToAll
+                if (!request.isApplyToAll() && request.getStudentIds() != null) {
+                        List<GoalStudent> studentMappings = request.getStudentIds().stream()
+                                        .map(sid -> {
+                                                User student = userRepository.findById(sid)
+                                                                .orElseThrow(() -> new RuntimeException("Student not found: " + sid));
+                                                return GoalStudent.builder().goal(savedGoal).student(student).build();
+                                        })
+                                        .collect(Collectors.toList());
+                        goalStudentRepository.saveAll(studentMappings);
+                }
+
+                return GoalResponse.fromEntity(savedGoal);
         }
 }
