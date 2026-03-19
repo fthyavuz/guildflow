@@ -25,10 +25,10 @@
 - [x] **Externalize CORS allowed origin** — `http://localhost:4200` is hardcoded. Read it from a property (`app.cors.allowed-origins`) so it can be set per environment.
   - `backend/src/main/java/.../security/SecurityConfig.java:77`
 
-- [ ] **Fix JWT auth filter null-safety** — if a valid JWT references a deleted user, `userRepository.findByEmail().orElse(null)` returns `null` and authentication silently proceeds with no principal. Use `.orElseThrow()` or explicitly clear the security context.
+- [x] **Fix JWT auth filter null-safety** — if a valid JWT references a deleted user, `userRepository.findByEmail().orElse(null)` returns `null` and authentication silently proceeds with no principal. Use `.orElseThrow()` or explicitly clear the security context.
   - `backend/src/main/java/.../security/JwtAuthenticationFilter.java:40-44`
 
-- [ ] **Add token refresh mutex in the Angular interceptor** — when multiple requests simultaneously receive 401, each independently calls `refreshToken()`, causing N parallel refresh attempts and token rotation desync. Implement a shared refresh observable with `BehaviorSubject` + `switchMap`.
+- [x] **Add token refresh mutex in the Angular interceptor** — when multiple requests simultaneously receive 401, each independently calls `refreshToken()`, causing N parallel refresh attempts and token rotation desync. Implement a shared refresh observable with `BehaviorSubject` + `switchMap`.
   - `frontend/src/app/core/interceptors/auth.interceptor.ts:24-53`
 
 ### Bugs
@@ -187,7 +187,7 @@
 
 | Priority | Total | Done |
 |---|---|---|
-| 🔴 High | 19 | 5 |
+| 🔴 High | 19 | 7 |
 | 🟡 Medium | 18 | 1 |
 | 🟢 Low | 13 | 1 |
-| **Total** | **50** | **7** |
+| **Total** | **50** | **9** |

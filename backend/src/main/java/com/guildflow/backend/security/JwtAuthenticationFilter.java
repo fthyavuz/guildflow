@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -40,19 +41,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email = jwtTokenProvider.getEmailFromToken(jwt);
                 log.debug("Email from token: {}", email);
 
-                UserDetails userDetails = userRepository.findByEmail(email)
-                        .orElse(null);
+                Optional<UserDetails> userOpt = userRepository.findByEmail(email)
+                        .map(u -> (UserDetails) u);
 
-                if (userDetails != null) {
-                    log.info("🔐 Authenticated user: {} with authorities: {}", email, userDetails.getAuthorities());
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } else {
-                    log.debug("User NOT found in DB: {}", email);
+                if (userOpt.isEmpty()) {
+                    // Valid JWT but the account no longer exists — reject immediately.
+                    log.warn("Valid JWT presented for non-existent account: {}", email);
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Account not found");
+                    return;
                 }
+
+                UserDetails userDetails = userOpt.get();
+                log.debug("Authenticated user: {} with authorities: {}", email, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, shareReplay, tap, throwError } from 'rxjs';
 import { AuthResponse, User } from '../models/auth.model';
 import { Router } from '@angular/router';
 
@@ -14,6 +14,10 @@ export class AuthService {
 
     private currentUserSubject = new BehaviorSubject<User | null>(this.getStoredUser());
     public currentUser$ = this.currentUserSubject.asObservable();
+
+    // Mutex: shared in-flight refresh observable. All concurrent 401s subscribe to
+    // the same observable so only one HTTP call is made. Cleared on completion/error.
+    private refreshInProgress$: Observable<string> | null = null;
 
     login(credentials: { email: string; password: string }): Observable<AuthResponse> {
         return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
@@ -66,5 +70,25 @@ export class AuthService {
         return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
             tap((response: AuthResponse) => this.handleAuthSuccess(response))
         );
+    }
+
+    /**
+     * Returns an Observable of the new access token, ensuring only one refresh
+     * HTTP call is in flight at a time. Concurrent callers share the same observable
+     * via shareReplay(1) and all receive the new token (or the same error) together.
+     */
+    handleTokenRefresh(): Observable<string> {
+        if (!this.refreshInProgress$) {
+            this.refreshInProgress$ = this.refreshToken().pipe(
+                map(response => response.accessToken),
+                tap(() => { this.refreshInProgress$ = null; }),
+                catchError(err => {
+                    this.refreshInProgress$ = null;
+                    return throwError(() => err);
+                }),
+                shareReplay(1)
+            );
+        }
+        return this.refreshInProgress$;
     }
 }

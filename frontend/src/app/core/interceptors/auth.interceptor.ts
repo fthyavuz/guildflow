@@ -23,31 +23,30 @@ export const authInterceptor: HttpInterceptorFn = (
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-            // If 401 and not login/refresh, try to refresh token
+            // If 401 on a non-refresh request, attempt a token refresh (with mutex)
             if (error.status === 401 && !req.url.includes('/auth/refresh')) {
-                return authService.refreshToken().pipe(
-                    switchMap((response: any) => {
+                return authService.handleTokenRefresh().pipe(
+                    switchMap((newToken: string) => {
                         const newReq = req.clone({
-                            setHeaders: {
-                                Authorization: `Bearer ${response.accessToken}`
-                            }
+                            setHeaders: { Authorization: `Bearer ${newToken}` }
                         });
                         return next(newReq);
                     }),
                     catchError((err: any) => {
+                        // Refresh itself failed — session is unrecoverable
                         authService.logout();
                         router.navigate(['/login']);
                         return throwError(() => err);
                     })
                 );
             }
-            
-            // If any other 401, just logout and redirect
+
+            // 401 on the refresh endpoint itself — session expired, force logout
             if (error.status === 401) {
                 authService.logout();
                 router.navigate(['/login']);
             }
-            
+
             return throwError(() => error);
         })
     );
