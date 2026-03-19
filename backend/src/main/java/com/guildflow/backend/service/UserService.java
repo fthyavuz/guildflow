@@ -154,6 +154,21 @@ public class UserService {
     }
 
     /**
+     * Change the authenticated user's password after verifying the current one.
+     */
+    @Transactional
+    public void changePassword(User user, ChangePasswordRequest request) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("New password must be different from the current password");
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    /**
      * Soft-delete a user by setting active = false.
      */
     @Transactional

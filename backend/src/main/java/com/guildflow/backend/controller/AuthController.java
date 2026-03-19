@@ -1,6 +1,7 @@
 package com.guildflow.backend.controller;
 
 import com.guildflow.backend.dto.AuthResponse;
+import com.guildflow.backend.dto.ChangePasswordRequest;
 import com.guildflow.backend.dto.LoginRequest;
 import com.guildflow.backend.dto.UserResponse;
 import com.guildflow.backend.model.User;
@@ -42,10 +43,10 @@ public class AuthController {
     }
 
     @PutMapping("/password")
-    public ResponseEntity<Map<String, String>> changePassword(
+    public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal User user,
-            @RequestBody Map<String, String> request) {
-        // TODO: Implement password change with old password verification
-        return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
+            @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changePassword(user, request);
+        return ResponseEntity.noContent().build();
     }
 }

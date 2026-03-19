@@ -281,3 +281,15 @@ ng serve
 | `frontend/src/app/core/services/auth.service.ts` | Auth state, login/logout, token refresh |
 | `frontend/src/app/core/interceptors/auth.interceptor.ts` | Auto-attach JWT; 401 → refresh flow |
 | `docker-compose.yml` | PostgreSQL 16-alpine container config |
+
+---
+
+## Task Tracking
+
+All tasks are tracked in [`TODO.md`](./TODO.md) at the project root.
+
+**Rules:**
+- Check `TODO.md` at the start of every session to understand current priorities.
+- Mark tasks as done with `[x]` when completed — never delete completed tasks.
+- Add any newly discovered tasks to `TODO.md` in the appropriate priority section.
+- Update the progress summary table at the bottom of `TODO.md` when tasks are completed.
