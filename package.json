@@ -1,0 +1,12 @@
+{
+  "name": "guildflow",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bash scripts/dev.sh",
+    "stop": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
