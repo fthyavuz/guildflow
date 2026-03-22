@@ -242,13 +242,14 @@
 }
 
 .glass-input-sm {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 0.75rem 1.25rem;
-    color: white;
+    color: var(--text-primary);
     width: 350px;
     font-size: 0.9rem;
+    font-family: inherit;
     transition: all 0.3s ease;
 }
 
@@ -287,7 +288,7 @@
 }
 
 .pending-pill {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     padding: 0.5rem 1rem;
     border-radius: 100px;
@@ -295,13 +296,13 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.85rem;
-    color: white;
+    color: var(--text-primary);
 }
 
 .remove-pill {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     font-size: 1.2rem;
     cursor: pointer;
     line-height: 1;

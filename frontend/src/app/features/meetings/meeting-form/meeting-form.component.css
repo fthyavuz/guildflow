@@ -3,21 +3,6 @@
     width: 100%;
 }
 
-.back-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.back-link:hover {
-    color: var(--primary-color);
-    transform: translateX(-5px);
-}
-
 .form-hero {
     text-align: center;
     margin-bottom: 3rem;
@@ -30,7 +15,7 @@
 }
 
 .form-hero p {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     font-size: 1.1rem;
 }
 
@@ -64,35 +49,42 @@
 .input-group label {
     font-size: 0.9rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     margin-left: 0.5rem;
 }
 
 /* Glass Inputs */
 .glass-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 0.8rem 1rem;
-    color: white;
+    color: var(--text-primary);
     font-size: 1rem;
+    font-family: inherit;
     transition: all 0.2s ease;
+    width: 100%;
 }
 
 .glass-input:focus {
     outline: none;
-    border-color: var(--primary-color);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
 }
 
 select.glass-input {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 1.2em;
     padding-right: 3rem;
+    cursor: pointer;
+}
+
+select.glass-input option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 /* Checkbox Toggle */
@@ -106,7 +98,7 @@ select.glass-input {
     gap: 1rem;
     cursor: pointer;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-primary);
     user-select: none;
 }
 
@@ -117,7 +109,7 @@ select.glass-input {
 .checkmark {
     width: 44px;
     height: 24px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-border);
     border-radius: 20px;
     position: relative;
     transition: all 0.3s ease;
@@ -136,7 +128,7 @@ select.glass-input {
 }
 
 input:checked+.checkmark {
-    background: var(--primary-color);
+    background: var(--accent-purple);
 }
 
 input:checked+.checkmark::after {
@@ -148,7 +140,7 @@ input:checked+.checkmark::after {
     justify-content: flex-end;
     margin-top: 1rem;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--glass-border);
 }
 
 .btn-primary {

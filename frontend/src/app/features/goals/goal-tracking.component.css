@@ -48,7 +48,7 @@
 
 .progress-bar-container {
     height: 10px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--glass-border);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -70,9 +70,9 @@
     align-items: center;
     gap: 1.5rem;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--glass-bg);
     border-radius: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
 }
 
 .task-info {
@@ -88,17 +88,17 @@
 
 .task-name {
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
 }
 
 .task-values {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-muted);
     font-family: 'JetBrains Mono', monospace;
 }
 
 .task-pb-mini {
     height: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-border);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -114,7 +114,7 @@
     border-radius: 12px;
     background: rgba(99, 102, 241, 0.1);
     border: 1px solid rgba(99, 102, 241, 0.2);
-    color: var(--primary-color);
+    color: var(--accent-purple);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -123,7 +123,7 @@
 }
 
 .btn-complete:hover {
-    background: var(--primary-color);
+    background: var(--accent-purple);
     color: white;
     transform: scale(1.1);
 }
@@ -154,7 +154,7 @@
     max-width: 450px;
     padding: 2.5rem;
     border-radius: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
 }
 
@@ -168,15 +168,16 @@
 .close-btn {
     background: transparent;
     border: none;
-    color: white;
+    color: var(--text-secondary);
     font-size: 2rem;
     cursor: pointer;
     line-height: 1;
-    opacity: 0.5;
+    opacity: 0.7;
 }
 
 .close-btn:hover {
     opacity: 1;
+    color: var(--text-primary);
 }
 
 .input-area {
@@ -186,18 +187,25 @@
 .input-area label {
     display: block;
     margin-bottom: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
 }
 
 .glass-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
-    color: white;
+    color: var(--text-primary);
     font-size: 1.25rem;
     text-align: center;
+    font-family: inherit;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
 }
 
 .modal-footer {
@@ -210,9 +218,13 @@
 .btn-cancel {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
     cursor: pointer;
     font-weight: 500;
+}
+
+.btn-cancel:hover {
+    color: var(--text-primary);
 }
 
 @media (max-width: 600px) {
