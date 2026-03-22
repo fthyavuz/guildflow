@@ -30,7 +30,7 @@
 }
 
 .class-card {
-    height: 300px;
+    min-height: 280px;
     display: flex;
     flex-direction: column;
     padding: 2.5rem;
@@ -104,6 +104,11 @@
 .instructor {
     font-size: 0.8125rem;
     color: var(--text-muted);
+}
+
+.instructor.unassigned {
+    color: var(--accent-gold);
+    font-style: italic;
 }
 
 .footer-left {

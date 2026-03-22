@@ -44,12 +44,18 @@
 
             <div class="card-footer">
                 <div class="footer-left">
-                    <span class="instructor">Instructor: {{ cls.mentorName }}</span>
+                    <span class="instructor" *ngIf="cls.mentorName; else noInstructor">
+                        Instructor: {{ cls.mentorName }}
+                    </span>
+                    <ng-template #noInstructor>
+                        <span class="instructor unassigned">No instructor assigned</span>
+                    </ng-template>
                 </div>
                 <div class="footer-actions">
                     <button class="icon-btn edit-btn"
                         *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.id === cls.mentorId"
-                        [routerLink]="['/classes/edit', cls.id]">
+                        [routerLink]="['/classes/edit', cls.id]"
+                        title="Edit class">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
