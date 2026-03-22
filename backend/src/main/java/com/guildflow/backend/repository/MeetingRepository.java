@@ -4,6 +4,8 @@ import com.guildflow.backend.model.Meeting;
 import com.guildflow.backend.model.MentorClass;
 import com.guildflow.backend.model.User;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,4 +25,10 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     List<Meeting> findByRecurrenceGroupId(String recurrenceGroupId);
 
     List<Meeting> findAllByOrderByStartTimeDesc();
+
+    Page<Meeting> findByMentorClassOrderByStartTimeDesc(MentorClass mentorClass, Pageable pageable);
+
+    Page<Meeting> findByMentorClassMentorOrderByStartTimeDesc(User mentor, Pageable pageable);
+
+    Page<Meeting> findAllByOrderByStartTimeDesc(Pageable pageable);
 }

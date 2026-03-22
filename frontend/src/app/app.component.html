@@ -1,1 +1,10 @@
 <router-outlet></router-outlet>
+
+<div class="notification-container" aria-live="polite">
+  @for (notification of notifications$ | async; track notification.id) {
+    <div class="notification" [class]="'notification--' + notification.type" role="alert">
+      <span class="notification__message">{{ notification.message }}</span>
+      <button class="notification__close" (click)="dismiss(notification.id)" aria-label="Dismiss">&times;</button>
+    </div>
+  }
+</div>

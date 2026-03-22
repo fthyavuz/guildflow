@@ -5,7 +5,9 @@ import com.guildflow.backend.dto.GoalProgressResponse;
 import com.guildflow.backend.dto.GoalRequest;
 import com.guildflow.backend.dto.GoalResponse;
 import com.guildflow.backend.model.User;
+import com.guildflow.backend.service.GoalProgressService;
 import com.guildflow.backend.service.GoalService;
+import com.guildflow.backend.service.GoalTemplateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
 
@@ -22,11 +28,13 @@ import java.util.List;
 public class GoalController {
 
     private final GoalService goalService;
+    private final GoalTemplateService goalTemplateService;
+    private final GoalProgressService goalProgressService;
 
     @GetMapping("/templates")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<List<GoalResponse>> getTemplates() {
-        return ResponseEntity.ok(goalService.getTemplates());
+    public ResponseEntity<Page<GoalResponse>> getTemplates(@PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(goalTemplateService.getTemplates(pageable));
     }
 
     @GetMapping("/{id}")
@@ -54,16 +62,17 @@ public class GoalController {
 
     @GetMapping("/class/{classId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
-    public ResponseEntity<List<GoalResponse>> getGoalsForClass(
+    public ResponseEntity<Page<GoalResponse>> getGoalsForClass(
             @PathVariable Long classId,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(goalService.getGoalsForClass(classId, user));
+            @AuthenticationPrincipal User user,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(goalService.getGoalsForClass(classId, user, pageable));
     }
 
     @GetMapping("/my-goals")
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<List<GoalProgressResponse>> getMyGoals(@AuthenticationPrincipal User student) {
-        return ResponseEntity.ok(goalService.getStudentGoalsWithProgress(student));
+        return ResponseEntity.ok(goalProgressService.getStudentGoalsWithProgress(student));
     }
 
     @PostMapping("/assign-template")
@@ -71,7 +80,7 @@ public class GoalController {
     public ResponseEntity<GoalResponse> assignTemplate(
             @Valid @RequestBody GoalAssignmentRequest request,
             @AuthenticationPrincipal User mentor) {
-        return ResponseEntity.ok(goalService.assignGoalTemplate(request, mentor));
+        return ResponseEntity.ok(goalTemplateService.assignGoalTemplate(request, mentor));
     }
 
     @DeleteMapping("/{id}")

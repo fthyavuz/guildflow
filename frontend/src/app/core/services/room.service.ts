@@ -1,7 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Room, RoomBooking, RoomRequest, RoomBookingRequest } from '../models/room.model';
+import { PagedResponse } from '../models/page.model';
+import { environment } from '../../../environments/environment';
 import { format } from 'date-fns';
 
 @Injectable({
@@ -9,10 +12,11 @@ import { format } from 'date-fns';
 })
 export class RoomService {
     private http = inject(HttpClient);
-    private readonly apiUrl = 'http://localhost:8080/api/rooms';
+    private readonly apiUrl = `${environment.apiBaseUrl}/rooms`;
 
     getAllRooms(): Observable<Room[]> {
-        return this.http.get<Room[]>(this.apiUrl);
+        return this.http.get<PagedResponse<Room>>(this.apiUrl)
+            .pipe(map(res => res.content));
     }
 
     getRoomById(id: number): Observable<Room> {

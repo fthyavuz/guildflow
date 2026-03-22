@@ -4,7 +4,9 @@
       "Bash(find C:/Develop/guildflow -maxdepth 3 -type f -name package.json -o -name pom.xml -o -name tsconfig.json -o -name .env*)",
       "Bash(xargs wc:*)",
       "Bash(xargs head:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(mvn compile:*)",
+      "Bash(npx ng:*)"
     ]
   }
 }

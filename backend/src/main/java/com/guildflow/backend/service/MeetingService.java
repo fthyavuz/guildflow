@@ -4,6 +4,10 @@ import com.guildflow.backend.dto.AttendanceRequest;
 import com.guildflow.backend.dto.AttendanceResponse;
 import com.guildflow.backend.dto.MeetingRequest;
 import com.guildflow.backend.dto.MeetingResponse;
+import com.guildflow.backend.exception.EntityNotFoundException;
+import com.guildflow.backend.exception.ForbiddenException;
+import com.guildflow.backend.exception.ValidationException;
+import com.guildflow.backend.util.SecurityUtils;
 import com.guildflow.backend.model.Attendance;
 import com.guildflow.backend.model.Meeting;
 import com.guildflow.backend.model.MentorClass;
@@ -17,6 +21,9 @@ import com.guildflow.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,27 +40,21 @@ public class MeetingService {
     private final MentorClassRepository classRepository;
     private final UserRepository userRepository;
     private final ClassStudentRepository classStudentRepository;
+    private final SecurityUtils securityUtils;
 
     @Transactional
     public List<MeetingResponse> createMeeting(MeetingRequest request, User currentUser) {
         MentorClass mentorClass = classRepository.findById(request.getClassId())
-                .orElseThrow(() -> new RuntimeException("Class not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
 
-        if (currentUser == null || currentUser.getRole() == null) {
-            throw new RuntimeException("Access denied: Invalid user state");
-        }
-
-        User mentor = mentorClass.getMentor();
-        if (mentor == null || (currentUser.getRole() != Role.ADMIN && !mentor.getId().equals(currentUser.getId()))) {
-            throw new RuntimeException("Access denied");
-        }
+        securityUtils.validateUserState(currentUser);
+        securityUtils.requireAdminOrOwner(currentUser, mentorClass.getMentor(), "Access denied");
 
         List<Meeting> meetingsToSave = new ArrayList<>();
 
         if (request.isRecurring()) {
             String recurrenceId = UUID.randomUUID().toString();
-            // Create weekly meetings for 3 months (approx 13 weeks)
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < request.getRecurrenceCount(); i++) {
                 meetingsToSave.add(Meeting.builder()
                         .mentorClass(mentorClass)
                         .title(request.getTitle())
@@ -82,53 +83,45 @@ public class MeetingService {
                 .collect(Collectors.toList());
     }
 
-    public List<MeetingResponse> getMeetingsForClass(Long classId, User user) {
+    public Page<MeetingResponse> getMeetingsForClass(Long classId, User user, Pageable pageable) {
         MentorClass mentorClass = classRepository.findById(classId)
-                .orElseThrow(() -> new RuntimeException("Class not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Class not found"));
 
-        return meetingRepository.findByMentorClassOrderByStartTimeDesc(mentorClass).stream()
-                .map(MeetingResponse::fromEntity)
-                .collect(Collectors.toList());
+        return meetingRepository.findByMentorClassOrderByStartTimeDesc(mentorClass, pageable)
+                .map(MeetingResponse::fromEntity);
     }
 
-    public List<MeetingResponse> getMyMeetings(User user) {
+    public Page<MeetingResponse> getMyMeetings(User user, Pageable pageable) {
         if (user.getRole() == Role.MENTOR) {
-            // Mentor sees meetings for all classes they lead
-            return meetingRepository.findByMentorClassMentorOrderByStartTimeDesc(user).stream()
-                    .map(MeetingResponse::fromEntity)
-                    .collect(Collectors.toList());
+            return meetingRepository.findByMentorClassMentorOrderByStartTimeDesc(user, pageable)
+                    .map(MeetingResponse::fromEntity);
         } else if (user.getRole() == Role.STUDENT) {
-            // Student sees meetings for their active current class
             return classStudentRepository.findByStudentAndActiveTrue(user)
-                    .map(cs -> meetingRepository.findByMentorClassOrderByStartTimeDesc(cs.getMentorClass())
-                            .stream()
-                            .map(MeetingResponse::fromEntity)
-                            .collect(Collectors.toList()))
-                    .orElse(new ArrayList<>());
+                    .map(cs -> meetingRepository.findByMentorClassOrderByStartTimeDesc(cs.getMentorClass(), pageable)
+                            .map(MeetingResponse::fromEntity))
+                    .orElse(Page.empty(pageable));
         } else if (user.getRole() == Role.ADMIN) {
-            return meetingRepository.findAllByOrderByStartTimeDesc().stream()
-                    .map(MeetingResponse::fromEntity)
-                    .collect(Collectors.toList());
+            return meetingRepository.findAllByOrderByStartTimeDesc(pageable)
+                    .map(MeetingResponse::fromEntity);
         }
-        return new ArrayList<>();
+        return Page.empty(pageable);
     }
 
     @Transactional
     public void markAttendance(Long meetingId, List<AttendanceRequest> attendanceRequests, User currentUser) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new RuntimeException("Meeting not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Meeting not found"));
 
-        if (currentUser == null || currentUser.getRole() == null) {
-            throw new RuntimeException("Access denied: Invalid user state");
-        }
-        if (currentUser.getRole() != Role.ADMIN
-                && !meeting.getMentorClass().getMentor().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("Access denied");
-        }
+        securityUtils.validateUserState(currentUser);
+        securityUtils.requireAdminOrOwner(currentUser, meeting.getMentorClass().getMentor(), "Access denied");
 
         for (AttendanceRequest ar : attendanceRequests) {
             User student = userRepository.findById(ar.getStudentId())
-                    .orElseThrow(() -> new RuntimeException("Student not found: " + ar.getStudentId()));
+                    .orElseThrow(() -> new EntityNotFoundException("Student not found: " + ar.getStudentId()));
+
+            if (!classStudentRepository.existsByMentorClassAndStudentAndActiveTrue(meeting.getMentorClass(), student)) {
+                throw new ValidationException("Student " + ar.getStudentId() + " is not enrolled in this class");
+            }
 
             Attendance attendance = attendanceRepository.findByMeetingAndStudent(meeting, student)
                     .orElse(Attendance.builder()
@@ -144,15 +137,10 @@ public class MeetingService {
 
     public List<AttendanceResponse> getMeetingAttendance(Long meetingId, User currentUser) {
         Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(() -> new RuntimeException("Meeting not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Meeting not found"));
 
-        if (currentUser == null || currentUser.getRole() == null) {
-            throw new RuntimeException("Access denied: Invalid user state");
-        }
-        if (currentUser.getRole() != Role.ADMIN
-                && !meeting.getMentorClass().getMentor().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("Access denied");
-        }
+        securityUtils.validateUserState(currentUser);
+        securityUtils.requireAdminOrOwner(currentUser, meeting.getMentorClass().getMentor(), "Access denied");
 
         return attendanceRepository.findByMeeting(meeting).stream()
                 .map(AttendanceResponse::fromEntity)
@@ -161,16 +149,12 @@ public class MeetingService {
 
     public List<AttendanceResponse> getStudentAttendanceHistory(Long studentId, User currentUser) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
-        if (currentUser == null || currentUser.getRole() == null) {
-            throw new RuntimeException("Access denied: Invalid user state");
-        }
+        securityUtils.validateUserState(currentUser);
 
-        // Only Admin, the Parent of the student, or the student themselves can see this
-        // For now, only Admin and the student
         if (currentUser.getRole() != Role.ADMIN && !currentUser.getId().equals(studentId)) {
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenException("Access denied");
         }
 
         return attendanceRepository.findByStudent(student).stream()

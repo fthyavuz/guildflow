@@ -10,6 +10,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import java.util.List;
 
 @RestController
@@ -20,8 +24,8 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getUpcomingEvents() {
-        return ResponseEntity.ok(eventService.getUpcomingEvents());
+    public ResponseEntity<Page<EventResponse>> getUpcomingEvents(@PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(eventService.getUpcomingEvents(pageable));
     }
 
     @GetMapping("/{id}")

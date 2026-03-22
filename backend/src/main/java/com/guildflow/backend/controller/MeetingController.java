@@ -14,6 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import java.util.List;
 
 @RestController
@@ -33,16 +37,19 @@ public class MeetingController {
 
     @GetMapping("/my")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<MeetingResponse>> getMyMeetings(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(meetingService.getMyMeetings(user));
+    public ResponseEntity<Page<MeetingResponse>> getMyMeetings(
+            @AuthenticationPrincipal User user,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(meetingService.getMyMeetings(user, pageable));
     }
 
     @GetMapping("/class/{classId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
-    public ResponseEntity<List<MeetingResponse>> getMeetingsForClass(
+    public ResponseEntity<Page<MeetingResponse>> getMeetingsForClass(
             @PathVariable Long classId,
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(meetingService.getMeetingsForClass(classId, user));
+            @AuthenticationPrincipal User user,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(meetingService.getMeetingsForClass(classId, user, pageable));
     }
 
     @PostMapping("/{id}/attendance")

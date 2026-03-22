@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { ClassService } from '../../../core/services/class.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { UserResponse } from '../../../core/models/auth.model';
 import { Observable, of } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,6 +24,7 @@ export class ClassFormComponent implements OnInit {
     private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private notifications = inject(NotificationService);
 
     classForm: FormGroup;
     mentors$: Observable<UserResponse[]> | undefined;
@@ -71,7 +73,7 @@ export class ClassFormComponent implements OnInit {
                     mentorId: cls.mentorId
                 });
             },
-            error: (err) => console.error('Error loading class:', err)
+            error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load class'))
         });
     }
 
@@ -89,7 +91,7 @@ export class ClassFormComponent implements OnInit {
                     this.router.navigate(['/classes']);
                 },
                 error: (err) => {
-                    console.error('Error saving class:', err);
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to save class'));
                     this.isSubmitting = false;
                 }
             });

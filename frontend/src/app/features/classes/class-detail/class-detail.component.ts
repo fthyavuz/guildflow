@@ -1,12 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ClassService } from '../../../core/services/class.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { User } from '../../../core/models/auth.model';
-import { Observable, switchMap, forkJoin, map, BehaviorSubject, of, combineLatest } from 'rxjs';
+import { Observable, switchMap, forkJoin, BehaviorSubject, combineLatest } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -24,6 +26,8 @@ export class ClassDetailComponent implements OnInit {
     private classService = inject(ClassService);
     private userService = inject(UserService);
     private authService = inject(AuthService);
+    private destroyRef = inject(DestroyRef);
+    private notifications = inject(NotificationService);
 
     classId: number | null = null;
     user$ = this.authService.currentUser$;
@@ -64,37 +68,38 @@ export class ClassDetailComponent implements OnInit {
             this.classService.addStudentToClass(this.classId!, s.id)
         );
 
-        forkJoin(requests).subscribe({
+        forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
                 this.pendingEnrollments = [];
                 this.isSaving = false;
                 this.refresh$.next();
             },
             error: (err) => {
-                console.error('Error saving enrollments:', err);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'An error occurred while saving enrollments'));
                 this.isSaving = false;
-                alert('An error occurred while saving enrollments.');
             }
         });
     }
 
     addStudent(studentId: number): void {
-        // This method is now replaced by stageStudent in the UI, 
-        // but kept for backward compatibility if needed.
         if (this.classId) {
-            this.classService.addStudentToClass(this.classId, studentId).subscribe({
-                next: () => this.refresh$.next(),
-                error: (err) => console.error('Error adding student:', err)
-            });
+            this.classService.addStudentToClass(this.classId, studentId)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: () => this.refresh$.next(),
+                    error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to add student'))
+                });
         }
     }
 
     removeStudent(studentId: number): void {
         if (this.classId && confirm('Are you sure you want to remove this student from the class?')) {
-            this.classService.removeStudentFromClass(this.classId, studentId).subscribe({
-                next: () => this.refresh$.next(),
-                error: (err) => console.error('Error removing student:', err)
-            });
+            this.classService.removeStudentFromClass(this.classId, studentId)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe({
+                    next: () => this.refresh$.next(),
+                    error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to remove student'))
+                });
         }
     }
 

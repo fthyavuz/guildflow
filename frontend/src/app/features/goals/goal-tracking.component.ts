@@ -1,8 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GoalService } from '../../core/services/goal.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { GoalProgress, TaskProgress } from '../../core/models/student.model';
 import { Observable, shareReplay } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
@@ -16,6 +18,8 @@ import { RouterModule } from '@angular/router';
 })
 export class GoalTrackingComponent implements OnInit {
     private goalService = inject(GoalService);
+    private destroyRef = inject(DestroyRef);
+    private notifications = inject(NotificationService);
 
     goals$: Observable<GoalProgress[]> | undefined;
     selectedTask: TaskProgress | null = null;
@@ -44,19 +48,17 @@ export class GoalTrackingComponent implements OnInit {
         this.isSubmitting = true;
         const isNumeric = task.taskType === 'NUMBER';
 
-        // For checkbox/habit, it's a "pulse" (+1)
-        // For numbers, we could also do +1 or show dialog
         this.goalService.submitProgress(
             task.taskId,
             isNumeric ? 1 : undefined,
             !isNumeric ? true : undefined
-        ).subscribe({
+        ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
                 this.loadGoals();
                 this.isSubmitting = false;
             },
             error: (err) => {
-                console.error('Error logging progress:', err);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to log progress'));
                 this.isSubmitting = false;
             }
         });
@@ -72,14 +74,14 @@ export class GoalTrackingComponent implements OnInit {
             this.selectedTask.taskId,
             isNumeric ? (this.submissionValue || 0) : undefined,
             !isNumeric ? true : undefined
-        ).subscribe({
+        ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
                 this.loadGoals();
                 this.closeDialog();
                 this.isSubmitting = false;
             },
             error: (err) => {
-                console.error('Error submitting progress:', err);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to submit progress'));
                 this.isSubmitting = false;
             }
         });

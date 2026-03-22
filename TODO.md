@@ -33,50 +33,50 @@
 
 ### Bugs
 
-- [ ] **Fix N+1 query in `GoalService.getStudentGoalsWithProgress()`** — each task triggers 2 individual DB queries (one load + one progress fetch). For 10 goals × 3 tasks = 60+ queries per call. Use `@EntityGraph` or a `JOIN FETCH` query.
+- [x] **Fix N+1 query in `GoalService.getStudentGoalsWithProgress()`** — each task triggers 2 individual DB queries (one load + one progress fetch). For 10 goals × 3 tasks = 60+ queries per call. Use `@EntityGraph` or a `JOIN FETCH` query.
   - `backend/src/main/java/.../service/GoalService.java:232-281`
 
-- [ ] **Fix compounding N+1 in `ClassService.getClassProgressSummary()`** — calls `getStudentGoalsWithProgress()` inside a per-student loop. For a class of 10 students this results in ~81 DB queries for a single API call.
+- [x] **Fix compounding N+1 in `ClassService.getClassProgressSummary()`** — calls `getStudentGoalsWithProgress()` inside a per-student loop. For a class of 10 students this results in ~81 DB queries for a single API call.
   - `backend/src/main/java/.../service/ClassService.java:172-198`
 
-- [ ] **Fix race condition in class enrollment** — two concurrent calls to `addStudentToClass()` can both pass the duplicate-check and insert two active enrollment rows. Add a unique DB constraint on `(class_id, student_id, active)` or use pessimistic locking.
+- [x] **Fix race condition in class enrollment** — two concurrent calls to `addStudentToClass()` can both pass the duplicate-check and insert two active enrollment rows. Add a unique DB constraint on `(class_id, student_id, active)` or use pessimistic locking.
   - `backend/src/main/java/.../service/ClassService.java:122-148`
 
-- [ ] **Add null-check for `goal.getMentorClass()`** — `goal.getMentorClass().getMentor()` will throw `NullPointerException` if `mentorClass` is null (which the JPA mapping allows).
+- [x] **Add null-check for `goal.getMentorClass()`** — `goal.getMentorClass().getMentor()` will throw `NullPointerException` if `mentorClass` is null (which the JPA mapping allows).
   - `backend/src/main/java/.../service/GoalService.java:314-320`
 
-- [ ] **Validate that attendance students are enrolled in the class** — `markAttendance()` accepts any `studentId` without checking class membership. A mentor can record attendance for students from other classes.
+- [x] **Validate that attendance students are enrolled in the class** — `markAttendance()` accepts any `studentId` without checking class membership. A mentor can record attendance for students from other classes.
   - `backend/src/main/java/.../service/MeetingService.java:116-143`
 
-- [ ] **Fix Goal entity vs. Flyway schema inconsistency** — `V3` migration defines `class_id BIGINT NOT NULL`, but the `Goal` Java entity has `@JoinColumn(name = "class_id")` without `nullable = false`. Align them.
+- [x] **Fix Goal entity vs. Flyway schema inconsistency** — `V3` migration defines `class_id BIGINT NOT NULL`, but the `Goal` Java entity has `@JoinColumn(name = "class_id")` without `nullable = false`. Align them. *(Resolved by V9 migration which already dropped the NOT NULL constraint on `class_id` to support templates — DB and entity are consistent.)*
   - `backend/src/main/java/.../model/Goal.java`
   - `backend/src/main/resources/db/migration/V3__create_goals_and_tasks_tables.sql`
 
 ### Performance
 
-- [ ] **Add pagination to all list endpoints** — every `GET` list endpoint returns an unbounded `List<T>`. Replace with `Page<T>` and accept `Pageable` parameters. Affected: `/users`, `/classes`, `/goals`, `/meetings`, `/events`, `/rooms`, `/sources`.
+- [x] **Add pagination to all list endpoints** — every `GET` list endpoint returns an unbounded `List<T>`. Replace with `Page<T>` and accept `Pageable` parameters. Affected: `/users`, `/classes`, `/goals`, `/meetings`, `/events`, `/rooms`, `/sources`.
   - `backend/src/main/java/.../controller/` (all controllers)
 
-- [ ] **Add missing database indexes** — the following are absent from the migration files and cause full table scans:
+- [x] **Add missing database indexes** — the following are absent from the migration files and cause full table scans:
   - `goal_tasks(goal_id)`
   - `goal_students(student_id)`
   - `class_students(student_id, active)` — composite
   - `task_progress(task_id, student_id)` — composite
-  - Add as `V6__add_missing_indexes.sql`
+  - Added as `V11__add_missing_indexes.sql`
 
-- [ ] **Replace lazy-load loops with `JOIN FETCH` / `@EntityGraph`** — `Goal`, `MentorClass`, `Meeting` entities all use `FetchType.LAZY` but are accessed in loops without batch loading, causing one query per entity access.
+- [x] **Replace lazy-load loops with `JOIN FETCH` / `@EntityGraph`** — `Goal`, `MentorClass`, `Meeting` entities all use `FetchType.LAZY` but are accessed in loops without batch loading, causing one query per entity access.
   - `backend/src/main/java/.../model/Goal.java`
   - `backend/src/main/java/.../service/GoalService.java`
 
 ### Angular
 
-- [ ] **Fix subscription leaks in `GoalTrackingComponent`** — `quickLog()` and `submitProgress()` call `.subscribe()` without cleanup. Implement `OnDestroy` with `takeUntil(destroy$)` or use `takeUntilDestroyed()`.
+- [x] **Fix subscription leaks in `GoalTrackingComponent`** — `quickLog()` and `submitProgress()` call `.subscribe()` without cleanup. Implement `OnDestroy` with `takeUntil(destroy$)` or use `takeUntilDestroyed()`.
   - `frontend/src/app/features/goals/goal-tracking.component.ts`
 
-- [ ] **Fix subscription leaks in `ClassDetailComponent`** — `saveEnrollments()`, `addStudent()`, and `removeStudent()` all call `.subscribe()` without unsubscribing.
+- [x] **Fix subscription leaks in `ClassDetailComponent`** — `saveEnrollments()`, `addStudent()`, and `removeStudent()` all call `.subscribe()` without unsubscribing.
   - `frontend/src/app/features/classes/class-detail/class-detail.component.ts`
 
-- [ ] **Move all hardcoded API base URLs to `environment.ts`** — 9+ service files hardcode `http://localhost:8080/api/...`. Create `environment.ts` / `environment.prod.ts` and reference `environment.apiBaseUrl` in every service.
+- [x] **Move all hardcoded API base URLs to `environment.ts`** — 9+ service files hardcode `http://localhost:8080/api/...`. Create `environment.ts` / `environment.prod.ts` and reference `environment.apiBaseUrl` in every service.
   - `frontend/src/app/core/services/*.service.ts` (all services)
 
 ---
@@ -85,34 +85,38 @@
 
 ### Error Handling
 
-- [ ] **Create a custom exception hierarchy** — replace the 55+ `new RuntimeException(...)` calls with typed exceptions (`EntityNotFoundException`, `ForbiddenException`, `ConflictException`). Update `GlobalExceptionHandler` to map each to the correct HTTP status (404, 403, 409, 422).
+- [x] **Create a custom exception hierarchy** — replace the 55+ `new RuntimeException(...)` calls with typed exceptions (`EntityNotFoundException`, `ForbiddenException`, `ConflictException`). Update `GlobalExceptionHandler` to map each to the correct HTTP status (404, 403, 409, 422).
   - `backend/src/main/java/.../exception/GlobalExceptionHandler.java`
   - All `*Service.java` files
 
-- [ ] **Fix incorrect HTTP status codes** — services throw `RuntimeException` for all error cases, causing every business error to return HTTP 500. Map: not found → 404, unauthorized → 403, duplicate → 409, validation → 422.
+- [x] **Fix incorrect HTTP status codes** — services throw `RuntimeException` for all error cases, causing every business error to return HTTP 500. Map: not found → 404, unauthorized → 403, duplicate → 409, validation → 422.
   - All controllers and `GlobalExceptionHandler.java`
 
-- [ ] **Add user-facing error messages in Angular components** — errors are currently logged to `console.error()` or shown via raw `alert()`. Replace with a consistent UI notification pattern (toast, inline error, etc.).
+- [x] **Add user-facing error messages in Angular components** — errors are currently logged to `console.error()` or shown via raw `alert()`. Replace with a consistent UI notification pattern (toast, inline error, etc.).
   - `frontend/src/app/features/` (all feature components)
 
-- [ ] **Distinguish error types in auth interceptor `catchError`** — currently any error during token refresh triggers logout. Network timeouts and server errors should not log the user out; only an explicit 401 on the refresh request should.
+- [x] **Distinguish error types in auth interceptor `catchError`** — currently any error during token refresh triggers logout. Network timeouts and server errors should not log the user out; only an explicit 401 on the refresh request should.
   - `frontend/src/app/core/interceptors/auth.interceptor.ts:37-41`
 
 ### Code Quality
 
-- [ ] **Extract duplicated access-control checks into a shared utility** — the same user-state validation and mentor-ownership check pattern appears copy-pasted in `ClassService`, `GoalService`, `MeetingService`, and `RoomService`. Extract to a `SecurityUtils` component or Spring AOP aspect.
+- [x] **Extract duplicated access-control checks into a shared utility** — the same user-state validation and mentor-ownership check pattern appears copy-pasted in `ClassService`, `GoalService`, `MeetingService`, and `RoomService`. Extract to a `SecurityUtils` component or Spring AOP aspect.
+  - Created `backend/src/main/java/.../util/SecurityUtils.java` with `validateUserState()` and `requireAdminOrOwner()`
 
-- [ ] **Break up `GoalService` (god class)** — it handles goal CRUD, template management, assignment, progress tracking, and student lookups. Split into at least `GoalTemplateService`, `GoalProgressService`, and `GoalAssignmentService`.
-  - `backend/src/main/java/.../service/GoalService.java`
+- [x] **Break up `GoalService` (god class)** — it handles goal CRUD, template management, assignment, progress tracking, and student lookups. Split into at least `GoalTemplateService`, `GoalProgressService`, and `GoalAssignmentService`.
+  - `backend/src/main/java/.../service/GoalService.java` — now handles only goal types + goal CRUD
+  - `backend/src/main/java/.../service/GoalTemplateService.java` — template listing + assignment
+  - `backend/src/main/java/.../service/GoalProgressService.java` — student progress + mentor reviews
 
-- [ ] **Remove redundant null-check in `EvaluationService`** — `if (student == null ...)` appears after `.orElseThrow()`, making the check dead code that misleads readers.
+- [x] **Remove redundant null-check in `EvaluationService`** — `if (student == null ...)` appears after `.orElseThrow()`, making the check dead code that misleads readers.
   - `backend/src/main/java/.../service/EvaluationService.java:29`
 
-- [ ] **Replace manual cascade deletes with JPA cascade** — `EventService.deleteEvent()` manually deletes participants and assignments before deleting the event. If the entity already has `cascade = CascadeType.ALL`, this double-deletes. Align cascade config with deletion logic.
-  - `backend/src/main/java/.../service/EventService.java:105-115`
+- [x] **Replace manual cascade deletes with JPA cascade** — `EventService.deleteEvent()` manually deletes participants and assignments before deleting the event. If the entity already has `cascade = CascadeType.ALL`, this double-deletes. Align cascade config with deletion logic.
+  - Added `@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)` to `Event.java` for participants and assignments
+  - Simplified `EventService.deleteEvent()` to a single `eventRepository.delete(event)`
 
-- [ ] **Make meeting recurrence duration configurable** — the `for (int i = 0; i < 13; i++)` loop hardcodes exactly 13 recurring instances. Accept a `recurrenceCount` field in the request DTO.
-  - `backend/src/main/java/.../service/MeetingService.java:56`
+- [x] **Make meeting recurrence duration configurable** — the `for (int i = 0; i < 13; i++)` loop hardcodes exactly 13 recurring instances. Accept a `recurrenceCount` field in the request DTO.
+  - Added `recurrenceCount` (default 13, max 52) to `MeetingRequest.java`
 
 ### DTO Validation
 
@@ -187,7 +191,7 @@
 
 | Priority | Total | Done |
 |---|---|---|
-| 🔴 High | 19 | 7 |
-| 🟡 Medium | 18 | 1 |
+| 🔴 High | 19 | 19 |
+| 🟡 Medium | 18 | 10 |
 | 🟢 Low | 13 | 1 |
-| **Total** | **50** | **9** |
+| **Total** | **50** | **30** |

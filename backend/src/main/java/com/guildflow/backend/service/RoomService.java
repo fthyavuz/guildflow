@@ -4,6 +4,10 @@ import com.guildflow.backend.dto.RoomBookingRequest;
 import com.guildflow.backend.dto.RoomBookingResponse;
 import com.guildflow.backend.dto.RoomRequest;
 import com.guildflow.backend.dto.RoomResponse;
+import com.guildflow.backend.exception.ConflictException;
+import com.guildflow.backend.exception.EntityNotFoundException;
+import com.guildflow.backend.exception.ForbiddenException;
+import com.guildflow.backend.exception.ValidationException;
 import com.guildflow.backend.model.Room;
 import com.guildflow.backend.model.RoomBooking;
 import com.guildflow.backend.model.User;
@@ -12,6 +16,9 @@ import com.guildflow.backend.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,23 +33,21 @@ public class RoomService {
     private final RoomBookingRepository roomBookingRepository;
 
     @Transactional(readOnly = true)
-    public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAll().stream()
-                .map(this::mapToRoomResponse)
-                .collect(Collectors.toList());
+    public Page<RoomResponse> getAllRooms(Pageable pageable) {
+        return roomRepository.findAll(pageable).map(this::mapToRoomResponse);
     }
 
     @Transactional(readOnly = true)
     public RoomResponse getRoomById(Long id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Room not found with id: " + id));
         return mapToRoomResponse(room);
     }
 
     @Transactional
     public RoomResponse createRoom(RoomRequest request) {
         if (roomRepository.existsByTitle(request.getTitle())) {
-            throw new RuntimeException("Room with title already exists: " + request.getTitle());
+            throw new ConflictException("Room with title already exists: " + request.getTitle());
         }
 
         Room room = Room.builder()
@@ -59,10 +64,10 @@ public class RoomService {
     @Transactional
     public RoomResponse updateRoom(Long id, RoomRequest request) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Room not found with id: " + id));
 
         if (!room.getTitle().equals(request.getTitle()) && roomRepository.existsByTitle(request.getTitle())) {
-            throw new RuntimeException("Room with title already exists: " + request.getTitle());
+            throw new ConflictException("Room with title already exists: " + request.getTitle());
         }
 
         room.setTitle(request.getTitle());
@@ -77,7 +82,7 @@ public class RoomService {
     @Transactional
     public void deleteRoom(Long id) {
         if (!roomRepository.existsById(id)) {
-            throw new RuntimeException("Room not found with id: " + id);
+            throw new EntityNotFoundException("Room not found with id: " + id);
         }
         roomRepository.deleteById(id);
     }
@@ -97,18 +102,18 @@ public class RoomService {
     @Transactional
     public RoomBookingResponse bookRoom(RoomBookingRequest request, User bookedBy) {
         Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
 
         if (request.getStartTime().isAfter(request.getEndTime()) || request.getStartTime().isEqual(request.getEndTime())) {
-            throw new RuntimeException("End time must be after start time");
+            throw new ValidationException("End time must be after start time");
         }
 
         // Check for overlaps
         List<RoomBooking> overlapping = roomBookingRepository.findOverlappingBookings(
                 room.getId(), request.getStartTime(), request.getEndTime());
-        
+
         if (!overlapping.isEmpty()) {
-            throw new RuntimeException("Room is already booked for this time period");
+            throw new ConflictException("Room is already booked for this time period");
         }
 
         RoomBooking booking = RoomBooking.builder()
@@ -126,11 +131,11 @@ public class RoomService {
     @Transactional
     public void deleteBooking(Long bookingId, User user) {
         RoomBooking booking = roomBookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
 
         // Only ADMIN or the person who booked it can delete
         if (!user.getRole().name().equals("ADMIN") && !booking.getBookedBy().getId().equals(user.getId())) {
-            throw new RuntimeException("Not authorized to delete this booking");
+            throw new ForbiddenException("Not authorized to delete this booking");
         }
 
         roomBookingRepository.delete(booking);
@@ -144,7 +149,7 @@ public class RoomService {
                 .description(room.getDescription())
                 .capacity(room.getCapacity())
                 .canStayOvernight(room.isCanStayOvernight())
-                .bookings(room.getBookings() == null ? List.of() : 
+                .bookings(room.getBookings() == null ? List.of() :
                           room.getBookings().stream().map(this::mapToBookingResponse).collect(Collectors.toList()))
                 .build();
     }

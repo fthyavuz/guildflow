@@ -1,15 +1,18 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { GoalProgress } from '../models/student.model';
+import { PagedResponse } from '../models/page.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GoalService {
     private http = inject(HttpClient);
-    private readonly goalsApiUrl = 'http://localhost:8080/api/goals';
-    private readonly progressApiUrl = 'http://localhost:8080/api/progress';
+    private readonly goalsApiUrl = `${environment.apiBaseUrl}/goals`;
+    private readonly progressApiUrl = `${environment.apiBaseUrl}/progress`;
 
     getMyGoals(): Observable<GoalProgress[]> {
         return this.http.get<GoalProgress[]>(`${this.goalsApiUrl}/my-goals`);
@@ -37,11 +40,13 @@ export class GoalService {
     }
 
     getGoalsForClass(classId: number): Observable<any[]> {
-        return this.http.get<any[]>(`${this.goalsApiUrl}/class/${classId}`);
+        return this.http.get<PagedResponse<any>>(`${this.goalsApiUrl}/class/${classId}`)
+            .pipe(map(res => res.content));
     }
 
     getTemplates(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.goalsApiUrl}/templates`);
+        return this.http.get<PagedResponse<any>>(`${this.goalsApiUrl}/templates`)
+            .pipe(map(res => res.content));
     }
 
     assignTemplate(assignment: any): Observable<any> {

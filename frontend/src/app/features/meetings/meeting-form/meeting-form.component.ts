@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { MeetingService } from '../../../core/services/meeting.service';
 import { ClassService } from '../../../core/services/class.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -20,6 +21,7 @@ export class MeetingFormComponent implements OnInit {
     private meetingService = inject(MeetingService);
     private classService = inject(ClassService);
     private router = inject(Router);
+    private notifications = inject(NotificationService);
 
     meetingForm: FormGroup;
     classes$: Observable<ClassResponse[]> | undefined;
@@ -49,7 +51,7 @@ export class MeetingFormComponent implements OnInit {
                     this.router.navigate(['/meetings']);
                 },
                 error: (err) => {
-                    console.error('Error creating meeting:', err);
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to create meeting'));
                     this.isSubmitting = false;
                 }
             });

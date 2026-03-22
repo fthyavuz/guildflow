@@ -1,6 +1,7 @@
 package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.*;
+import com.guildflow.backend.exception.EntityNotFoundException;
 import com.guildflow.backend.model.Event;
 import com.guildflow.backend.model.EventAssignment;
 import com.guildflow.backend.model.EventParticipant;
@@ -12,6 +13,9 @@ import com.guildflow.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,11 +35,9 @@ public class EventService {
     /**
      * Get upcoming events.
      */
-    public List<EventResponse> getUpcomingEvents() {
-        List<Event> events = eventRepository.findByStartTimeAfterOrderByStartTimeAsc(LocalDateTime.now().minusDays(1));
-        return events.stream()
-                .map(EventResponse::fromEntity)
-                .collect(Collectors.toList());
+    public Page<EventResponse> getUpcomingEvents(Pageable pageable) {
+        return eventRepository.findByStartTimeAfterOrderByStartTimeAsc(LocalDateTime.now().minusDays(1), pageable)
+                .map(EventResponse::fromEntity);
     }
 
     /**
@@ -43,7 +45,7 @@ public class EventService {
      */
     public EventDetailsResponse getEventDetails(Long eventId, String currentUserEmail) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
         List<EventParticipant> participants = participantRepository.findByEvent(event);
         List<EventAssignment> assignments = assignmentRepository.findByEvent(event);
@@ -51,8 +53,8 @@ public class EventService {
         Boolean currentUserStatus = null;
         if (currentUserEmail != null) {
             User currentUser = userRepository.findByEmail(currentUserEmail)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-            
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
             Optional<EventParticipant> participantInfo = participantRepository.findByEventAndUser(event, currentUser);
             if (participantInfo.isPresent()) {
                 currentUserStatus = participantInfo.get().getIsGoing();
@@ -68,7 +70,7 @@ public class EventService {
     @Transactional
     public EventResponse createEvent(EventRequest request, String adminEmail) {
         User admin = userRepository.findByEmail(adminEmail)
-                .orElseThrow(() -> new RuntimeException("Admin user not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Admin user not found"));
 
         Event event = Event.builder()
                 .title(request.getTitle())
@@ -88,7 +90,7 @@ public class EventService {
     @Transactional
     public EventResponse updateEvent(Long eventId, EventRequest request) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
@@ -101,16 +103,12 @@ public class EventService {
 
     /**
      * Delete an event. Admin only.
+     * Participants and assignments are removed automatically via JPA cascade.
      */
     @Transactional
     public void deleteEvent(Long eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-
-        // Delete associated records first
-        participantRepository.deleteAll(participantRepository.findByEvent(event));
-        assignmentRepository.deleteAll(assignmentRepository.findByEvent(event));
-
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
         eventRepository.delete(event);
     }
 
@@ -120,10 +118,10 @@ public class EventService {
     @Transactional
     public EventParticipantResponse rsvpToEvent(Long eventId, RsvpRequest request, String userEmail) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-        
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Optional<EventParticipant> existingParticipant = participantRepository.findByEventAndUser(event, user);
         EventParticipant participant;
@@ -149,10 +147,10 @@ public class EventService {
     @Transactional
     public EventAssignmentResponse assignDuty(Long eventId, EventAssignmentRequest request) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-        
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
         User responsibleUser = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Assigned user not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Assigned user not found"));
 
         EventAssignment assignment = EventAssignment.builder()
                 .event(event)
@@ -170,7 +168,7 @@ public class EventService {
     @Transactional
     public void removeAssignment(Long assignmentId) {
         EventAssignment assignment = assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new RuntimeException("Assignment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Assignment not found"));
         assignmentRepository.delete(assignment);
     }
 }

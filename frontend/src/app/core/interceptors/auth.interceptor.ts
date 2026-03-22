@@ -33,9 +33,13 @@ export const authInterceptor: HttpInterceptorFn = (
                         return next(newReq);
                     }),
                     catchError((err: any) => {
-                        // Refresh itself failed — session is unrecoverable
-                        authService.logout();
-                        router.navigate(['/login']);
+                        // Only force logout if the refresh endpoint explicitly returned 401.
+                        // Network timeouts (status 0) or server errors (5xx) should not
+                        // log the user out — the session may still be valid.
+                        if (err instanceof HttpErrorResponse && err.status === 401) {
+                            authService.logout();
+                            router.navigate(['/login']);
+                        }
                         return throwError(() => err);
                     })
                 );

@@ -2,6 +2,9 @@ package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.EvaluationRequest;
 import com.guildflow.backend.dto.EvaluationResponse;
+import com.guildflow.backend.exception.EntityNotFoundException;
+import com.guildflow.backend.exception.ForbiddenException;
+import com.guildflow.backend.exception.ValidationException;
 import com.guildflow.backend.model.StudentEvaluation;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.model.enums.Role;
@@ -24,10 +27,10 @@ public class EvaluationService {
     @Transactional
     public EvaluationResponse createEvaluation(EvaluationRequest request, User mentor) {
         User student = userRepository.findById(request.getStudentId())
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
-        if (student == null || student.getRole() != Role.STUDENT) {
-            throw new RuntimeException("User is not a student");
+        if (student.getRole() != Role.STUDENT) {
+            throw new ValidationException("User is not a student");
         }
 
         StudentEvaluation evaluation = StudentEvaluation.builder()
@@ -43,21 +46,17 @@ public class EvaluationService {
 
     public List<EvaluationResponse> getStudentEvaluations(Long studentId, User currentUser) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
         if (currentUser == null || currentUser.getRole() == null) {
-            throw new RuntimeException("Access denied: Invalid user state");
+            throw new ForbiddenException("Access denied: Invalid user state");
         }
 
-        // Only Admin, the Mentor who wrote it, the Parent of the student, or the
-        // student themselves
         Role role = currentUser.getRole();
         if (role != Role.ADMIN &&
                 role != Role.MENTOR &&
                 !currentUser.getId().equals(studentId)) {
-            // Further security check for Mentor
-            // Ideally, we'd check if the mentor is managing the student's class
-            throw new RuntimeException("Access denied");
+            throw new ForbiddenException("Access denied");
         }
 
         return evaluationRepository.findByStudentOrderByCreatedAtDesc(student).stream()

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
     EventResponse,
     EventDetailsResponse,
@@ -10,16 +11,19 @@ import {
     EventParticipantResponse,
     RsvpRequest
 } from '../models/event.model';
+import { PagedResponse } from '../models/page.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class EventService {
     private http = inject(HttpClient);
-    private readonly apiUrl = 'http://localhost:8080/api/events';
+    private readonly apiUrl = `${environment.apiBaseUrl}/events`;
 
     getUpcomingEvents(): Observable<EventResponse[]> {
-        return this.http.get<EventResponse[]>(this.apiUrl);
+        return this.http.get<PagedResponse<EventResponse>>(this.apiUrl)
+            .pipe(map(res => res.content));
     }
 
     getEventDetails(id: number): Observable<EventDetailsResponse> {

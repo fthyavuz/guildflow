@@ -1,17 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Source, SourceRequest } from '../models/source.model';
+import { PagedResponse } from '../models/page.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SourceService {
     private http = inject(HttpClient);
-    private readonly apiUrl = 'http://localhost:8080/api/sources';
+    private readonly apiUrl = `${environment.apiBaseUrl}/sources`;
 
     getAllSources(): Observable<Source[]> {
-        return this.http.get<Source[]>(this.apiUrl);
+        return this.http.get<PagedResponse<Source>>(this.apiUrl)
+            .pipe(map(res => res.content));
     }
 
     getSourceById(id: number): Observable<Source> {

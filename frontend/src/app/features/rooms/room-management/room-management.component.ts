@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RoomService } from '../../../core/services/room.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { Room, RoomBooking, RoomBookingRequest, RoomRequest } from '../../../core/models/room.model';
 import { addDays, subDays, startOfDay, format, parseISO } from 'date-fns';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,6 +19,7 @@ export class RoomManagementComponent implements OnInit {
     private roomService = inject(RoomService);
     public authService = inject(AuthService);
     private fb = inject(FormBuilder);
+    private notifications = inject(NotificationService);
 
     user$ = this.authService.currentUser$;
     
@@ -148,9 +150,7 @@ export class RoomManagementComponent implements OnInit {
                 this.loadData();
             },
             error: (err) => {
-                console.error("Booking error details:", err);
-                const msg = err.error?.message || err.message || 'Unknown error occurred';
-                alert('Failed to book room: ' + msg);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to book room'));
             }
         });
     }

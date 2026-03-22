@@ -1,6 +1,9 @@
 package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.*;
+import com.guildflow.backend.exception.ConflictException;
+import com.guildflow.backend.exception.EntityNotFoundException;
+import com.guildflow.backend.exception.ValidationException;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.model.enums.Role;
 import com.guildflow.backend.repository.UserRepository;
@@ -13,8 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -52,17 +55,17 @@ public class UserService {
      */
     public AuthResponse refreshToken(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new ValidationException("Invalid refresh token");
         }
 
         String tokenType = jwtTokenProvider.getTokenType(refreshToken);
         if (!"refresh".equals(tokenType)) {
-            throw new RuntimeException("Token is not a refresh token");
+            throw new ValidationException("Token is not a refresh token");
         }
 
         String email = jwtTokenProvider.getEmailFromToken(refreshToken);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         String newAccessToken = jwtTokenProvider.generateAccessToken(email);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(email);
@@ -81,7 +84,7 @@ public class UserService {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists: " + request.getEmail());
+            throw new ConflictException("Email already exists: " + request.getEmail());
         }
 
         User user = User.builder()
@@ -99,18 +102,13 @@ public class UserService {
     }
 
     /**
-     * Get all users, optionally filtered by role.
+     * Get all users, optionally filtered by role, with pagination.
      */
-    public List<UserResponse> getUsers(Role role) {
-        List<User> users;
+    public Page<UserResponse> getUsers(Role role, Pageable pageable) {
         if (role != null) {
-            users = userRepository.findByRoleAndActiveTrue(role);
-        } else {
-            users = userRepository.findByActiveTrue();
+            return userRepository.findByRoleAndActiveTrue(role, pageable).map(UserResponse::fromEntity);
         }
-        return users.stream()
-                .map(UserResponse::fromEntity)
-                .collect(Collectors.toList());
+        return userRepository.findByActiveTrue(pageable).map(UserResponse::fromEntity);
     }
 
     /**
@@ -118,7 +116,7 @@ public class UserService {
      */
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         return UserResponse.fromEntity(user);
     }
 
@@ -128,7 +126,7 @@ public class UserService {
     @Transactional
     public UserResponse updateUser(Long id, CreateUserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
 
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -139,7 +137,7 @@ public class UserService {
         // Only update email if it changed and isn't taken
         if (!user.getEmail().equals(request.getEmail())) {
             if (userRepository.existsByEmail(request.getEmail())) {
-                throw new RuntimeException("Email already exists: " + request.getEmail());
+                throw new ConflictException("Email already exists: " + request.getEmail());
             }
             user.setEmail(request.getEmail());
         }
@@ -159,10 +157,10 @@ public class UserService {
     @Transactional
     public void changePassword(User user, ChangePasswordRequest request) {
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Current password is incorrect");
+            throw new ValidationException("Current password is incorrect");
         }
         if (passwordEncoder.matches(request.getNewPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("New password must be different from the current password");
+            throw new ValidationException("New password must be different from the current password");
         }
         user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -174,7 +172,7 @@ public class UserService {
     @Transactional
     public void deactivateUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         user.setActive(false);
         userRepository.save(user);
     }

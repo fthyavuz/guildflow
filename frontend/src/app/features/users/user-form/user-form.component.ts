@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -17,6 +18,7 @@ export class UserFormComponent implements OnInit {
   private userService = inject(UserService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private notifications = inject(NotificationService);
 
   userForm: FormGroup;
   userType: 'MENTOR' | 'STUDENT' = 'MENTOR';
@@ -37,12 +39,10 @@ export class UserFormComponent implements OnInit {
   ngOnInit(): void {
     const segments = this.route.snapshot.url;
     this.userType = segments[0]?.path === 'mentors' ? 'MENTOR' : 'STUDENT';
-    
-    // Check for edit mode
+
     this.userId = Number(this.route.snapshot.paramMap.get('id'));
     if (this.userId) {
       this.isEditMode = true;
-      // Password is not required when editing
       this.userForm.get('password')?.clearValidators();
       this.userForm.get('password')?.updateValueAndValidity();
       this.loadUser(this.userId);
@@ -59,7 +59,7 @@ export class UserFormComponent implements OnInit {
           phone: user.phone
         });
       },
-      error: (err) => console.error('Error loading user:', err)
+      error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load user'))
     });
   }
 
@@ -80,7 +80,7 @@ export class UserFormComponent implements OnInit {
           this.router.navigate([this.userType === 'MENTOR' ? '/mentors' : '/students']);
         },
         error: (err) => {
-          console.error('Error saving user:', err);
+          this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to save user'));
           this.isSubmitting = false;
         }
       });

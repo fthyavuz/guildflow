@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { GoalService } from '../../../core/services/goal.service';
 import { ClassService } from '../../../core/services/class.service';
 import { SourceService } from '../../../core/services/source.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { User } from '../../../core/models/auth.model';
 import { Source } from '../../../core/models/source.model';
 import { Observable, of } from 'rxjs';
@@ -24,6 +25,7 @@ export class GoalFormComponent implements OnInit {
     private sourceService = inject(SourceService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private notifications = inject(NotificationService);
 
     goalForm: FormGroup;
     classId: number | null = null;
@@ -60,7 +62,7 @@ export class GoalFormComponent implements OnInit {
 
         const classIdParam = this.route.snapshot.queryParamMap.get('classId');
         this.classId = classIdParam ? Number(classIdParam) : null;
-        
+
         const templateParam = this.route.snapshot.queryParamMap.get('template');
         this.isTemplate = templateParam === 'true';
 
@@ -77,13 +79,13 @@ export class GoalFormComponent implements OnInit {
             } else {
                 this.goalForm.get('startDate')?.setValidators([Validators.required]);
                 this.goalForm.get('endDate')?.setValidators([Validators.required]);
-                
+
                 if (!this.classId) {
                     this.router.navigate(['/classes']);
                     return;
                 }
             }
-            
+
             this.goalForm.get('startDate')?.updateValueAndValidity();
             this.goalForm.get('endDate')?.updateValueAndValidity();
 
@@ -91,54 +93,55 @@ export class GoalFormComponent implements OnInit {
                 this.students$ = this.classService.getClassStudents(this.classId);
             }
 
-            // Add one initial task for new goals
             this.addTask();
         }
     }
 
     loadGoalData(id: number): void {
-        this.goalService.getGoalById(id).subscribe(goal => {
-            this.isTemplate = goal.isTemplate;
-            this.classId = goal.classId;
-            
-            if (this.isTemplate) {
-                this.goalForm.get('startDate')?.clearValidators();
-                this.goalForm.get('endDate')?.clearValidators();
-            } else {
-                this.goalForm.get('startDate')?.setValidators([Validators.required]);
-                this.goalForm.get('endDate')?.setValidators([Validators.required]);
-                if (this.classId) {
-                    this.students$ = this.classService.getClassStudents(this.classId);
+        this.goalService.getGoalById(id).subscribe({
+            next: (goal) => {
+                this.isTemplate = goal.isTemplate;
+                this.classId = goal.classId;
+
+                if (this.isTemplate) {
+                    this.goalForm.get('startDate')?.clearValidators();
+                    this.goalForm.get('endDate')?.clearValidators();
+                } else {
+                    this.goalForm.get('startDate')?.setValidators([Validators.required]);
+                    this.goalForm.get('endDate')?.setValidators([Validators.required]);
+                    if (this.classId) {
+                        this.students$ = this.classService.getClassStudents(this.classId);
+                    }
                 }
-            }
-            
-            this.goalForm.patchValue({
-                title: goal.title,
-                description: goal.description,
-                goalTypeId: goal.goalTypeId,
-                applyToAll: goal.applyToAll,
-                isTemplate: goal.isTemplate,
-                startDate: goal.startDate ? goal.startDate.split('T')[0] : '',
-                endDate: goal.endDate ? goal.endDate.split('T')[0] : '',
-                studentIds: [] // Mappings handled by backend DTO logic usually
-            });
 
-            // Populate tasks
-            const taskArray = this.goalForm.get('tasks') as FormArray;
-            taskArray.clear();
-            goal.tasks.forEach((t: any) => {
-                taskArray.push(this.fb.group({
-                    title: [t.title, Validators.required],
-                    description: [t.description],
-                    taskType: [t.taskType, Validators.required],
-                    targetValue: [t.targetValue, [Validators.required, Validators.min(1)]],
-                    sourceId: [t.source ? t.source.id : null],
-                    sortOrder: [t.sortOrder]
-                }));
-            });
+                this.goalForm.patchValue({
+                    title: goal.title,
+                    description: goal.description,
+                    goalTypeId: goal.goalTypeId,
+                    applyToAll: goal.applyToAll,
+                    isTemplate: goal.isTemplate,
+                    startDate: goal.startDate ? goal.startDate.split('T')[0] : '',
+                    endDate: goal.endDate ? goal.endDate.split('T')[0] : '',
+                    studentIds: []
+                });
 
-            this.goalForm.get('startDate')?.updateValueAndValidity();
-            this.goalForm.get('endDate')?.updateValueAndValidity();
+                const taskArray = this.goalForm.get('tasks') as FormArray;
+                taskArray.clear();
+                goal.tasks.forEach((t: any) => {
+                    taskArray.push(this.fb.group({
+                        title: [t.title, Validators.required],
+                        description: [t.description],
+                        taskType: [t.taskType, Validators.required],
+                        targetValue: [t.targetValue, [Validators.required, Validators.min(1)]],
+                        sourceId: [t.source ? t.source.id : null],
+                        sortOrder: [t.sortOrder]
+                    }));
+                });
+
+                this.goalForm.get('startDate')?.updateValueAndValidity();
+                this.goalForm.get('endDate')?.updateValueAndValidity();
+            },
+            error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load goal'))
         });
     }
 
@@ -175,7 +178,7 @@ export class GoalFormComponent implements OnInit {
                 classId: this.classId
             };
 
-            const request = this.isEditMode && this.goalId 
+            const request = this.isEditMode && this.goalId
                 ? this.goalService.updateGoal(this.goalId, data)
                 : this.goalService.createGoal(data);
 
@@ -190,7 +193,7 @@ export class GoalFormComponent implements OnInit {
                     }
                 },
                 error: (err) => {
-                    console.error('Error saving goal:', err);
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to save goal'));
                     this.isSubmitting = false;
                 }
             });

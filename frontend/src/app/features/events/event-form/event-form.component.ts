@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EventService } from '../../../core/services/event.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -17,6 +18,7 @@ export class EventFormComponent implements OnInit {
     private eventService = inject(EventService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private notifications = inject(NotificationService);
 
     eventForm: FormGroup;
     isEditMode = false;
@@ -43,9 +45,8 @@ export class EventFormComponent implements OnInit {
     loadEvent(id: number): void {
         this.eventService.getEventDetails(id).subscribe({
             next: (event) => {
-                // Ensure datetime-local format 'YYYY-MM-DDTHH:mm'
                 const formatForInput = (dateStr: string) => dateStr.substring(0, 16);
-                
+
                 this.eventForm.patchValue({
                     title: event.title,
                     description: event.description,
@@ -53,7 +54,7 @@ export class EventFormComponent implements OnInit {
                     endTime: formatForInput(event.endTime)
                 });
             },
-            error: (err) => console.error('Error loading event:', err)
+            error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load event'))
         });
     }
 
@@ -70,7 +71,7 @@ export class EventFormComponent implements OnInit {
                     this.router.navigate(['/events']);
                 },
                 error: (err) => {
-                    console.error('Error saving event:', err);
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to save event'));
                     this.isSubmitting = false;
                 }
             });

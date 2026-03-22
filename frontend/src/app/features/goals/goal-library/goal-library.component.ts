@@ -2,8 +2,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { GoalService } from '../../../core/services/goal.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-goal-library',
@@ -14,7 +15,8 @@ import { Observable, tap } from 'rxjs';
 })
 export class GoalLibraryComponent implements OnInit {
   private goalService = inject(GoalService);
-  
+  private notifications = inject(NotificationService);
+
   templates$: Observable<any[]> | undefined;
 
   ngOnInit(): void {
@@ -22,9 +24,7 @@ export class GoalLibraryComponent implements OnInit {
   }
 
   loadTemplates(): void {
-    this.templates$ = this.goalService.getTemplates().pipe(
-      tap((data: any[]) => console.log('Library Templates received:', data))
-    );
+    this.templates$ = this.goalService.getTemplates();
   }
 
   deleteTemplate(id: number): void {
@@ -34,7 +34,7 @@ export class GoalLibraryComponent implements OnInit {
           this.loadTemplates();
         },
         error: (err) => {
-          console.error('Error deleting template:', err);
+          this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to delete template'));
         }
       });
     }

@@ -2,6 +2,8 @@ package com.guildflow.backend.repository;
 
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.model.enums.Role;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +22,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByActiveTrue();
 
     List<User> findByRoleAndActiveTrue(Role role);
+
+    Page<User> findByActiveTrue(Pageable pageable);
+
+    Page<User> findByRoleAndActiveTrue(Role role, Pageable pageable);
 
     long countByRoleAndActiveTrue(Role role);
 }

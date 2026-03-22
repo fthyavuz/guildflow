@@ -5,6 +5,7 @@ import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { EventService } from '../../../core/services/event.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { EventDetailsResponse } from '../../../core/models/event.model';
 import { UserResponse } from '../../../core/models/auth.model';
 import { Observable, switchMap, forkJoin, map, of } from 'rxjs';
@@ -24,12 +25,13 @@ export class EventDetailComponent implements OnInit {
     private eventService = inject(EventService);
     private userService = inject(UserService);
     private authService = inject(AuthService);
+    private notifications = inject(NotificationService);
     private fb = inject(FormBuilder);
 
     event$: Observable<EventDetailsResponse> | undefined;
     allUsers$: Observable<UserResponse[]> | undefined;
     user$ = this.authService.currentUser$;
-    
+
     eventId: number = 0;
     assignmentForm = this.fb.group({
         userId: ['', [Validators.required]],
@@ -42,8 +44,7 @@ export class EventDetailComponent implements OnInit {
     ngOnInit(): void {
         this.eventId = Number(this.route.snapshot.paramMap.get('id'));
         this.loadEventDetails();
-        
-        // Load all mentors and students for the assignment dropdown (Admin only)
+
         this.user$.subscribe(user => {
             if (user?.role === 'ADMIN') {
                 this.allUsers$ = forkJoin({
@@ -68,7 +69,7 @@ export class EventDetailComponent implements OnInit {
                 this.isSubmittingRsvp = false;
             },
             error: (err) => {
-                console.error('RSVP error:', err);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to submit RSVP'));
                 this.isSubmittingRsvp = false;
             }
         });
@@ -91,7 +92,7 @@ export class EventDetailComponent implements OnInit {
                 this.isSubmittingAssignment = false;
             },
             error: (err) => {
-                console.error('Assignment error:', err);
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to assign duty'));
                 this.isSubmittingAssignment = false;
             }
         });
@@ -101,7 +102,7 @@ export class EventDetailComponent implements OnInit {
         if (confirm('Are you sure you want to remove this assignment?')) {
             this.eventService.removeAssignment(id).subscribe({
                 next: () => this.loadEventDetails(),
-                error: (err) => console.error('Remove assignment error:', err)
+                error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to remove assignment'))
             });
         }
     }
@@ -110,7 +111,7 @@ export class EventDetailComponent implements OnInit {
         if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
             this.eventService.deleteEvent(this.eventId).subscribe({
                 next: () => this.router.navigate(['/events']),
-                error: (err) => console.error('Delete event error:', err)
+                error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to delete event'))
             });
         }
     }

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { GoalService } from '../../../core/services/goal.service';
 import { ClassService } from '../../../core/services/class.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { User } from '../../../core/models/auth.model';
@@ -21,11 +22,12 @@ export class GoalAssignmentComponent implements OnInit {
   private classService = inject(ClassService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private notifications = inject(NotificationService);
 
   assignForm: FormGroup;
   templateId: number | null = null;
   template: any = null;
-  
+
   classes$: Observable<any[]> | undefined;
   students$: Observable<User[]> | undefined;
   isSubmitting = false;
@@ -49,7 +51,6 @@ export class GoalAssignmentComponent implements OnInit {
       return;
     }
 
-    // Load template details (we might want a specific endpoint or just get all and filter)
     this.goalService.getTemplates().subscribe(templates => {
       this.template = templates.find(t => t.id === this.templateId);
       if (!this.template) {
@@ -89,7 +90,7 @@ export class GoalAssignmentComponent implements OnInit {
           this.router.navigate(['/goals/library']);
         },
         error: (err) => {
-          console.error('Error assigning goal:', err);
+          this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to assign goal'));
           this.isSubmitting = false;
         }
       });

@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,10 +31,10 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getUsers(
-            @RequestParam(required = false) Role role) {
-        List<UserResponse> users = userService.getUsers(role);
-        return ResponseEntity.ok(users);
+    public ResponseEntity<Page<UserResponse>> getUsers(
+            @RequestParam(required = false) Role role,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(role, pageable));
     }
 
     @GetMapping("/{id}")
@@ -60,19 +62,19 @@ public class UserController {
 
     @GetMapping("/mentors")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getMentors() {
-        return ResponseEntity.ok(userService.getUsers(Role.MENTOR));
+    public ResponseEntity<Page<UserResponse>> getMentors(@PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(Role.MENTOR, pageable));
     }
 
     @GetMapping("/students")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getStudents() {
-        return ResponseEntity.ok(userService.getUsers(Role.STUDENT));
+    public ResponseEntity<Page<UserResponse>> getStudents(@PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(Role.STUDENT, pageable));
     }
 
     @GetMapping("/parents")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getParents() {
-        return ResponseEntity.ok(userService.getUsers(Role.PARENT));
+    public ResponseEntity<Page<UserResponse>> getParents(@PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(Role.PARENT, pageable));
     }
 }

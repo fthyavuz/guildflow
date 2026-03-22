@@ -1,20 +1,24 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ClassResponse } from '../models/class.model';
 import { User } from '../models/auth.model';
 import { StudentProgressSummary } from '../models/student-progress.model';
 import { StudentProfile } from '../models/student.model';
+import { PagedResponse } from '../models/page.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ClassService {
     private http = inject(HttpClient);
-    private readonly apiUrl = 'http://localhost:8080/api/classes';
+    private readonly apiUrl = `${environment.apiBaseUrl}/classes`;
 
     getClasses(): Observable<ClassResponse[]> {
-        return this.http.get<ClassResponse[]>(this.apiUrl);
+        return this.http.get<PagedResponse<ClassResponse>>(this.apiUrl)
+            .pipe(map(res => res.content));
     }
 
     getMentorClasses(): Observable<ClassResponse[]> {
