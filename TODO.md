@@ -187,6 +187,21 @@
 
 ---
 
+## 🛠️ Admin Panel
+
+> Feature tasks for building out and polishing the admin-facing UI and its supporting backend.
+
+### General
+
+- [x] **Fix back button — presence, behavior, and placement** — several pages either have no back button at all, or have one that does not work correctly (e.g. navigates to the wrong page or does nothing). Additionally, existing back buttons are placed in the middle of the page instead of the top-left corner where users expect them. Audit every feature page and apply the following rules consistently:
+  - Every detail, form, and sub-page must have a back button in the **top-left** of the page header.
+  - The button must navigate to the **logical parent page** (e.g. class detail → class list, student profile → class detail).
+  - Use Angular's `Location.back()` only when the previous history entry is guaranteed to be the correct parent; otherwise navigate explicitly with `Router.navigate([...])` to avoid broken behaviour on direct URL access or external links.
+  - Affected pages (audit required): `class-detail`, `class-form`, `student-profile`, `goal-form`, `goal-assignment`, `meeting-form`, `event-detail`, `event-form`, `user-form`, `source-list`, `room-management`.
+  - `frontend/src/app/features/**/*.component.{ts,html}`
+
+---
+
 ## Progress Summary
 
 | Priority | Total | Done |
@@ -194,4 +209,5 @@
 | 🔴 High | 19 | 19 |
 | 🟡 Medium | 18 | 10 |
 | 🟢 Low | 13 | 1 |
-| **Total** | **50** | **30** |
+| 🛠️ Admin Panel | 1 | 1 |
+| **Total** | **51** | **31** |

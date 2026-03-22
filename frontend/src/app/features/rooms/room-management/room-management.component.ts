@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { RoomService } from '../../../core/services/room.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -11,7 +12,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'app-room-management',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+    imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
     templateUrl: './room-management.component.html',
     styleUrl: './room-management.component.css'
 })
