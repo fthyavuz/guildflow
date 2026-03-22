@@ -164,7 +164,6 @@ h4,
     font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
-    margin-bottom: 1.5rem;
     padding: 0.5rem 0.75rem;
     border-radius: 8px;
     transition: all 0.2s ease;
@@ -257,6 +256,14 @@ h4,
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    width: 100%;
 }
 
 .page-header {
