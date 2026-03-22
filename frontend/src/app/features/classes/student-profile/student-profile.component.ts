@@ -20,8 +20,11 @@ export class StudentProfileComponent implements OnInit {
 
     profile$: Observable<StudentProfile> | undefined;
     private classId: number | null = null;
+    private fromStudents = false;
 
     ngOnInit(): void {
+        this.fromStudents = this.route.snapshot.queryParamMap.get('from') === 'students';
+
         this.profile$ = this.route.paramMap.pipe(
             map(params => Number(params.get('studentId'))),
             switchMap(id => this.classService.getStudentProfile(id)),
@@ -37,7 +40,9 @@ export class StudentProfileComponent implements OnInit {
     }
 
     back(): void {
-        if (this.classId) {
+        if (this.fromStudents) {
+            this.router.navigate(['/students']);
+        } else if (this.classId) {
             this.router.navigate(['/classes', this.classId]);
         } else {
             this.router.navigate(['/classes']);

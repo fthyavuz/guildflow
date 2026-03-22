@@ -21,13 +21,13 @@
 
     <div class="class-grid" *ngIf="students$ | async as students; else loading">
         <div class="glass-card class-card" *ngFor="let student of students">
-            <div class="card-glow" [routerLink]="['/students', student.id]"></div>
+            <div class="card-glow" [routerLink]="['/students', student.id]" [queryParams]="{ from: 'students' }"></div>
 
             <div class="card-top">
                 <span class="level-badge">Student</span>
             </div>
 
-            <div class="card-content" [routerLink]="['/students', student.id]">
+            <div class="card-content" [routerLink]="['/students', student.id]" [queryParams]="{ from: 'students' }">
                 <h3>{{ student.firstName }} {{ student.lastName }}</h3>
                 <p>{{ student.email }}</p>
             </div>
@@ -36,7 +36,7 @@
                     <span class="instructor">ID: {{ student.id }}</span>
                 </div>
                 <div class="footer-actions">
-                    <button class="view-btn" [routerLink]="['/students', student.id]">
+                    <button class="view-btn" [routerLink]="['/students', student.id]" [queryParams]="{ from: 'students' }">
                         Manage
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
