@@ -1,10 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ClassService } from '../../../core/services/class.service';
 import { StudentProfile } from '../../../core/models/student.model';
-import { Observable, switchMap, map } from 'rxjs';
-import { Location } from '@angular/common';
+import { Observable, switchMap, map, tap } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -17,14 +16,16 @@ import { TranslateModule } from '@ngx-translate/core';
 export class StudentProfileComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private classService = inject(ClassService);
-    private location = inject(Location);
+    private router = inject(Router);
 
     profile$: Observable<StudentProfile> | undefined;
+    private classId: number | null = null;
 
     ngOnInit(): void {
         this.profile$ = this.route.paramMap.pipe(
             map(params => Number(params.get('studentId'))),
-            switchMap(id => this.classService.getStudentProfile(id))
+            switchMap(id => this.classService.getStudentProfile(id)),
+            tap(profile => this.classId = profile.currentClass?.id ?? null)
         );
     }
 
@@ -36,6 +37,10 @@ export class StudentProfileComponent implements OnInit {
     }
 
     back(): void {
-        this.location.back();
+        if (this.classId) {
+            this.router.navigate(['/classes', this.classId]);
+        } else {
+            this.router.navigate(['/classes']);
+        }
     }
 }
