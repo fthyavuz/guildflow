@@ -21,6 +21,12 @@
             <header class="event-header glass">
                 <div class="event-meta">
                     <span class="event-badge">Organization Activity</span>
+                    <span class="event-badge audience-badge" *ngIf="event.targetClassName">
+                        🎓 {{ event.targetClassName }}
+                    </span>
+                    <span class="event-badge audience-badge" *ngIf="!event.targetClassName && event.educationLevel">
+                        🎓 {{ event.educationLevel | titlecase }}
+                    </span>
                     <span class="event-date">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -103,12 +109,31 @@
                     <h4>Assign a Duty</h4>
                     <form [formGroup]="assignmentForm" (ngSubmit)="assignDuty()" class="assignment-form">
                         <div class="form-row">
-                            <select formControlName="userId" class="glass-input">
-                                <option value="" disabled selected>Select a responsible person</option>
-                                <option *ngFor="let user of allUsers$ | async" [value]="user.id">
-                                    {{ user.firstName }} {{ user.lastName }} ({{ user.role }})
-                                </option>
-                            </select>
+                            <div class="user-search-wrapper">
+                                <input
+                                    type="text"
+                                    class="glass-input"
+                                    placeholder="Search by name or role..."
+                                    [value]="userSearchText"
+                                    (input)="onUserSearch($event)"
+                                    (blur)="onUserSearchBlur()"
+                                    (focus)="showUserDropdown = true"
+                                    autocomplete="off"
+                                />
+                                <div class="user-dropdown" *ngIf="showUserDropdown && filteredUsers.length > 0">
+                                    <div
+                                        class="user-option"
+                                        *ngFor="let u of filteredUsers"
+                                        (mousedown)="selectUser(u)"
+                                    >
+                                        <span class="user-option-name">{{ u.firstName }} {{ u.lastName }}</span>
+                                        <span class="user-option-role">{{ u.role }}</span>
+                                    </div>
+                                </div>
+                                <div class="user-dropdown" *ngIf="showUserDropdown && userSearchText && filteredUsers.length === 0">
+                                    <div class="user-option no-results">No users found</div>
+                                </div>
+                            </div>
                             <input type="text" formControlName="dutyDescription" class="glass-input"
                                 placeholder="What is their duty? e.g. Bring the chess clocks">
                             <button type="submit" class="btn btn-sm btn-primary" [disabled]="assignmentForm.invalid || isSubmittingAssignment">

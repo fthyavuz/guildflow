@@ -6,6 +6,9 @@ export interface EventResponse {
     endTime: string;
     createdById: number;
     createdByName: string;
+    educationLevel: string | null;
+    targetClassId: number | null;
+    targetClassName: string | null;
 }
 
 export interface EventParticipantResponse {
@@ -36,6 +39,14 @@ export interface EventRequest {
     description: string;
     startTime: string;
     endTime: string;
+    educationLevel?: string | null;
+    targetClassId?: number | null;
+}
+
+export interface EventFilterParams {
+    filter?: 'UPCOMING' | 'PAST' | 'ALL';
+    educationLevel?: string;
+    classId?: string;
 }
 
 export interface EventAssignmentRequest {

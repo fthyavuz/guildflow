@@ -25,4 +25,8 @@ public class EventRequest {
 
     @NotNull(message = "End time is required")
     private LocalDateTime endTime;
+
+    private String educationLevel;
+
+    private Long targetClassId;
 }

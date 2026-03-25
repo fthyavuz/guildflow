@@ -9,6 +9,7 @@
             {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
         </a>
     </div>
+
     <header class="page-header">
         <div class="header-content">
             <h1 class="grad-text">Organization Events</h1>
@@ -19,12 +20,50 @@
         </div>
     </header>
 
+    <!-- Filter Bar -->
+    <div class="filter-bar glass">
+        <!-- Time filter -->
+        <div class="filter-group">
+            <button
+                *ngFor="let t of timeFilters"
+                class="filter-tab"
+                [class.active]="activeFilter.filter === t.value"
+                (click)="setTimeFilter(t.value)">
+                {{ t.label }}
+            </button>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Level filter -->
+        <div class="filter-group">
+            <select class="filter-select" [ngModel]="activeFilter.educationLevel ?? ''" (ngModelChange)="setLevelFilter($event)">
+                <option *ngFor="let l of educationLevels" [value]="l.value">{{ l.label }}</option>
+            </select>
+        </div>
+
+        <!-- Class filter -->
+        <div class="filter-group" *ngIf="classes.length > 0">
+            <select class="filter-select" [ngModel]="activeFilter.classId ?? ''" (ngModelChange)="setClassFilter($event)">
+                <option value="">All Classes</option>
+                <option *ngFor="let c of classes" [value]="c.id">{{ c.name }}</option>
+            </select>
+        </div>
+    </div>
+
     <div class="class-grid" *ngIf="events$ | async as events; else loading">
         <div class="glass-card class-card" *ngFor="let event of events">
             <div class="card-glow" [routerLink]="['/events', event.id]"></div>
 
             <div class="card-top">
-                <span class="level-badge">Event</span>
+                <span class="level-badge" [class.level-primary]="event.educationLevel === 'PRIMARY'"
+                      [class.level-secondary]="event.educationLevel === 'SECONDARY'"
+                      [class.level-highschool]="event.educationLevel === 'HIGH_SCHOOL'"
+                      [class.level-university]="event.educationLevel === 'UNIVERSITY'">
+                    <ng-container *ngIf="event.targetClassName">{{ event.targetClassName }}</ng-container>
+                    <ng-container *ngIf="!event.targetClassName && event.educationLevel">{{ levelLabel(event.educationLevel) }}</ng-container>
+                    <ng-container *ngIf="!event.targetClassName && !event.educationLevel">Event</ng-container>
+                </span>
                 <div class="student-count">
                     {{ event.startTime | date:'MMM d, y' }}
                 </div>
@@ -65,8 +104,8 @@
         <!-- Empty State -->
         <div class="empty-state glass" *ngIf="events.length === 0">
             <div class="icon">📅</div>
-            <h3>No Upcoming Events</h3>
-            <p>Check back later for exciting guild activities!</p>
+            <h3>No Events Found</h3>
+            <p>Try adjusting the filters or check back later.</p>
         </div>
     </div>
 

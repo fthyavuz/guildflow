@@ -24,8 +24,12 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<Page<EventResponse>> getUpcomingEvents(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(eventService.getUpcomingEvents(pageable));
+    public ResponseEntity<Page<EventResponse>> getEvents(
+            @RequestParam(defaultValue = "UPCOMING") String filter,
+            @RequestParam(required = false) String educationLevel,
+            @RequestParam(required = false) Long classId,
+            @PageableDefault(size = 50) Pageable pageable) {
+        return ResponseEntity.ok(eventService.getEvents(filter, educationLevel, classId, pageable));
     }
 
     @GetMapping("/{id}")

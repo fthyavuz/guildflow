@@ -1,5 +1,6 @@
 package com.guildflow.backend.model;
 
+import com.guildflow.backend.model.enums.EducationLevel;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +43,14 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "education_level", length = 20)
+    private EducationLevel educationLevel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_class_id")
+    private MentorClass targetClass;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

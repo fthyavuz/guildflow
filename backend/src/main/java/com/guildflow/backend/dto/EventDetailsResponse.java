@@ -28,6 +28,9 @@ public class EventDetailsResponse extends EventResponse {
         response.setEndTime(event.getEndTime());
         response.setCreatedById(event.getCreatedBy().getId());
         response.setCreatedByName(event.getCreatedBy().getFirstName() + " " + event.getCreatedBy().getLastName());
+        response.setEducationLevel(event.getEducationLevel() != null ? event.getEducationLevel().name() : null);
+        response.setTargetClassId(event.getTargetClass() != null ? event.getTargetClass().getId() : null);
+        response.setTargetClassName(event.getTargetClass() != null ? event.getTargetClass().getName() : null);
         
         // Add detailed fields
         response.setParticipants(participants.stream()

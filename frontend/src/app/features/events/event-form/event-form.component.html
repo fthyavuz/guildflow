@@ -26,18 +26,34 @@
 
                 <div class="form-group">
                     <label for="startTime">Start Time</label>
-                    <input type="datetime-local" id="startTime" formControlName="startTime" class="glass-input">
+                    <input type="datetime-local" id="startTime" formControlName="startTime" class="glass-input" step="900">
                 </div>
 
                 <div class="form-group">
                     <label for="endTime">End Time</label>
-                    <input type="datetime-local" id="endTime" formControlName="endTime" class="glass-input">
+                    <input type="datetime-local" id="endTime" formControlName="endTime" class="glass-input" step="900">
                 </div>
 
                 <div class="form-group full-width">
                     <label for="description">Event Description</label>
                     <textarea id="description" formControlName="description" class="glass-input" rows="4"
                         placeholder="Describe the plan, what to bring, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="educationLevel">Target Level</label>
+                    <select id="educationLevel" formControlName="educationLevel" class="glass-input">
+                        <option *ngFor="let l of educationLevels" [value]="l.value">{{ l.label }}</option>
+                    </select>
+                    <span class="form-hint">Or target a specific class below — choosing one clears the other.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="targetClassId">Target Class</label>
+                    <select id="targetClassId" formControlName="targetClassId" class="glass-input">
+                        <option value="">All classes</option>
+                        <option *ngFor="let c of classes" [value]="c.id">{{ c.name }} ({{ c.educationLevel }})</option>
+                    </select>
                 </div>
             </div>
 

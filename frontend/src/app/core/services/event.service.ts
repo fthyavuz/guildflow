@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     EventResponse,
     EventDetailsResponse,
     EventRequest,
+    EventFilterParams,
     EventAssignmentRequest,
     EventAssignmentResponse,
     EventParticipantResponse,
@@ -21,8 +22,12 @@ export class EventService {
     private http = inject(HttpClient);
     private readonly apiUrl = `${environment.apiBaseUrl}/events`;
 
-    getUpcomingEvents(): Observable<EventResponse[]> {
-        return this.http.get<PagedResponse<EventResponse>>(this.apiUrl)
+    getEvents(params: EventFilterParams = {}): Observable<EventResponse[]> {
+        let httpParams = new HttpParams();
+        if (params.filter) httpParams = httpParams.set('filter', params.filter);
+        if (params.educationLevel) httpParams = httpParams.set('educationLevel', params.educationLevel);
+        if (params.classId) httpParams = httpParams.set('classId', params.classId);
+        return this.http.get<PagedResponse<EventResponse>>(this.apiUrl, { params: httpParams })
             .pipe(map(res => res.content));
     }
 

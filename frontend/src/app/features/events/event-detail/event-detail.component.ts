@@ -8,7 +8,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { EventDetailsResponse } from '../../../core/models/event.model';
 import { UserResponse } from '../../../core/models/auth.model';
-import { Observable, switchMap, forkJoin, map, of } from 'rxjs';
+import { Observable, forkJoin, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { FilterGoingPipe, FilterNotGoingPipe } from '../../../core/pipes/event.pipe';
 
@@ -29,7 +29,6 @@ export class EventDetailComponent implements OnInit {
     private fb = inject(FormBuilder);
 
     event$: Observable<EventDetailsResponse> | undefined;
-    allUsers$: Observable<UserResponse[]> | undefined;
     user$ = this.authService.currentUser$;
 
     eventId: number = 0;
@@ -41,20 +40,62 @@ export class EventDetailComponent implements OnInit {
     isSubmittingRsvp = false;
     isSubmittingAssignment = false;
 
+    // User search state
+    private allUsersCache: UserResponse[] = [];
+    filteredUsers: UserResponse[] = [];
+    userSearchText = '';
+    selectedUserName = '';
+    showUserDropdown = false;
+
     ngOnInit(): void {
         this.eventId = Number(this.route.snapshot.paramMap.get('id'));
         this.loadEventDetails();
 
         this.user$.subscribe(user => {
             if (user?.role === 'ADMIN') {
-                this.allUsers$ = forkJoin({
+                forkJoin({
                     mentors: this.userService.getMentors(),
                     students: this.userService.getStudents()
                 }).pipe(
-                    map(({mentors, students}) => [...mentors, ...students])
-                );
+                    map(({ mentors, students }) => [...mentors, ...students])
+                ).subscribe(users => {
+                    this.allUsersCache = users;
+                    this.filteredUsers = users;
+                });
             }
         });
+    }
+
+    onUserSearch(event: Event): void {
+        const term = (event.target as HTMLInputElement).value.toLowerCase();
+        this.userSearchText = (event.target as HTMLInputElement).value;
+        this.showUserDropdown = true;
+        // Clear selection if user is typing something new
+        this.assignmentForm.patchValue({ userId: '' });
+        this.selectedUserName = '';
+        this.filteredUsers = this.allUsersCache.filter(u =>
+            `${u.firstName} ${u.lastName}`.toLowerCase().includes(term) ||
+            u.role.toLowerCase().includes(term)
+        );
+    }
+
+    selectUser(user: UserResponse): void {
+        this.assignmentForm.patchValue({ userId: String(user.id) });
+        this.selectedUserName = `${user.firstName} ${user.lastName}`;
+        this.userSearchText = this.selectedUserName;
+        this.showUserDropdown = false;
+    }
+
+    onUserSearchBlur(): void {
+        // Delay so click on dropdown item fires before the list disappears
+        setTimeout(() => {
+            this.showUserDropdown = false;
+            // If no valid selection was made, clear the input
+            if (!this.selectedUserName) {
+                this.userSearchText = '';
+                this.assignmentForm.patchValue({ userId: '' });
+            }
+        }, 200);
     }
 
     loadEventDetails(): void {

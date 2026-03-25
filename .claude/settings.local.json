@@ -6,7 +6,13 @@
       "Bash(xargs head:*)",
       "Bash(xargs ls:*)",
       "Bash(mvn compile:*)",
-      "Bash(npx ng:*)"
+      "Bash(npx ng:*)",
+      "Bash(git checkout:*)",
+      "Bash(grep:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git branch:*)"
     ]
   }
 }
