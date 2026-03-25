@@ -18,9 +18,12 @@
                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
         </div>
-        <h1 class="grad-text">{{ isEditMode ? 'Re-Forging' : (isTemplate ? 'Crafting a Template' : 'Forging a New Quest') }}</h1>
-        <p>{{ isEditMode ? 'Modifying the ancient scrolls of this quest' : 
-             (isTemplate ? 'Create a goal template to be reused across different classes' : 'Define a goal that leads your guild to mastery') }}</p>
+        <h1 class="grad-text">
+            {{ (isEditMode ? 'HOMEWORK.FORM.TITLE_EDIT' : (isTemplate ? 'HOMEWORK.FORM.TITLE_TEMPLATE' : 'HOMEWORK.FORM.TITLE_NEW')) | translate }}
+        </h1>
+        <p>
+            {{ (isEditMode ? 'HOMEWORK.FORM.SUBTITLE_EDIT' : (isTemplate ? 'HOMEWORK.FORM.SUBTITLE_TEMPLATE' : 'HOMEWORK.FORM.SUBTITLE_NEW')) | translate }}
+        </p>
     </div>
 
     <div class="form-grid">
@@ -28,16 +31,16 @@
             <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
                 <!-- General Info -->
                 <div class="section">
-                    <h3 class="section-title">Quest Identity</h3>
+                    <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_IDENTITY' | translate }}</h3>
                     <div class="input-group">
-                        <label>Quest Title</label>
+                        <label>{{ 'HOMEWORK.FORM.LABEL_TITLE' | translate }}</label>
                         <input type="text" formControlName="title" placeholder="e.g. The 100-Page Alchemist"
                             class="glass-input">
                     </div>
 
                     <div class="input-row">
                         <div class="input-group">
-                            <label>Quest Category</label>
+                            <label>{{ 'HOMEWORK.FORM.LABEL_CATEGORY' | translate }}</label>
                             <select formControlName="goalTypeId" class="glass-input">
                                 <option [value]="null" disabled>Select Category</option>
                                 <option *ngFor="let type of goalTypes$ | async" [value]="type.id">{{ type.name }}
@@ -57,9 +60,9 @@
 
                 <!-- Scope (Only for Class Goals) -->
                 <div class="section" *ngIf="!isTemplate">
-                    <h3 class="section-title">Quest Scope</h3>
+                    <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_SCOPE' | translate }}</h3>
                     <div class="toggle-group glass-input">
-                        <span>Enroll all guild scholars in this quest?</span>
+                        <span>{{ 'HOMEWORK.FORM.TOGGLE_APPLY_ALL' | translate }}</span>
                         <label class="switch">
                             <input type="checkbox" formControlName="applyToAll">
                             <span class="slider round"></span>
@@ -67,7 +70,7 @@
                     </div>
 
                     <div class="student-selection fade-in" *ngIf="!goalForm.get('applyToAll')?.value">
-                        <p class="select-hint">Select the members for this specific quest:</p>
+                        <p class="select-hint">{{ 'HOMEWORK.FORM.SELECT_STUDENTS_HINT' | translate }}</p>
                         <div class="student-pill-list">
                             <label class="student-pill" *ngFor="let s of students$ | async"
                                 [class.active]="goalForm.get('studentIds')?.value.includes(s.id)">
@@ -82,8 +85,8 @@
                 <!-- Tasks -->
                 <div class="section">
                     <div class="section-header">
-                        <h3 class="section-title">Trial Stages (Tasks)</h3>
-                        <button type="button" class="btn-sm btn-ghost" (click)="addTask()">+ Add Stage</button>
+                        <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_TASKS' | translate }}</h3>
+                        <button type="button" class="btn-sm btn-ghost" (click)="addTask()">{{ 'HOMEWORK.FORM.BTN_ADD_TASK' | translate }}</button>
                     </div>
 
                     <div formArrayName="tasks" class="tasks-container">
@@ -129,8 +132,10 @@
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary lg"
                         [disabled]="goalForm.invalid || tasks.length === 0 || isSubmitting">
-                        {{ isSubmitting ? 'Processing...' : 
-                           (isEditMode ? 'Update Quest' : (isTemplate ? 'Save to Goal Library' : 'Release Quest to Guild')) }}
+                        {{ isSubmitting ? ('HOMEWORK.FORM.BTN_PROCESSING' | translate) :
+                           (isEditMode ? ('HOMEWORK.FORM.BTN_UPDATE' | translate) :
+                           (isTemplate ? ('HOMEWORK.FORM.BTN_SAVE_TEMPLATE' | translate) :
+                           ('HOMEWORK.FORM.BTN_SUBMIT' | translate))) }}
                     </button>
                 </div>
             </form>

@@ -34,38 +34,39 @@
         "MENTORS": "Mentörler",
         "STUDENTS": "Öğrenciler",
         "MY_GUILDS": "Sınıflar",
-        "MY_QUESTS": "Görevlerim",
+        "MY_QUESTS": "Ödevlerim",
         "MEETINGS": "Toplantılar",
         "EVENTS": "Etkinlikler",
         "ORGANIZATION": "Organizasyon",
         "SOURCES": "Kaynaklar",
         "ROOMS": "Odalar",
-        "GOAL_LIBRARY": "Hedef Kütüphanesi"
+        "GOAL_LIBRARY": "Ödev Kütüphanesi"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Hoş Geldin, Usta",
         "CREATE_GUILD": "+ Sınıf Oluştur",
+        "GOAL_LIBRARY_BTN": "Ödev Kütüphanesi",
         "STATS": {
-            "ACTIVE_QUESTS": "Aktif Görevler",
+            "ACTIVE_QUESTS": "Aktif Ödevler",
             "TOTAL_SCHOLARS": "Toplam Öğrenci",
             "GUILD_SCHOLARS": "Sınıf Öğrencileri",
             "TOTAL_MENTORS": "Toplam Mentor",
             "MEETINGS": "Toplantılar"
         },
         "SECTIONS": {
-            "ACTIVE_QUESTS": "Aktif Görevler",
+            "ACTIVE_QUESTS": "Aktif Ödevler",
             "ALL_GUILDS": "Tüm Sınıflar",
             "MY_GUILDS": "Sınıflar",
             "RECENT_SESSIONS": "Son Oturumlar",
             "UPCOMING_EVENTS": "Lonca Etkinlikleri"
         },
         "QUEST": {
-            "TAG": "Görev",
+            "TAG": "Ödev",
             "TASKS": "Görev",
             "MASTERY": "Ustalık"
         },
         "EMPTY": {
-            "NO_QUESTS": "Aktif görev bulunamadı. Yeni sınavlar için daha sonra tekrar kontrol edin!",
+            "NO_QUESTS": "Aktif ödev bulunamadı. Daha sonra tekrar kontrol edin!",
             "NO_SESSIONS": "Planlanmış oturum yok."
         }
     },
@@ -77,5 +78,59 @@
         "SAVING": "Kaydediliyor...",
         "SELECT": "+ Seç",
         "ENROLL_BTN": "Öğrenci Kaydet"
+    },
+    "HOMEWORK": {
+        "FORM": {
+            "TITLE_NEW": "Yeni Ödev",
+            "TITLE_TEMPLATE": "Şablon Oluştur",
+            "TITLE_EDIT": "Ödevi Düzenle",
+            "SUBTITLE_NEW": "Sınıfınızı ustalığa götürecek ödevleri tanımlayın",
+            "SUBTITLE_TEMPLATE": "Farklı sınıflarda yeniden kullanılabilecek bir ödev şablonu oluşturun",
+            "SUBTITLE_EDIT": "Bu ödevi düzenliyorsunuz",
+            "SECTION_IDENTITY": "Ödev Bilgileri",
+            "LABEL_TITLE": "Ödev Başlığı",
+            "LABEL_CATEGORY": "Kategori",
+            "SECTION_SCOPE": "Atama Kapsamı",
+            "TOGGLE_APPLY_ALL": "Bu ödevi sınıftaki tüm öğrencilere ata?",
+            "SELECT_STUDENTS_HINT": "Bu ödev için belirli öğrencileri seçin:",
+            "SECTION_TASKS": "Görevler",
+            "BTN_ADD_TASK": "+ Görev Ekle",
+            "BTN_SUBMIT": "Ödevi Ata",
+            "BTN_UPDATE": "Ödevi Güncelle",
+            "BTN_SAVE_TEMPLATE": "Ödev Kütüphanesine Kaydet",
+            "BTN_PROCESSING": "İşleniyor..."
+        },
+        "LIBRARY": {
+            "SUBTITLE": "Öğrencilerinize ve sınıflarınıza ödev şablonlarını yönetin ve atayın",
+            "BTN_CREATE": "Yeni Şablon Oluştur",
+            "EMPTY_TITLE": "Şablon bulunamadı",
+            "EMPTY_MSG": "İlk ödev şablonunuzu oluşturarak başlayın.",
+            "BTN_CREATE_FIRST": "İlk Şablonu Oluştur",
+            "LOADING": "Şablonlar yükleniyor..."
+        },
+        "ASSIGN": {
+            "TITLE": "Ödev Ata",
+            "SUBTITLE": "Şablon atanıyor:",
+            "BACK": "Kütüphaneye Dön",
+            "SECTION_TARGET": "Atama Hedefi",
+            "LABEL_CLASS": "Sınıf Seç",
+            "SELECT_CLASS_PLACEHOLDER": "Bir Sınıf Seçin",
+            "SECTION_MEMBERS": "Öğrenci Seçimi",
+            "TOGGLE_APPLY_ALL": "Bu ödevi sınıftaki tüm öğrencilere ata?",
+            "SELECT_STUDENTS_HINT": "Bu ödev için belirli öğrencileri seçin:",
+            "NO_STUDENTS": "Bu sınıfta öğrenci bulunamadı.",
+            "BTN_ASSIGN": "Şablonu Ata",
+            "BTN_ASSIGNING": "Atanıyor...",
+            "BTN_CANCEL": "İptal",
+            "SUMMARY_TITLE": "Şablon Özeti",
+            "SUMMARY_STAGES": "görev"
+        },
+        "TRACKING": {
+            "TITLE": "Ödevlerim",
+            "SUBTITLE": "İlerlemenizi takip edin ve ödevlerinizi tamamlayın",
+            "EMPTY_TITLE": "Aktif Ödev Yok",
+            "EMPTY_MSG": "Mentörünüz henüz ödev atamamış.",
+            "LOADING": "Ödevleriniz yükleniyor..."
+        }
     }
 }

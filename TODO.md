@@ -33,6 +33,16 @@
 
 ### Bugs
 
+- [x] **Fix missing `submitReview` / `submitProgress` methods in `GoalService`** — `GoalReviewController` and `ProgressController` called methods that didn't exist, preventing backend compilation. Added stub implementations with TODO comments pending `GoalReview` / `GoalProgress` entity creation.
+  - `backend/src/main/java/.../service/GoalService.java`
+
+- [x] **Fix dashboard calling non-existent `getUpcomingEvents()`** — `DashboardComponent` called `eventService.getUpcomingEvents()` which doesn't exist on `EventService`. Replaced with `getEvents()`.
+  - `frontend/src/app/features/dashboard/dashboard.component.ts`
+
+- [x] **Fix PostgreSQL "could not determine data type" on events query** — JPQL `IS NULL OR` pattern with null bind parameters causes PostgreSQL to fail when it can't infer the parameter type. Replaced the static JPQL query with a dynamic `JpaSpecificationExecutor` + `Specification<Event>` that only adds predicates for non-null values.
+  - `backend/src/main/java/.../repository/EventRepository.java`
+  - `backend/src/main/java/.../service/EventService.java`
+
 - [x] **Fix N+1 query in `GoalService.getStudentGoalsWithProgress()`** — each task triggers 2 individual DB queries (one load + one progress fetch). For 10 goals × 3 tasks = 60+ queries per call. Use `@EntityGraph` or a `JOIN FETCH` query.
   - `backend/src/main/java/.../service/GoalService.java:232-281`
 
@@ -187,6 +197,15 @@
 
 ---
 
+## 🌐 UI / UX Improvements
+
+- [ ] **Rename "Goal/Quest" module to "Homework" across all three languages** — the goal module is student-facing and should use the more familiar "Homework" terminology. Update all translation keys and hardcoded strings in goal-form, goal-library, goal-assignment, and goal-tracking templates for EN, TR, and DE.
+  - `frontend/src/app/public/i18n/en.json`, `tr.json`, `de.json`
+  - `frontend/src/app/features/goals/**/*.html`
+  - `frontend/src/app/features/dashboard/dashboard.component.html`
+
+---
+
 ## 🛠️ Admin Panel
 
 > Feature tasks for building out and polishing the admin-facing UI and its supporting backend.
@@ -206,8 +225,8 @@
 
 | Priority | Total | Done |
 |---|---|---|
-| 🔴 High | 19 | 19 |
+| 🔴 High | 22 | 22 |
 | 🟡 Medium | 18 | 10 |
 | 🟢 Low | 13 | 1 |
 | 🛠️ Admin Panel | 1 | 1 |
-| **Total** | **51** | **31** |
+| **Total** | **54** | **34** |

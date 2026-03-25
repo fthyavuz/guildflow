@@ -34,39 +34,94 @@
         "MENTORS": "Mentoren",
         "STUDENTS": "Schüler",
         "MY_GUILDS": "Klassen",
-        "MY_QUESTS": "Meine Quests",
+        "MY_QUESTS": "Meine Hausaufgaben",
         "MEETINGS": "Sitzungen",
         "EVENTS": "Veranstaltungen",
         "ORGANIZATION": "Organisation",
         "SOURCES": "Ressourcen",
         "ROOMS": "Räume",
-        "GOAL_LIBRARY": "Zielbibliothek"
+        "GOAL_LIBRARY": "Hausaufgaben-Bibliothek"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Willkommen, Meister",
         "CREATE_GUILD": "+ Klasse erstellen",
+        "GOAL_LIBRARY_BTN": "Hausaufgaben-Bibliothek",
         "STATS": {
-            "ACTIVE_QUESTS": "Aktive Quests",
+            "ACTIVE_QUESTS": "Aktive Hausaufgaben",
             "TOTAL_SCHOLARS": "Gesamte Schüler",
             "GUILD_SCHOLARS": "Klassen-Schüler",
             "TOTAL_MENTORS": "Gesamte Mentoren",
             "MEETINGS": "Sitzungen"
         },
         "SECTIONS": {
-            "ACTIVE_QUESTS": "Aktive Quests",
+            "ACTIVE_QUESTS": "Aktive Hausaufgaben",
             "ALL_GUILDS": "Alle Klassen",
             "MY_GUILDS": "Klassen",
             "RECENT_SESSIONS": "Letzte Sitzungen",
             "UPCOMING_EVENTS": "Gildenaktivitäten"
         },
         "QUEST": {
-            "TAG": "Quest",
+            "TAG": "Hausaufgabe",
             "TASKS": "Aufgaben",
             "MASTERY": "Meisterschaft"
         },
         "EMPTY": {
-            "NO_QUESTS": "Keine aktiven Quests gefunden. Schauen Sie später für neue Prüfungen vorbei!",
+            "NO_QUESTS": "Keine aktiven Hausaufgaben gefunden. Später erneut nachsehen!",
             "NO_SESSIONS": "Keine bevorstehenden Sitzungen geplant."
+        }
+    },
+    "HOMEWORK": {
+        "FORM": {
+            "TITLE_NEW": "Neue Hausaufgabe",
+            "TITLE_TEMPLATE": "Vorlage erstellen",
+            "TITLE_EDIT": "Hausaufgabe bearbeiten",
+            "SUBTITLE_NEW": "Definieren Sie Hausaufgaben, die Ihre Klasse zur Meisterschaft führen",
+            "SUBTITLE_TEMPLATE": "Erstellen Sie eine Hausaufgabenvorlage zur Wiederverwendung in verschiedenen Klassen",
+            "SUBTITLE_EDIT": "Diese Hausaufgabe wird bearbeitet",
+            "SECTION_IDENTITY": "Hausaufgabendetails",
+            "LABEL_TITLE": "Hausaufgabentitel",
+            "LABEL_CATEGORY": "Kategorie",
+            "SECTION_SCOPE": "Zuweisungsbereich",
+            "TOGGLE_APPLY_ALL": "Diese Hausaufgabe allen Schülern in dieser Klasse zuweisen?",
+            "SELECT_STUDENTS_HINT": "Bestimmte Schüler für diese Hausaufgabe auswählen:",
+            "SECTION_TASKS": "Aufgaben",
+            "BTN_ADD_TASK": "+ Aufgabe hinzufügen",
+            "BTN_SUBMIT": "Hausaufgabe zuweisen",
+            "BTN_UPDATE": "Hausaufgabe aktualisieren",
+            "BTN_SAVE_TEMPLATE": "In der Hausaufgaben-Bibliothek speichern",
+            "BTN_PROCESSING": "Verarbeitung läuft..."
+        },
+        "LIBRARY": {
+            "SUBTITLE": "Verwalten und weisen Sie Hausaufgabenvorlagen Ihren Schülern und Klassen zu",
+            "BTN_CREATE": "Neue Vorlage erstellen",
+            "EMPTY_TITLE": "Keine Vorlagen gefunden",
+            "EMPTY_MSG": "Beginnen Sie mit der Erstellung Ihrer ersten Hausaufgabenvorlage.",
+            "BTN_CREATE_FIRST": "Erste Vorlage erstellen",
+            "LOADING": "Vorlagen werden geladen..."
+        },
+        "ASSIGN": {
+            "TITLE": "Hausaufgabe zuweisen",
+            "SUBTITLE": "Vorlage wird zugewiesen:",
+            "BACK": "Zurück zur Bibliothek",
+            "SECTION_TARGET": "Zuweisungsziel",
+            "LABEL_CLASS": "Klasse auswählen",
+            "SELECT_CLASS_PLACEHOLDER": "Eine Klasse auswählen",
+            "SECTION_MEMBERS": "Schülerauswahl",
+            "TOGGLE_APPLY_ALL": "Diese Hausaufgabe allen Schülern in dieser Klasse zuweisen?",
+            "SELECT_STUDENTS_HINT": "Bestimmte Schüler für diese Hausaufgabe auswählen:",
+            "NO_STUDENTS": "Keine Schüler in dieser Klasse gefunden.",
+            "BTN_ASSIGN": "Vorlage zuweisen",
+            "BTN_ASSIGNING": "Wird zugewiesen...",
+            "BTN_CANCEL": "Abbrechen",
+            "SUMMARY_TITLE": "Vorlagenzusammenfassung",
+            "SUMMARY_STAGES": "Aufgaben"
+        },
+        "TRACKING": {
+            "TITLE": "Meine Hausaufgaben",
+            "SUBTITLE": "Verfolgen Sie Ihren Fortschritt und erledigen Sie Ihre Aufgaben",
+            "EMPTY_TITLE": "Keine aktiven Hausaufgaben",
+            "EMPTY_MSG": "Ihr Mentor hat noch keine Hausaufgaben zugewiesen.",
+            "LOADING": "Hausaufgaben werden geladen..."
         }
     }
 }

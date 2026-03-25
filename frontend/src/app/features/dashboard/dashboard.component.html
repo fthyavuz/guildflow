@@ -206,7 +206,7 @@
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                     </svg>
-                    Goal Library
+                    {{ 'DASHBOARD.GOAL_LIBRARY_BTN' | translate }}
                 </button>
                 <button class="btn btn-primary" routerLink="/classes/new" *ngIf="user.role === 'ADMIN'">Create Class</button>
             </div>

@@ -6,7 +6,7 @@
                 <line x1="19" y1="12" x2="5" y2="12" />
                 <polyline points="12 19 5 12 12 5" />
             </svg>
-            Back to Library
+            {{ 'HOMEWORK.ASSIGN.BACK' | translate }}
         </a>
     </div>
 
@@ -19,19 +19,19 @@
                 <polyline points="16 11 18 13 22 9" />
             </svg>
         </div>
-        <h1 class="grad-text">Assigning Quest</h1>
-        <p>Deploying template: <span class="highlight">{{ template?.title }}</span></p>
+        <h1 class="grad-text">{{ 'HOMEWORK.ASSIGN.TITLE' | translate }}</h1>
+        <p>{{ 'HOMEWORK.ASSIGN.SUBTITLE' | translate }} <span class="highlight">{{ template?.title }}</span></p>
     </div>
 
     <div class="form-grid">
         <div class="glass-card main-form">
             <form [formGroup]="assignForm" (ngSubmit)="onSubmit()">
                 <div class="section">
-                    <h3 class="section-title">Deployment Target</h3>
+                    <h3 class="section-title">{{ 'HOMEWORK.ASSIGN.SECTION_TARGET' | translate }}</h3>
                     <div class="input-group">
-                        <label>Select Guild (Class)</label>
+                        <label>{{ 'HOMEWORK.ASSIGN.LABEL_CLASS' | translate }}</label>
                         <select formControlName="classId" class="glass-input">
-                            <option [value]="null" disabled>Select a Guild</option>
+                            <option [value]="null" disabled>{{ 'HOMEWORK.ASSIGN.SELECT_CLASS_PLACEHOLDER' | translate }}</option>
                             <option *ngFor="let cls of classes$ | async" [value]="cls.id">
                                 {{ cls.name }} ({{ cls.educationLevel }})
                             </option>
@@ -51,9 +51,9 @@
                 </div>
 
                 <div class="section" *ngIf="assignForm.get('classId')?.value">
-                    <h3 class="section-title">Member Targeting</h3>
+                    <h3 class="section-title">{{ 'HOMEWORK.ASSIGN.SECTION_MEMBERS' | translate }}</h3>
                     <div class="toggle-group glass-input">
-                        <span>Enroll all guild scholars in this quest?</span>
+                        <span>{{ 'HOMEWORK.ASSIGN.TOGGLE_APPLY_ALL' | translate }}</span>
                         <label class="switch">
                             <input type="checkbox" formControlName="applyToAll">
                             <span class="slider round"></span>
@@ -61,7 +61,7 @@
                     </div>
 
                     <div class="student-selection fade-in" *ngIf="!assignForm.get('applyToAll')?.value">
-                        <p class="select-hint">Select the members for this specific quest:</p>
+                        <p class="select-hint">{{ 'HOMEWORK.ASSIGN.SELECT_STUDENTS_HINT' | translate }}</p>
                         <div class="student-pill-list">
                             <label class="student-pill" *ngFor="let s of students$ | async"
                                 [class.active]="assignForm.get('studentIds')?.value.includes(s.id)">
@@ -70,7 +70,7 @@
                                 {{ s.firstName }} {{ s.lastName }}
                             </label>
                             <div class="empty-msg" *ngIf="(students$ | async)?.length === 0">
-                                No scholars found in this guild.
+                                {{ 'HOMEWORK.ASSIGN.NO_STUDENTS' | translate }}
                             </div>
                         </div>
                     </div>
@@ -79,16 +79,16 @@
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary lg"
                         [disabled]="assignForm.invalid || isSubmitting">
-                        {{ isSubmitting ? 'Deploying...' : 'Assign Template' }}
+                        {{ isSubmitting ? ('HOMEWORK.ASSIGN.BTN_ASSIGNING' | translate) : ('HOMEWORK.ASSIGN.BTN_ASSIGN' | translate) }}
                     </button>
-                    <button type="button" class="btn btn-ghost" routerLink="/goals/library">Cancel</button>
+                    <button type="button" class="btn btn-ghost" routerLink="/goals/library">{{ 'HOMEWORK.ASSIGN.BTN_CANCEL' | translate }}</button>
                 </div>
             </form>
         </div>
 
         <div class="side-panel">
             <div class="glass-card summary-card">
-                <h3>Template Summary</h3>
+                <h3>{{ 'HOMEWORK.ASSIGN.SUMMARY_TITLE' | translate }}</h3>
                 <div class="template-info" *ngIf="template">
                     <div class="info-item">
                         <label>Category</label>
@@ -96,7 +96,7 @@
                     </div>
                     <div class="info-item">
                         <label>Tasks</label>
-                        <span>{{ template.tasks.length }} stages</span>
+                        <span>{{ template.tasks.length }} {{ 'HOMEWORK.ASSIGN.SUMMARY_STAGES' | translate }}</span>
                     </div>
                     <div class="task-list-mini">
                         <div class="mini-task" *ngFor="let task of template.tasks">

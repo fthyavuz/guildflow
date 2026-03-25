@@ -11,8 +11,8 @@
     </div>
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">Quest Log</h1>
-            <p class="subtitle">Track your progress and complete your training</p>
+            <h1 class="grad-text">{{ 'HOMEWORK.TRACKING.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'HOMEWORK.TRACKING.SUBTITLE' | translate }}</p>
         </div>
     </header>
 
@@ -69,8 +69,8 @@
 
         <div class="empty-state glass" *ngIf="goals.length === 0">
             <div class="icon">📜</div>
-            <h3>No Active Quests</h3>
-            <p>Your mentor hasn't assigned any goals yet. Enjoy the calm before the storm!</p>
+            <h3>{{ 'HOMEWORK.TRACKING.EMPTY_TITLE' | translate }}</h3>
+            <p>{{ 'HOMEWORK.TRACKING.EMPTY_MSG' | translate }}</p>
         </div>
     </div>
 
@@ -110,7 +110,7 @@
     <ng-template #loading>
         <div class="loader-container">
             <div class="spinner large"></div>
-            <p>Gathering your progress records...</p>
+            <p>{{ 'HOMEWORK.TRACKING.LOADING' | translate }}</p>
         </div>
     </ng-template>
 </div>

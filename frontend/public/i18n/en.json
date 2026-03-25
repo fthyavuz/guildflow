@@ -34,38 +34,39 @@
         "MENTORS": "Mentors",
         "STUDENTS": "Students",
         "MY_GUILDS": "Classes",
-        "MY_QUESTS": "My Quests",
+        "MY_QUESTS": "My Homework",
         "MEETINGS": "Meetings",
         "EVENTS": "Events",
         "ORGANIZATION": "Organization",
         "SOURCES": "Resources",
         "ROOMS": "Rooms",
-        "GOAL_LIBRARY": "Goal Library"
+        "GOAL_LIBRARY": "Homework Library"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Welcome, Master",
         "CREATE_GUILD": "+ Create Class",
+        "GOAL_LIBRARY_BTN": "Homework Library",
         "STATS": {
-            "ACTIVE_QUESTS": "Active Quests",
+            "ACTIVE_QUESTS": "Active Homework",
             "TOTAL_SCHOLARS": "Total Students",
             "GUILD_SCHOLARS": "Class Students",
             "TOTAL_MENTORS": "Total Mentors",
             "MEETINGS": "Meetings"
         },
         "SECTIONS": {
-            "ACTIVE_QUESTS": "Active Quests",
+            "ACTIVE_QUESTS": "Active Homework",
             "ALL_GUILDS": "All Classes",
             "MY_GUILDS": "Classes",
             "RECENT_SESSIONS": "Recent Sessions",
             "UPCOMING_EVENTS": "Guild Activities"
         },
         "QUEST": {
-            "TAG": "Quest",
+            "TAG": "Homework",
             "TASKS": "Tasks",
             "MASTERY": "Mastery"
         },
         "EMPTY": {
-            "NO_QUESTS": "No active quests found. Check back later for new trials!",
+            "NO_QUESTS": "No active homework found. Check back later!",
             "NO_SESSIONS": "No upcoming sessions scheduled."
         }
     },
@@ -77,5 +78,59 @@
         "SAVING": "Saving...",
         "SELECT": "+ Select",
         "ENROLL_BTN": "Enroll Student"
+    },
+    "HOMEWORK": {
+        "FORM": {
+            "TITLE_NEW": "New Homework",
+            "TITLE_TEMPLATE": "Create Template",
+            "TITLE_EDIT": "Edit Homework",
+            "SUBTITLE_NEW": "Define homework that leads your class to mastery",
+            "SUBTITLE_TEMPLATE": "Create a homework template to be reused across different classes",
+            "SUBTITLE_EDIT": "Modifying this homework assignment",
+            "SECTION_IDENTITY": "Homework Details",
+            "LABEL_TITLE": "Homework Title",
+            "LABEL_CATEGORY": "Category",
+            "SECTION_SCOPE": "Assignment Scope",
+            "TOGGLE_APPLY_ALL": "Assign to all students in this class?",
+            "SELECT_STUDENTS_HINT": "Select specific students for this homework:",
+            "SECTION_TASKS": "Tasks",
+            "BTN_ADD_TASK": "+ Add Task",
+            "BTN_SUBMIT": "Assign Homework",
+            "BTN_UPDATE": "Update Homework",
+            "BTN_SAVE_TEMPLATE": "Save to Homework Library",
+            "BTN_PROCESSING": "Processing..."
+        },
+        "LIBRARY": {
+            "SUBTITLE": "Manage and assign homework templates to your students and classes",
+            "BTN_CREATE": "Create New Template",
+            "EMPTY_TITLE": "No templates found",
+            "EMPTY_MSG": "Start by creating your first homework template.",
+            "BTN_CREATE_FIRST": "Create First Template",
+            "LOADING": "Loading templates..."
+        },
+        "ASSIGN": {
+            "TITLE": "Assign Homework",
+            "SUBTITLE": "Assigning template:",
+            "BACK": "Back to Library",
+            "SECTION_TARGET": "Assignment Target",
+            "LABEL_CLASS": "Select Class",
+            "SELECT_CLASS_PLACEHOLDER": "Select a Class",
+            "SECTION_MEMBERS": "Member Targeting",
+            "TOGGLE_APPLY_ALL": "Assign to all students in this class?",
+            "SELECT_STUDENTS_HINT": "Select specific students for this homework:",
+            "NO_STUDENTS": "No students found in this class.",
+            "BTN_ASSIGN": "Assign Template",
+            "BTN_ASSIGNING": "Assigning...",
+            "BTN_CANCEL": "Cancel",
+            "SUMMARY_TITLE": "Template Summary",
+            "SUMMARY_STAGES": "tasks"
+        },
+        "TRACKING": {
+            "TITLE": "My Homework",
+            "SUBTITLE": "Track your progress and complete your assignments",
+            "EMPTY_TITLE": "No Active Homework",
+            "EMPTY_MSG": "Your mentor hasn't assigned any homework yet.",
+            "LOADING": "Loading your homework..."
+        }
     }
 }
