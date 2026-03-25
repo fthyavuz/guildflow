@@ -85,6 +85,7 @@ public class GoalService {
                 .isTemplate(request.isTemplate())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
+                .frequency(request.getFrequency())
                 .createdBy(creator)
                 .build();
 
@@ -142,6 +143,7 @@ public class GoalService {
         goal.setApplyToAll(request.isApplyToAll());
         goal.setStartDate(request.getStartDate());
         goal.setEndDate(request.getEndDate());
+        goal.setFrequency(request.getFrequency());
 
         goal.getTasks().clear();
         List<GoalTask> newTasks = request.getTasks().stream()
@@ -204,6 +206,18 @@ public class GoalService {
 
         goal.setActive(false);
         goalRepository.save(goal);
+    }
+
+    // --- Progress & Review (stub) ---
+
+    @Transactional
+    public void submitProgress(ProgressRequest request, User student) {
+        // TODO: persist progress entry once GoalProgress entity is added
+    }
+
+    @Transactional
+    public void submitReview(GoalReviewRequest request, User mentor) {
+        // TODO: persist review entry once GoalReview entity is added
     }
 
     // --- Student View ---

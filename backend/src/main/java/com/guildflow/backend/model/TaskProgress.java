@@ -1,5 +1,6 @@
 package com.guildflow.backend.model;
 
+import com.guildflow.backend.model.enums.ProgressEntryStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -40,6 +41,21 @@ public class TaskProgress {
 
     @Column(name = "boolean_value")
     private Boolean booleanValue;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private ProgressEntryStatus status = ProgressEntryStatus.PENDING;
+
+    @Column(name = "mentor_notes", columnDefinition = "TEXT")
+    private String mentorNotes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewed_by")
+    private User reviewedBy;
+
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

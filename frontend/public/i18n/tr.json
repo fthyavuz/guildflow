@@ -40,7 +40,8 @@
         "ORGANIZATION": "Organizasyon",
         "SOURCES": "Kaynaklar",
         "ROOMS": "Odalar",
-        "GOAL_LIBRARY": "Ödev Kütüphanesi"
+        "GOAL_LIBRARY": "Ödev Kütüphanesi",
+        "HOMEWORK_APPROVAL": "Ödev Onayı"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Hoş Geldin, Usta",
@@ -130,7 +131,9 @@
             "SUBTITLE": "İlerlemenizi takip edin ve ödevlerinizi tamamlayın",
             "EMPTY_TITLE": "Aktif Ödev Yok",
             "EMPTY_MSG": "Mentörünüz henüz ödev atamamış.",
-            "LOADING": "Ödevleriniz yükleniyor..."
+            "LOADING": "Ödevleriniz yükleniyor...",
+            "DATE_LABEL": "Tarih",
+            "SUBMITTED_TODAY": "gönderildi"
         }
     }
 }

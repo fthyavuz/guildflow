@@ -1,6 +1,7 @@
 package com.guildflow.backend.dto;
 
 import com.guildflow.backend.model.Goal;
+import com.guildflow.backend.model.enums.Frequency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class GoalResponse {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;
+    private Frequency frequency;
     private List<TaskResponse> tasks;
 
     public static GoalResponse fromEntity(Goal goal) {
@@ -43,6 +45,7 @@ public class GoalResponse {
                 .startDate(goal.getStartDate())
                 .endDate(goal.getEndDate())
                 .createdAt(goal.getCreatedAt())
+                .frequency(goal.getFrequency())
                 .tasks(goal.getTasks().stream()
                         .map(TaskResponse::fromEntity)
                         .collect(Collectors.toList()))

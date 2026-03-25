@@ -81,6 +81,11 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./features/goals/goal-tracking.component').then(m => m.GoalTrackingComponent)
     },
+    {
+        path: 'goals/approval',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/goals/homework-approval/homework-approval.component').then(m => m.HomeworkApprovalComponent)
+    },
 
     {
         path: 'events',

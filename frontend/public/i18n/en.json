@@ -40,7 +40,8 @@
         "ORGANIZATION": "Organization",
         "SOURCES": "Resources",
         "ROOMS": "Rooms",
-        "GOAL_LIBRARY": "Homework Library"
+        "GOAL_LIBRARY": "Homework Library",
+        "HOMEWORK_APPROVAL": "Homework Approval"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Welcome, Master",
@@ -130,7 +131,9 @@
             "SUBTITLE": "Track your progress and complete your assignments",
             "EMPTY_TITLE": "No Active Homework",
             "EMPTY_MSG": "Your mentor hasn't assigned any homework yet.",
-            "LOADING": "Loading your homework..."
+            "LOADING": "Loading your homework...",
+            "DATE_LABEL": "Date",
+            "SUBMITTED_TODAY": "submitted"
         }
     }
 }
