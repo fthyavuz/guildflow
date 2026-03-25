@@ -40,7 +40,8 @@
         "ORGANIZATION": "Organisation",
         "SOURCES": "Ressourcen",
         "ROOMS": "Räume",
-        "GOAL_LIBRARY": "Hausaufgaben-Bibliothek"
+        "GOAL_LIBRARY": "Hausaufgaben-Bibliothek",
+        "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Willkommen, Meister",
@@ -121,7 +122,9 @@
             "SUBTITLE": "Verfolgen Sie Ihren Fortschritt und erledigen Sie Ihre Aufgaben",
             "EMPTY_TITLE": "Keine aktiven Hausaufgaben",
             "EMPTY_MSG": "Ihr Mentor hat noch keine Hausaufgaben zugewiesen.",
-            "LOADING": "Hausaufgaben werden geladen..."
+            "LOADING": "Hausaufgaben werden geladen...",
+            "DATE_LABEL": "Datum",
+            "SUBMITTED_TODAY": "eingereicht"
         }
     }
 }

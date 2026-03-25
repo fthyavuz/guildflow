@@ -3,6 +3,7 @@ package com.guildflow.backend.repository;
 import com.guildflow.backend.model.GoalTask;
 import com.guildflow.backend.model.TaskProgress;
 import com.guildflow.backend.model.User;
+import com.guildflow.backend.model.enums.ProgressEntryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,4 +26,13 @@ public interface TaskProgressRepository extends JpaRepository<TaskProgress, Long
     Optional<TaskProgress> findByTaskAndStudentAndEntryDate(GoalTask task, User student, LocalDate entryDate);
 
     List<TaskProgress> findByStudentAndEntryDateBetween(User student, LocalDate start, LocalDate end);
+
+    @Query("SELECT tp FROM TaskProgress tp JOIN FETCH tp.task t JOIN FETCH t.goal g JOIN FETCH tp.student s WHERE tp.status = :status ORDER BY tp.createdAt DESC")
+    List<TaskProgress> findByStatusWithDetails(@Param("status") ProgressEntryStatus status);
+
+    @Query("SELECT tp FROM TaskProgress tp WHERE tp.task.id IN :taskIds AND tp.student = :student AND tp.status = :status ORDER BY tp.entryDate DESC")
+    List<TaskProgress> findByTaskIdsAndStudentAndStatus(@Param("taskIds") List<Long> taskIds, @Param("student") User student, @Param("status") ProgressEntryStatus status);
+
+    @Query("SELECT tp FROM TaskProgress tp WHERE tp.task.id IN :taskIds AND tp.student = :student AND tp.entryDate = :date")
+    List<TaskProgress> findByTaskIdsAndStudentAndDate(@Param("taskIds") List<Long> taskIds, @Param("student") User student, @Param("date") LocalDate date);
 }

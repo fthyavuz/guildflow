@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { GoalProgress } from '../models/student.model';
+import { GoalProgress, PendingProgressEntry } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -18,13 +18,25 @@ export class GoalService {
         return this.http.get<GoalProgress[]>(`${this.goalsApiUrl}/my-goals`);
     }
 
-    submitProgress(taskId: number, numericValue?: number, booleanValue?: boolean): Observable<void> {
+    submitProgress(taskId: number, entryDate: string, numericValue?: number, booleanValue?: boolean): Observable<void> {
         return this.http.post<void>(this.progressApiUrl, {
             taskId,
             numericValue,
             booleanValue,
-            entryDate: new Date().toISOString().split('T')[0]
+            entryDate
         });
+    }
+
+    getPendingApprovals(): Observable<PendingProgressEntry[]> {
+        return this.http.get<PendingProgressEntry[]>(`${this.progressApiUrl}/pending`);
+    }
+
+    approveEntry(entryId: number, mentorNotes?: string): Observable<void> {
+        return this.http.post<void>(`${this.progressApiUrl}/${entryId}/approve`, { mentorNotes });
+    }
+
+    rejectEntry(entryId: number, mentorNotes?: string): Observable<void> {
+        return this.http.post<void>(`${this.progressApiUrl}/${entryId}/reject`, { mentorNotes });
     }
 
     getGoalTypes(): Observable<any[]> {

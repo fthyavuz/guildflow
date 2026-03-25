@@ -5,6 +5,7 @@ import com.guildflow.backend.exception.EntityNotFoundException;
 import com.guildflow.backend.exception.ForbiddenException;
 import com.guildflow.backend.exception.ValidationException;
 import com.guildflow.backend.model.*;
+import com.guildflow.backend.model.enums.ProgressEntryStatus;
 import com.guildflow.backend.model.enums.Role;
 import com.guildflow.backend.repository.*;
 import com.guildflow.backend.util.SecurityUtils;
@@ -46,7 +47,7 @@ public class GoalProgressService {
         if (taskIds.isEmpty()) return Collections.emptyList();
 
         Map<Long, List<TaskProgress>> progressByTaskId = taskProgressRepository
-                .findByTaskIdsAndStudent(taskIds, student)
+                .findByTaskIdsAndStudentAndStatus(taskIds, student, ProgressEntryStatus.APPROVED)
                 .stream()
                 .collect(Collectors.groupingBy(tp -> tp.getTask().getId()));
 
@@ -105,10 +106,17 @@ public class GoalProgressService {
                         .task(task)
                         .student(student)
                         .entryDate(request.getEntryDate())
+                        .status(ProgressEntryStatus.PENDING)
                         .build());
+
+        // If already approved, do not allow re-submission
+        if (ProgressEntryStatus.APPROVED.equals(progress.getStatus())) {
+            return;
+        }
 
         progress.setNumericValue(request.getNumericValue());
         progress.setBooleanValue(request.getBooleanValue());
+        progress.setStatus(ProgressEntryStatus.PENDING);
         taskProgressRepository.save(progress);
     }
 

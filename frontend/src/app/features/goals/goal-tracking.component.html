@@ -9,6 +9,7 @@
             {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
         </a>
     </div>
+
     <header class="page-header">
         <div class="header-content">
             <h1 class="grad-text">{{ 'HOMEWORK.TRACKING.TITLE' | translate }}</h1>
@@ -16,101 +17,118 @@
         </div>
     </header>
 
-    <div class="goals-grid" *ngIf="goals$ | async as goals; else loading">
-        <div class="goal-card glass-card" *ngFor="let goal of goals">
-            <div class="goal-header">
-                <div class="title-area">
-                    <h2>{{ goal.title }}</h2>
-                    <span class="overall-perc" [style.color]="getProgressColor(goal.overallProgress)">
-                        {{ goal.overallProgress | number:'1.0-0' }}%
-                    </span>
-                </div>
-                <div class="progress-bar-container">
-                    <div class="progress-fill" [style.width.%]="goal.overallProgress"
-                        [style.background-color]="getProgressColor(goal.overallProgress)">
-                    </div>
-                </div>
-            </div>
-
-            <div class="tasks-list">
-                <div class="task-item" *ngFor="let task of goal.tasks">
-                    <div class="task-info">
-                        <div class="task-meta">
-                            <span class="task-name">{{ task.title }}</span>
-                            <span class="task-values">
-                                {{ task.currentValue }} / {{ task.targetValue }}
-                                {{ task.taskType === 'NUMBER' ? 'units' : 'checks' }}
-                            </span>
-                        </div>
-                        <div class="task-pb-mini">
-                            <div class="fill" [style.width.%]="task.progressPercentage"
-                                [style.background-color]="getProgressColor(task.progressPercentage)">
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-complete"
-                        (click)="task.taskType === 'CHECKBOX' ? quickLog(task) : openSubmitDialog(task)"
-                        [class.done]="task.progressPercentage >= 100"
-                        [title]="task.taskType === 'CHECKBOX' ? 'Quick log for today' : 'Enter amount'">
-                        <svg *ngIf="task.progressPercentage < 100" xmlns="http://www.w3.org/2000/svg" width="18"
-                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-                        <svg *ngIf="task.progressPercentage >= 100" xmlns="http://www.w3.org/2000/svg" width="18"
-                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    <!-- Period selector -->
+    <div class="date-bar glass-card">
+        <div class="date-bar-inner">
+            <label class="date-label">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ 'HOMEWORK.TRACKING.DATE_LABEL' | translate }}
+            </label>
+            <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="glass-input date-input">
         </div>
+        <div class="summary-pill" *ngIf="totalEntriesForDate() > 0">
+            {{ totalEntriesForDate() }} {{ 'HOMEWORK.TRACKING.SUBMITTED_TODAY' | translate }}
+        </div>
+    </div>
 
-        <div class="empty-state glass" *ngIf="goals.length === 0">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loader-container">
+        <div class="spinner large"></div>
+        <p>{{ 'HOMEWORK.TRACKING.LOADING' | translate }}</p>
+    </div>
+
+    <!-- Goals list -->
+    <div *ngIf="!isLoading">
+        <div *ngIf="goalViews.length === 0" class="empty-state glass-card">
             <div class="icon">📜</div>
             <h3>{{ 'HOMEWORK.TRACKING.EMPTY_TITLE' | translate }}</h3>
             <p>{{ 'HOMEWORK.TRACKING.EMPTY_MSG' | translate }}</p>
         </div>
-    </div>
 
-    <!-- Progress Submission Modal -->
-    <div class="modal-overlay" *ngIf="selectedTask" (click)="closeDialog()">
-        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
-            <div class="modal-header">
-                <h3>Log Progress</h3>
-                <button class="close-btn" (click)="closeDialog()">&times;</button>
-            </div>
-
-            <div class="modal-body">
-                <p class="task-label">Effort for: <strong>{{ selectedTask.title }}</strong></p>
-
-                <div class="input-area" *ngIf="selectedTask.taskType === 'NUMBER'">
-                    <label>Amount completed today:</label>
-                    <input type="number" [(ngModel)]="submissionValue" placeholder="e.g. 5" class="glass-input"
-                        autofocus>
+        <div class="goal-block glass-card" *ngFor="let gv of goalViews">
+            <!-- Goal header with overall progress -->
+            <div class="goal-header">
+                <div class="goal-title-row">
+                    <h2>{{ gv.goal.title }}</h2>
+                    <div class="goal-badges">
+                        <span class="badge-freq" *ngIf="gv.goal.frequency">{{ gv.goal.frequency }}</span>
+                        <span class="overall-perc" [style.color]="getProgressColor(gv.goal.overallProgress)">
+                            {{ gv.goal.overallProgress | number:'1.0-0' }}%
+                        </span>
+                    </div>
                 </div>
-
-                <div class="input-area" *ngIf="selectedTask.taskType === 'CHECKBOX'">
-                    <p class="confirm-text">Are you sure you want to mark this task as completed for today?</p>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" [style.width.%]="gv.goal.overallProgress"
+                        [style.background-color]="getProgressColor(gv.goal.overallProgress)">
+                    </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-cancel" (click)="closeDialog()">Not yet</button>
-                <button class="btn-primary"
-                    [disabled]="isSubmitting || (selectedTask.taskType === 'NUMBER' && submissionValue === null)"
-                    (click)="submitProgress()">
-                    {{ isSubmitting ? 'Recording...' : 'Record Progress' }}
-                </button>
+            <!-- Task entries for the selected date -->
+            <div class="tasks-list">
+                <div class="task-entry" *ngFor="let entry of gv.entries"
+                    [class.submitted]="entry.submitted">
+                    <div class="task-info">
+                        <div class="task-top-row">
+                            <span class="task-name">{{ entry.task.title }}</span>
+                            <span class="task-progress-text" [style.color]="getProgressColor(entry.task.progressPercentage)">
+                                {{ entry.task.currentValue }} / {{ entry.task.targetValue }}
+                            </span>
+                        </div>
+                        <div class="task-pb-mini">
+                            <div class="fill" [style.width.%]="entry.task.progressPercentage"
+                                [style.background-color]="getProgressColor(entry.task.progressPercentage)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="entry-input" *ngIf="!entry.submitted">
+                        <div class="num-input-group" *ngIf="entry.task.taskType === 'NUMBER'">
+                            <input type="number" [(ngModel)]="entry.inputValue"
+                                placeholder="0"
+                                class="glass-input-sm num-input"
+                                min="0">
+                            <button class="btn-submit-entry"
+                                [disabled]="entry.submitting || entry.inputValue === null || entry.inputValue! <= 0"
+                                (click)="submitEntry(entry)">
+                                <span *ngIf="!entry.submitting">+</span>
+                                <span *ngIf="entry.submitting" class="spinner-sm"></span>
+                            </button>
+                        </div>
+                        <div class="check-input-group" *ngIf="entry.task.taskType === 'CHECKBOX'">
+                            <label class="checkbox-pill" [class.checked]="entry.checked" (click)="entry.checked = !entry.checked">
+                                <svg *ngIf="entry.checked" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                {{ entry.checked ? 'Done' : 'Mark done' }}
+                            </label>
+                            <button class="btn-submit-entry"
+                                [disabled]="entry.submitting || !entry.checked"
+                                (click)="submitEntry(entry)">
+                                <span *ngIf="!entry.submitting">Submit</span>
+                                <span *ngIf="entry.submitting" class="spinner-sm"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submitted state -->
+                    <div class="submitted-badge" *ngIf="entry.submitted">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Pending review
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <ng-template #loading>
-        <div class="loader-container">
-            <div class="spinner large"></div>
-            <p>{{ 'HOMEWORK.TRACKING.LOADING' | translate }}</p>
-        </div>
-    </ng-template>
 </div>

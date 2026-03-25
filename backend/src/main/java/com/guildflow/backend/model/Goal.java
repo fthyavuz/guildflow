@@ -1,5 +1,6 @@
 package com.guildflow.backend.model;
 
+import com.guildflow.backend.model.enums.Frequency;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -53,6 +54,10 @@ public class Goal {
     @Column(name = "apply_to_all", nullable = false)
     @Builder.Default
     private Boolean applyToAll = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency", length = 10)
+    private Frequency frequency;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;

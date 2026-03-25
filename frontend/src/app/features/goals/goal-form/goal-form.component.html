@@ -48,6 +48,14 @@
                             </select>
                         </div>
                         <div class="input-group" *ngIf="!isTemplate">
+                            <label>Frequency</label>
+                            <select formControlName="frequency" class="glass-input">
+                                <option [value]="null">No frequency</option>
+                                <option value="DAILY">Daily</option>
+                                <option value="WEEKLY">Weekly</option>
+                            </select>
+                        </div>
+                        <div class="input-group" *ngIf="!isTemplate">
                             <label>Timeline</label>
                             <div class="date-row">
                                 <input type="date" formControlName="startDate" class="glass-input">

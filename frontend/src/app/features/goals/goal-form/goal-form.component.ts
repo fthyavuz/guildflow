@@ -46,6 +46,7 @@ export class GoalFormComponent implements OnInit {
             isTemplate: [false],
             startDate: [''],
             endDate: [''],
+            frequency: [null],
             studentIds: [[]],
             tasks: this.fb.array([])
         });
@@ -122,6 +123,7 @@ export class GoalFormComponent implements OnInit {
                     isTemplate: goal.isTemplate,
                     startDate: goal.startDate ? goal.startDate.split('T')[0] : '',
                     endDate: goal.endDate ? goal.endDate.split('T')[0] : '',
+                    frequency: goal.frequency ?? null,
                     studentIds: []
                 });
 

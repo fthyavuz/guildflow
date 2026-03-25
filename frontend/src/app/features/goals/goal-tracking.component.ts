@@ -3,11 +3,23 @@ import { CommonModule } from '@angular/common';
 import { GoalService } from '../../core/services/goal.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { GoalProgress, TaskProgress } from '../../core/models/student.model';
-import { Observable, shareReplay } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
+
+interface TaskEntry {
+    task: TaskProgress;
+    inputValue: number | null;
+    checked: boolean;
+    submitting: boolean;
+    submitted: boolean;
+}
+
+interface GoalView {
+    goal: GoalProgress;
+    entries: TaskEntry[];
+}
 
 @Component({
     selector: 'app-goal-tracking',
@@ -21,70 +33,73 @@ export class GoalTrackingComponent implements OnInit {
     private destroyRef = inject(DestroyRef);
     private notifications = inject(NotificationService);
 
-    goals$: Observable<GoalProgress[]> | undefined;
-    selectedTask: TaskProgress | null = null;
-    submissionValue: number | null = null;
-    isSubmitting = false;
+    selectedDate: string = new Date().toISOString().split('T')[0];
+    goalViews: GoalView[] = [];
+    isLoading = true;
 
     ngOnInit(): void {
         this.loadGoals();
     }
 
     loadGoals(): void {
-        this.goals$ = this.goalService.getMyGoals().pipe(shareReplay(1));
+        this.isLoading = true;
+        this.goalService.getMyGoals()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (goals) => {
+                    this.goalViews = goals.map(goal => ({
+                        goal,
+                        entries: goal.tasks.map(task => ({
+                            task,
+                            inputValue: null,
+                            checked: false,
+                            submitting: false,
+                            submitted: false
+                        }))
+                    }));
+                    this.isLoading = false;
+                },
+                error: () => { this.isLoading = false; }
+            });
     }
 
-    openSubmitDialog(task: any): void {
-        this.selectedTask = task;
-        this.submissionValue = task.taskType === 'NUMBER' ? null : null;
+    onDateChange(): void {
+        // Reset submitted flags when date changes so user can re-enter
+        this.goalViews.forEach(gv => {
+            gv.entries.forEach(e => {
+                e.submitted = false;
+                e.inputValue = null;
+                e.checked = false;
+            });
+        });
     }
 
-    closeDialog(): void {
-        this.selectedTask = null;
-        this.submissionValue = null;
-    }
+    submitEntry(entry: TaskEntry): void {
+        if (entry.submitting) return;
+        entry.submitting = true;
 
-    quickLog(task: any): void {
-        this.isSubmitting = true;
-        const isNumeric = task.taskType === 'NUMBER';
-
+        const isNumeric = entry.task.taskType === 'NUMBER';
         this.goalService.submitProgress(
-            task.taskId,
-            isNumeric ? 1 : undefined,
-            !isNumeric ? true : undefined
+            entry.task.taskId,
+            this.selectedDate,
+            isNumeric ? (entry.inputValue ?? 0) : undefined,
+            !isNumeric ? entry.checked : undefined
         ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
-                this.loadGoals();
-                this.isSubmitting = false;
+                entry.submitted = true;
+                entry.submitting = false;
+                this.notifications.success('Progress submitted — awaiting mentor approval');
             },
             error: (err) => {
-                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to log progress'));
-                this.isSubmitting = false;
+                entry.submitting = false;
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to submit'));
             }
         });
     }
 
-    submitProgress(): void {
-        if (!this.selectedTask) return;
-
-        this.isSubmitting = true;
-        const isNumeric = this.selectedTask.taskType === 'NUMBER';
-
-        this.goalService.submitProgress(
-            this.selectedTask.taskId,
-            isNumeric ? (this.submissionValue || 0) : undefined,
-            !isNumeric ? true : undefined
-        ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-            next: () => {
-                this.loadGoals();
-                this.closeDialog();
-                this.isSubmitting = false;
-            },
-            error: (err) => {
-                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to submit progress'));
-                this.isSubmitting = false;
-            }
-        });
+    totalEntriesForDate(): number {
+        return this.goalViews.reduce((sum, gv) =>
+            sum + gv.entries.filter(e => e.submitted).length, 0);
     }
 
     getProgressColor(percentage: number): string {
@@ -92,5 +107,11 @@ export class GoalTrackingComponent implements OnInit {
         if (percentage >= 70) return '#60a5fa';
         if (percentage >= 30) return '#facc15';
         return '#f87171';
+    }
+
+    getStatusClass(status?: string): string {
+        if (status === 'APPROVED') return 'status-approved';
+        if (status === 'REJECTED') return 'status-rejected';
+        return 'status-pending';
     }
 }

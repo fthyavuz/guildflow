@@ -1,5 +1,6 @@
 package com.guildflow.backend.dto;
 
+import com.guildflow.backend.model.enums.Frequency;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +22,7 @@ public class GoalRequest {
     private List<Long> studentIds; // Only used if applyToAll is false
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private Frequency frequency;
 
     @Valid
     @NotNull(message = "Tasks are required")
