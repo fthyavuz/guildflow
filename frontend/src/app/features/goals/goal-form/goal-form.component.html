@@ -119,7 +119,7 @@
                                         <select formControlName="sourceId" class="glass-input-sm full">
                                             <option [value]="null">No Source (Manual)</option>
                                             <option *ngFor="let source of sources$ | async" [value]="source.id">
-                                                {{ source.title }} ({{ source.type }})
+                                                {{ source.title }} ({{ source.categoryName }})
                                             </option>
                                         </select>
                                     </div>

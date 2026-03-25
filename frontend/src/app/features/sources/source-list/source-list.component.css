@@ -5,6 +5,93 @@
     margin-bottom: 2rem;
 }
 
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* ── Category Panel ── */
+.category-panel {
+    padding: 1.5rem;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.inline-form {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.inline-form .glass-input {
+    flex: 1;
+    min-width: 160px;
+}
+
+.category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+}
+
+.cat-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.cat-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.cat-name.inactive {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.cat-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.badge-inactive {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.cat-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
 .btn-back {
     display: flex;
     align-items: center;
@@ -65,7 +152,13 @@
     font-size: 1.1rem;
 }
 
-.source-type-badge {
+.source-badges {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.badge-category {
     display: inline-block;
     font-size: 0.65rem;
     font-weight: 800;
@@ -75,7 +168,23 @@
     background: rgba(34, 211, 238, 0.1);
     padding: 0.2rem 0.5rem;
     border-radius: 4px;
-    margin-bottom: 0.5rem;
+}
+
+.badge-tracking {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-gold);
+    background: rgba(251, 191, 36, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.badge-tracking.binary {
+    color: #a78bfa;
+    background: rgba(167, 139, 250, 0.1);
 }
 
 .source-meta {

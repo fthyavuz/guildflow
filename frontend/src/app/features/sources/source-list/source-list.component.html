@@ -1,4 +1,6 @@
 <div class="page-container fade-in">
+
+    <!-- Header -->
     <div class="nav-header">
         <a routerLink="/dashboard" class="btn-back">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -8,88 +10,153 @@
             {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
         </a>
         <h2 class="grad-text">Resource Library</h2>
-        <button *ngIf="(user$ | async)?.role !== 'STUDENT'" class="btn btn-primary" (click)="startAdd()">
-            + Add New Source
-        </button>
+        <div class="header-actions" *ngIf="(user$ | async)?.role !== 'STUDENT'">
+            <button class="btn btn-ghost btn-sm" (click)="toggleCategoryPanel()"
+                *ngIf="(user$ | async)?.role === 'ADMIN'">
+                ⚙ Manage Categories
+            </button>
+            <button class="btn btn-primary" (click)="startAdd()">+ Add Resource</button>
+        </div>
     </div>
 
-    <!-- Source Form Card -->
-    <div *ngIf="showForm" class="glass-card mb-4 p-4 form-slide">
-        <div class="section-header">
-            <h3>{{ editingId ? 'Edit Source' : 'Add New Source' }}</h3>
-            <button class="btn-close" (click)="cancelEdit()">×</button>
+    <!-- ── Category Management Panel (ADMIN only) ── -->
+    <div *ngIf="showCategoryPanel" class="glass-card category-panel mb-4 form-slide">
+        <div class="panel-header">
+            <h3>Resource Categories</h3>
+            <button class="btn btn-primary btn-sm" (click)="startAddCategory()">+ New Category</button>
         </div>
-        
-        <form [formGroup]="sourceForm" (ngSubmit)="saveSource()" class="source-form mt-3">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label>Title</label>
-                    <input type="text" formControlName="title" placeholder="Source title..." class="form-control">
+
+        <!-- Category Form -->
+        <div *ngIf="showCategoryForm" class="category-form-row mt-3">
+            <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="inline-form">
+                <input type="text" formControlName="name" placeholder="Category name" class="glass-input">
+                <input type="text" formControlName="description" placeholder="Description (optional)" class="glass-input">
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="categoryForm.invalid">
+                    {{ editingCategoryId ? 'Update' : 'Create' }}
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm" (click)="cancelCategoryEdit()">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Category List -->
+        <div class="category-list mt-3">
+            <div class="category-row" *ngFor="let cat of categories">
+                <div class="cat-info">
+                    <span class="cat-name" [class.inactive]="!cat.active">{{ cat.name }}</span>
+                    <span class="cat-desc" *ngIf="cat.description">{{ cat.description }}</span>
+                    <span class="badge-inactive" *ngIf="!cat.active">Inactive</span>
                 </div>
-                <div class="form-group col-md-3">
-                    <label>Type</label>
-                    <select formControlName="type" class="form-control">
-                        <option *ngFor="let type of sourceTypes" [value]="type">{{ type }}</option>
+                <div class="cat-actions">
+                    <button class="btn-icon" (click)="editCategory(cat)" title="Edit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <button class="btn-icon delete" (click)="deleteCategory(cat.id)" title="Deactivate" *ngIf="cat.active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Source Form ── -->
+    <div *ngIf="showSourceForm" class="glass-card mb-4 p-4 form-slide">
+        <div class="section-header">
+            <h3>{{ editingSourceId ? 'Edit Resource' : 'Add New Resource' }}</h3>
+            <button class="btn-close" (click)="cancelSourceEdit()">×</button>
+        </div>
+
+        <form [formGroup]="sourceForm" (ngSubmit)="saveSource()" class="source-form mt-3">
+            <!-- Row 1: Title, Category, Tracking Type -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" formControlName="title" placeholder="e.g. Sahih Al-Bukhari Vol.1" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select formControlName="categoryId" class="glass-input">
+                        <option [ngValue]="null" disabled>Select category</option>
+                        <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
                     </select>
                 </div>
-                <div class="form-group col-md-3">
-                    <label>Language</label>
-                    <input type="text" formControlName="language" placeholder="e.g. English" class="form-control">
+                <div class="form-group">
+                    <label>Tracking Type *</label>
+                    <select formControlName="trackingType" class="glass-input">
+                        <option value="LINEAR">📈 Linear — percentage progress</option>
+                        <option value="BINARY">🎯 Binary — 0% until mentor confirms</option>
+                    </select>
                 </div>
             </div>
 
+            <!-- Row 2: Capacity, Daily Limit, Language, Part -->
             <div class="form-row mt-3">
-                <div class="form-group col-md-4">
+                <div class="form-group">
+                    <label>Total Capacity</label>
+                    <input type="number" formControlName="totalCapacity" placeholder="e.g. 600 (pages or minutes)" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Daily Limit</label>
+                    <input type="number" formControlName="dailyLimit" placeholder="Max per day (optional)" class="glass-input">
+                </div>
+                <div class="form-group">
+                    <label>Language</label>
+                    <input type="text" formControlName="language" placeholder="e.g. Arabic" class="glass-input">
+                </div>
+                <div class="form-group">
                     <label>Part / Volume</label>
-                    <input type="text" formControlName="part" placeholder="e.g. Part 1" class="form-control">
-                </div>
-                
-                <div class="form-group col-md-4" *ngIf="sourceForm.get('type')?.value === 'BOOK'">
-                    <label>Total Pages</label>
-                    <input type="number" formControlName="totalPages" placeholder="Page count" class="form-control">
-                </div>
-
-                <div class="form-group col-md-4" *ngIf="sourceForm.get('type')?.value !== 'BOOK'">
-                    <label>Total Minutes</label>
-                    <input type="number" formControlName="totalMinutes" placeholder="Minutes" class="form-control">
+                    <input type="text" formControlName="part" placeholder="e.g. Vol. 1" class="glass-input">
                 </div>
             </div>
 
             <div class="form-actions mt-4">
-                <button type="button" class="btn btn-ghost" (click)="cancelEdit()">Cancel</button>
+                <button type="button" class="btn btn-ghost" (click)="cancelSourceEdit()">Cancel</button>
                 <button type="submit" class="btn btn-primary" [disabled]="sourceForm.invalid">
-                    {{ editingId ? 'Update' : 'Create' }} Source
+                    {{ editingSourceId ? 'Update' : 'Create' }} Resource
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- Source List -->
+    <!-- ── Resource Grid ── -->
     <div class="source-grid mt-4">
         <div *ngIf="(sources$ | async)?.length === 0" class="empty-state glass-card p-5 text-center">
-            <p class="text-muted">No sources found in the library. Start by adding one!</p>
+            <div class="empty-icon">📚</div>
+            <p>No resources in the library yet. Start by adding one!</p>
         </div>
 
-        <div *ngFor="let source of sources$ | async" class="glass-card source-item p-3">
+        <div *ngFor="let source of sources$ | async" class="glass-card source-item">
             <div class="source-content">
-                <div class="source-icon">
-                    {{ getSourceIcon(source.type) }}
-                </div>
+                <div class="source-icon">{{ getTrackingIcon(source.trackingType) }}</div>
                 <div class="source-info">
-                    <div class="source-type-badge">{{ source.type }}</div>
+                    <div class="source-badges">
+                        <span class="badge-category">{{ source.categoryName ?? '—' }}</span>
+                        <span class="badge-tracking" [class.binary]="source.trackingType === 'BINARY'">
+                            {{ source.trackingType === 'BINARY' ? 'Binary' : 'Linear' }}
+                        </span>
+                    </div>
                     <h4>{{ source.title }}</h4>
                     <p class="source-meta">
                         <span *ngIf="source.language">{{ source.language }}</span>
                         <span class="sep" *ngIf="source.language && source.part">•</span>
                         <span *ngIf="source.part">{{ source.part }}</span>
                     </p>
-                    <div class="source-stats" *ngIf="source.totalPages || source.totalMinutes">
-                        <span *ngIf="source.totalPages">📄 {{ source.totalPages }} pages</span>
-                        <span *ngIf="source.totalMinutes">⏱️ {{ source.totalMinutes }} mins</span>
+                    <div class="source-stats">
+                        <span *ngIf="source.totalCapacity">
+                            📊 Capacity: {{ source.totalCapacity }}
+                        </span>
+                        <span *ngIf="source.dailyLimit">
+                            ⏱ Daily limit: {{ source.dailyLimit }}
+                        </span>
                     </div>
                 </div>
             </div>
-            
+
             <div class="source-actions" *ngIf="(user$ | async)?.role !== 'STUDENT'">
                 <button class="btn-icon" (click)="editSource(source)" title="Edit">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

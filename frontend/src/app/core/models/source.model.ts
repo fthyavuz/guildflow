@@ -1,24 +1,35 @@
-export enum SourceType {
-    BOOK = 'BOOK',
-    PODCAST = 'PODCAST',
-    VIDEO = 'VIDEO'
+export type TrackingType = 'LINEAR' | 'BINARY';
+
+export interface ResourceCategory {
+    id: number;
+    name: string;
+    description?: string;
+    active: boolean;
+}
+
+export interface ResourceCategoryRequest {
+    name: string;
+    description?: string;
 }
 
 export interface Source {
     id: number;
     title: string;
-    type: SourceType;
+    categoryId: number | null;
+    categoryName: string | null;
+    trackingType: TrackingType;
+    totalCapacity: number | null;
+    dailyLimit: number | null;
     language?: string;
     part?: string;
-    totalPages?: number;
-    totalMinutes?: number;
 }
 
 export interface SourceRequest {
     title: string;
-    type: SourceType;
+    categoryId: number;
+    trackingType: TrackingType;
+    totalCapacity?: number | null;
+    dailyLimit?: number | null;
     language?: string;
     part?: string;
-    totalPages?: number;
-    totalMinutes?: number;
 }

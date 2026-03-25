@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SourceService } from '../../../core/services/source.service';
-import { Source, SourceType, SourceRequest } from '../../../core/models/source.model';
+import { Source, SourceRequest, ResourceCategory, ResourceCategoryRequest, TrackingType } from '../../../core/models/source.model';
 import { Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
@@ -20,93 +20,161 @@ export class SourceListComponent implements OnInit {
     private authService = inject(AuthService);
 
     sources$: Observable<Source[]> | undefined;
+    categories: ResourceCategory[] = [];
+
     sourceForm: FormGroup;
-    editingId: number | null = null;
-    showForm = false;
+    categoryForm: FormGroup;
+
+    editingSourceId: number | null = null;
+    editingCategoryId: number | null = null;
+
+    showSourceForm = false;
+    showCategoryForm = false;
+    showCategoryPanel = false;
+
     user$ = this.authService.currentUser$;
 
-    sourceTypes = Object.values(SourceType);
+    readonly trackingTypes: TrackingType[] = ['LINEAR', 'BINARY'];
 
     constructor() {
         this.sourceForm = this.fb.group({
-            title: ['', [Validators.required]],
-            type: [SourceType.BOOK, [Validators.required]],
-            language: [''],
-            part: [''],
-            totalPages: [null],
-            totalMinutes: [null]
+            title:         ['', Validators.required],
+            categoryId:    [null, Validators.required],
+            trackingType:  ['LINEAR', Validators.required],
+            totalCapacity: [null],
+            dailyLimit:    [null],
+            language:      [''],
+            part:          ['']
         });
 
-        // Watch type changes to reset specific fields
-        this.sourceForm.get('type')?.valueChanges.subscribe(type => {
-            if (type === SourceType.BOOK) {
-                this.sourceForm.get('totalMinutes')?.setValue(null);
-            } else {
-                this.sourceForm.get('totalPages')?.setValue(null);
-            }
+        this.categoryForm = this.fb.group({
+            name:        ['', Validators.required],
+            description: ['']
         });
     }
 
     ngOnInit(): void {
         this.loadSources();
+        this.loadCategories();
     }
 
     loadSources(): void {
         this.sources$ = this.sourceService.getAllSources();
     }
 
+    loadCategories(): void {
+        this.sourceService.getCategories().subscribe(cats => this.categories = cats);
+    }
+
+    // ── Sources ────────────────────────────────────────────────────────────
+
     startAdd(): void {
-        this.editingId = null;
-        this.sourceForm.reset({ type: SourceType.BOOK });
-        this.showForm = true;
+        this.editingSourceId = null;
+        this.sourceForm.reset({ trackingType: 'LINEAR' });
+        this.showSourceForm = true;
     }
 
     editSource(source: Source): void {
-        this.editingId = source.id;
-        this.sourceForm.patchValue(source);
-        this.showForm = true;
+        this.editingSourceId = source.id;
+        this.sourceForm.patchValue({
+            title:         source.title,
+            categoryId:    source.categoryId,
+            trackingType:  source.trackingType,
+            totalCapacity: source.totalCapacity,
+            dailyLimit:    source.dailyLimit,
+            language:      source.language,
+            part:          source.part
+        });
+        this.showSourceForm = true;
     }
 
-    cancelEdit(): void {
-        this.showForm = false;
-        this.editingId = null;
+    cancelSourceEdit(): void {
+        this.showSourceForm = false;
+        this.editingSourceId = null;
         this.sourceForm.reset();
     }
 
     saveSource(): void {
         if (this.sourceForm.invalid) return;
-
         const request: SourceRequest = this.sourceForm.value;
 
-        if (this.editingId) {
-            this.sourceService.updateSource(this.editingId, request).subscribe({
-                next: () => {
-                    this.loadSources();
-                    this.cancelEdit();
-                }
+        if (this.editingSourceId) {
+            this.sourceService.updateSource(this.editingSourceId, request).subscribe({
+                next: () => { this.loadSources(); this.cancelSourceEdit(); }
             });
         } else {
             this.sourceService.createSource(request).subscribe({
-                next: () => {
-                    this.loadSources();
-                    this.cancelEdit();
-                }
+                next: () => { this.loadSources(); this.cancelSourceEdit(); }
             });
         }
     }
 
     deleteSource(id: number): void {
-        if (confirm('Are you sure you want to delete this source?')) {
+        if (confirm('Are you sure you want to delete this resource?')) {
             this.sourceService.deleteSource(id).subscribe(() => this.loadSources());
         }
     }
 
-    getSourceIcon(type: SourceType): string {
-        switch (type) {
-            case SourceType.BOOK: return '📖';
-            case SourceType.PODCAST: return '🎙️';
-            case SourceType.VIDEO: return '🎥';
-            default: return '📄';
+    // ── Categories ─────────────────────────────────────────────────────────
+
+    toggleCategoryPanel(): void {
+        this.showCategoryPanel = !this.showCategoryPanel;
+        if (this.showCategoryPanel) {
+            this.sourceService.getAllCategories().subscribe(cats => this.categories = cats);
         }
+    }
+
+    startAddCategory(): void {
+        this.editingCategoryId = null;
+        this.categoryForm.reset();
+        this.showCategoryForm = true;
+    }
+
+    editCategory(cat: ResourceCategory): void {
+        this.editingCategoryId = cat.id;
+        this.categoryForm.patchValue({ name: cat.name, description: cat.description });
+        this.showCategoryForm = true;
+    }
+
+    cancelCategoryEdit(): void {
+        this.showCategoryForm = false;
+        this.editingCategoryId = null;
+        this.categoryForm.reset();
+    }
+
+    saveCategory(): void {
+        if (this.categoryForm.invalid) return;
+        const request: ResourceCategoryRequest = this.categoryForm.value;
+
+        if (this.editingCategoryId) {
+            this.sourceService.updateCategory(this.editingCategoryId, request).subscribe({
+                next: () => { this.loadCategoriesForPanel(); this.cancelCategoryEdit(); }
+            });
+        } else {
+            this.sourceService.createCategory(request).subscribe({
+                next: () => { this.loadCategoriesForPanel(); this.cancelCategoryEdit(); }
+            });
+        }
+    }
+
+    deleteCategory(id: number): void {
+        if (confirm('Deactivate this category? Existing resources will not be affected.')) {
+            this.sourceService.deleteCategory(id).subscribe(() => this.loadCategoriesForPanel());
+        }
+    }
+
+    private loadCategoriesForPanel(): void {
+        this.sourceService.getAllCategories().subscribe(cats => this.categories = cats);
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+
+    getCategoryName(categoryId: number | null): string {
+        if (!categoryId) return '—';
+        return this.categories.find(c => c.id === categoryId)?.name ?? '—';
+    }
+
+    getTrackingIcon(type: TrackingType | null): string {
+        return type === 'BINARY' ? '🎯' : '📈';
     }
 }

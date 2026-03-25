@@ -199,10 +199,19 @@
 
 ## 🌐 UI / UX Improvements
 
-- [ ] **Rename "Goal/Quest" module to "Homework" across all three languages** — the goal module is student-facing and should use the more familiar "Homework" terminology. Update all translation keys and hardcoded strings in goal-form, goal-library, goal-assignment, and goal-tracking templates for EN, TR, and DE.
+- [x] **Rename "Goal/Quest" module to "Homework" across all three languages** — the goal module is student-facing and should use the more familiar "Homework" terminology. Update all translation keys and hardcoded strings in goal-form, goal-library, goal-assignment, and goal-tracking templates for EN, TR, and DE.
   - `frontend/src/app/public/i18n/en.json`, `tr.json`, `de.json`
   - `frontend/src/app/features/goals/**/*.html`
   - `frontend/src/app/features/dashboard/dashboard.component.html`
+
+---
+
+- [ ] **Phase A — Evolve Resource Library** — replace hardcoded `SourceType` enum with a dynamic `resource_categories` table (admin-configurable); add `totalCapacity`, `dailyLimit`, `trackingType` (LINEAR/BINARY) to sources; update backend entities/DTOs/services and frontend source-list UI with category management.
+  - `backend/src/main/resources/db/migration/V13__evolve_resource_library.sql`
+  - `backend/src/main/java/.../model/Source.java`, `ResourceCategory.java`
+  - `backend/src/main/java/.../controller/SourceController.java`, new `ResourceCategoryController.java`
+  - `frontend/src/app/core/models/source.model.ts`
+  - `frontend/src/app/features/sources/source-list/`
 
 ---
 
