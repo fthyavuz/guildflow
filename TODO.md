@@ -325,6 +325,16 @@
 
 ---
 
+## 🔭 Upcoming Features
+
+### Module: Class Detail — Homework Assignments
+
+- [ ] **Homework Form Preview (Eye Icon)** — Add a preview button (eye icon) to each assignment row in the Class Detail → Assignments tab. Clicking it opens a modal that renders the student-facing homework entry form exactly as a student would see it: one card per task with NUMBER inputs or CHECKBOX toggles, and a running total / summary panel at the bottom of the form. No data is saved — this is purely a read-only visual preview so admins and mentors can verify the form looks correct before students use it.
+
+  **Branch:** `feature/homework-form-preview`
+
+---
+
 ## 🛠️ Admin Panel
 
 > Feature tasks for building out and polishing the admin-facing UI and its supporting backend.

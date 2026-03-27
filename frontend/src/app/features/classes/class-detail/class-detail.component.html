@@ -275,14 +275,23 @@
                         <span class="a-tasks">{{ a.taskCount }} tasks</span>
                     </div>
                 </div>
-                <button class="btn-icon danger"
-                    *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
-                    (click)="removeAssignment(a.id)" title="Remove assignment">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                </button>
+                <div class="assignment-actions">
+                    <button class="btn-icon" (click)="openPreview(a)" title="Preview student form">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                    <button class="btn-icon danger"
+                        *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                        (click)="removeAssignment(a.id)" title="Remove assignment">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="empty-state glass" *ngIf="assignments.length === 0 && !showAssignPanel">
@@ -304,3 +313,116 @@
         <p>Opening the class records...</p>
     </div>
 </ng-template>
+
+<!-- ── Homework Form Preview Modal ──────────────────────────────────────── -->
+<div class="preview-overlay" *ngIf="previewAssignment" (click)="closePreview()">
+    <div class="preview-modal glass-card" (click)="$event.stopPropagation()">
+
+        <!-- Modal header -->
+        <div class="preview-header">
+            <div class="preview-header-info">
+                <div class="preview-label">Student Preview</div>
+                <h2 class="preview-title">{{ previewAssignment.goalTitle }}</h2>
+                <div class="preview-meta">
+                    <span class="a-badge" *ngIf="previewAssignment.frequency">{{ previewAssignment.frequency }}</span>
+                    <span class="a-date" *ngIf="previewAssignment.startDate">
+                        {{ previewAssignment.startDate | date:'mediumDate' }} – {{ previewAssignment.endDate | date:'mediumDate' }}
+                    </span>
+                </div>
+            </div>
+            <button class="btn-close" (click)="closePreview()">&times;</button>
+        </div>
+
+        <!-- Loading state -->
+        <div class="preview-loading" *ngIf="previewLoading">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Form body -->
+        <div class="preview-body" *ngIf="!previewLoading && previewTemplate">
+
+            <!-- Date bar (decorative) -->
+            <div class="preview-date-bar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>Today's date</span>
+                <input type="date" class="glass-input-sm preview-date-input" disabled>
+            </div>
+
+            <!-- Tasks -->
+            <div class="preview-tasks">
+                <div class="preview-task-card" *ngFor="let task of previewTemplate.tasks">
+
+                    <div class="preview-task-info">
+                        <span class="preview-task-name">{{ task.title }}</span>
+                        <span class="preview-task-type-badge">{{ task.taskType }}</span>
+                    </div>
+
+                    <!-- NUMBER input -->
+                    <div class="preview-input-area" *ngIf="task.taskType === 'NUMBER'">
+                        <div class="preview-target-bar">
+                            <span class="preview-current">{{ previewNumberInput(task.id) }}</span>
+                            <span class="preview-sep">/</span>
+                            <span class="preview-target">{{ task.targetValue }}</span>
+                        </div>
+                        <div class="preview-num-group">
+                            <input type="number" class="glass-input-sm preview-num-input"
+                                min="0" placeholder="0"
+                                [value]="previewNumberInput(task.id)"
+                                (input)="setPreviewNumber(task.id, $any($event.target).value)">
+                            <button class="btn-preview-submit">+</button>
+                        </div>
+                    </div>
+
+                    <!-- CHECKBOX input -->
+                    <div class="preview-input-area" *ngIf="task.taskType === 'CHECKBOX'">
+                        <label class="checkbox-pill-preview" [class.checked]="previewCheckboxInput(task.id)"
+                            (click)="togglePreviewCheckbox(task.id)">
+                            <svg *ngIf="previewCheckboxInput(task.id)" xmlns="http://www.w3.org/2000/svg"
+                                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            {{ previewCheckboxInput(task.id) ? 'Done' : 'Mark done' }}
+                        </label>
+                        <button class="btn-preview-submit" [disabled]="!previewCheckboxInput(task.id)">Submit</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Summary panel -->
+            <div class="preview-summary">
+                <div class="preview-summary-title">Entry Summary</div>
+                <div class="preview-summary-grid">
+                    <div class="preview-summary-item" *ngIf="previewNumberTasks.length > 0">
+                        <span class="summary-label">Total entered</span>
+                        <span class="summary-value">{{ previewNumberTotal }} / {{ previewNumberTargetTotal }}</span>
+                    </div>
+                    <div class="preview-summary-item" *ngIf="previewCheckboxTasks.length > 0">
+                        <span class="summary-label">Tasks completed</span>
+                        <span class="summary-value">{{ previewCheckedCount }} / {{ previewCheckboxTasks.length }}</span>
+                    </div>
+                    <div class="preview-summary-item">
+                        <span class="summary-label">All tasks</span>
+                        <span class="summary-value">{{ previewTemplate.tasks?.length ?? 0 }}</span>
+                    </div>
+                </div>
+                <div class="preview-note">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    This is a preview — no data will be saved.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
