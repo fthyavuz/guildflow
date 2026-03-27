@@ -25,7 +25,6 @@ public class DataSeeder implements CommandLineRunner {
         private final UserRepository userRepository;
         private final MentorClassRepository mentorClassRepository;
         private final ClassStudentRepository classStudentRepository;
-        private final GoalTypeRepository goalTypeRepository;
         private final GoalRepository goalRepository;
         private final GoalTaskRepository goalTaskRepository;
         private final MeetingRepository meetingRepository;
@@ -92,20 +91,6 @@ public class DataSeeder implements CommandLineRunner {
                                         .build();
                         userRepository.save(parent);
                         log.info("✅ Sample parent created: parent@guildflow.com / parent123");
-                }
-
-                // --- Seed Goal Types earliest ---
-                if (goalTypeRepository.findByName("Book Reading").isEmpty()) {
-                        goalTypeRepository.save(GoalType.builder()
-                                        .name("Book Reading")
-                                        .description("Reading and tracking daily page counts.")
-                                        .build());
-                }
-                if (goalTypeRepository.findByName("Weekly Homework").isEmpty()) {
-                        goalTypeRepository.save(GoalType.builder()
-                                        .name("Weekly Homework")
-                                        .description("General tracking for weekly assignments.")
-                                        .build());
                 }
 
                 // --- DUMMY DATA SEEDING ---
@@ -197,12 +182,10 @@ public class DataSeeder implements CommandLineRunner {
                                 });
 
                                 // --- NEW: Create a sample Goal for the class ---
-                                GoalType readingType = goalTypeRepository.findByName("Book Reading").orElse(null);
                                 Goal mathGoal = Goal.builder()
                                                 .title("Read 'Introduction to Algorithms'")
                                                 .description("Read at least 10 pages per day.")
                                                 .mentorClass(savedClass)
-                                                .goalType(readingType)
                                                 .applyToAll(true)
                                                 .build();
 
@@ -259,77 +242,6 @@ public class DataSeeder implements CommandLineRunner {
                                 });
                         }
                 });
-
-                // --- SEED GOAL TEMPLATES ---
-                if (goalRepository.findByTitle("English Vocabulary Master").isEmpty()) {
-                        userRepository.findByEmail("admin@guildflow.com").ifPresent(admin -> {
-                                GoalType homework = goalTypeRepository.findByName("Weekly Homework").orElse(null);
-                                GoalType reading = goalTypeRepository.findByName("Book Reading").orElse(null);
-
-                                if (homework == null || reading == null) {
-                                        log.warn("⚠️ Skipping template seeding because GoalTypes were not found.");
-                                        return;
-                                }
-
-                                // 1. Vocabulary Master
-                                Goal v1 = goalRepository.save(Goal.builder()
-                                                .title("English Vocabulary Master")
-                                                .description("Learn 50 new words this week and use them in sentences.")
-                                                .isTemplate(true)
-                                                .goalType(homework)
-                                                .createdBy(admin)
-                                                .active(true)
-                                                .build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v1).title("New Words Learned").taskType(TaskType.NUMBER).targetValue(50.0).build());
-
-                                // 2. Reading Marathon
-                                Goal v2 = goalRepository.save(Goal.builder()
-                                                .title("Classic Literature Marathon")
-                                                .description("Read a classic novel and summarize each chapter.")
-                                                .isTemplate(true)
-                                                .goalType(reading)
-                                                .createdBy(admin)
-                                                .active(true)
-                                                .build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v2).title("Pages Read").taskType(TaskType.NUMBER).targetValue(200.0).build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v2).title("Chapters Summarized").taskType(TaskType.NUMBER).targetValue(10.0).build());
-
-                                // 3. Math Wizard
-                                Goal v3 = goalRepository.save(Goal.builder()
-                                                .title("Calculus Practice Set")
-                                                .description("Complete advanced calculus problems from the workbook.")
-                                                .isTemplate(true)
-                                                .goalType(homework)
-                                                .createdBy(admin)
-                                                .active(true)
-                                                .build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v3).title("Solved Problems").taskType(TaskType.NUMBER).targetValue(30.0).build());
-
-                                // 4. Science Experiment
-                                Goal v4 = goalRepository.save(Goal.builder()
-                                                .title("Weekly Lab Diary")
-                                                .description("Record observations from science lab experiments.")
-                                                .isTemplate(true)
-                                                .goalType(homework)
-                                                .createdBy(admin)
-                                                .active(true)
-                                                .build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v4).title("Logs Entered").taskType(TaskType.NUMBER).targetValue(5.0).build());
-
-                                // 5. Daily Reflection
-                                Goal v5 = goalRepository.save(Goal.builder()
-                                                .title("Self-Growth Journal")
-                                                .description("Write a short reflection about today's learning journey.")
-                                                .isTemplate(true)
-                                                .goalType(homework)
-                                                .createdBy(admin)
-                                                .active(true)
-                                                .build());
-                                goalTaskRepository.save(GoalTask.builder().goal(v5).title("Daily Entries").taskType(TaskType.NUMBER).targetValue(7.0).build());
-
-                                log.info("✅ 5 dummy goal templates seeded");
-                        });
-                }
 
                 // --- SEED ROOMS ---
                 if (!roomRepository.existsByTitle("Conference Room A")) {

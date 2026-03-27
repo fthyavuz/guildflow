@@ -2,6 +2,7 @@ package com.guildflow.backend.dto;
 
 import com.guildflow.backend.model.Goal;
 import com.guildflow.backend.model.enums.Frequency;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class GoalResponse {
     private Long goalTypeId;
     private String goalTypeName;
     private boolean applyToAll;
+    @JsonProperty("isTemplate")
     private boolean isTemplate;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -38,8 +40,8 @@ public class GoalResponse {
                 .description(goal.getDescription())
                 .classId(goal.getMentorClass() != null ? goal.getMentorClass().getId() : null)
                 .className(goal.getMentorClass() != null ? goal.getMentorClass().getName() : "Template Library")
-                .goalTypeId(goal.getGoalType().getId())
-                .goalTypeName(goal.getGoalType().getName())
+                .goalTypeId(goal.getGoalType() != null ? goal.getGoalType().getId() : null)
+                .goalTypeName(goal.getGoalType() != null ? goal.getGoalType().getName() : null)
                 .applyToAll(goal.getApplyToAll())
                 .isTemplate(goal.getIsTemplate())
                 .startDate(goal.getStartDate())

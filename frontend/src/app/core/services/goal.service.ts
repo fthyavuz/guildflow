@@ -72,4 +72,18 @@ export class GoalService {
     deleteGoal(id: number): Observable<void> {
         return this.http.delete<void>(`${this.goalsApiUrl}/${id}`);
     }
+
+    // ── Class Homework Assignments ────────────────────────────────────────────
+
+    getClassAssignments(classId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${environment.apiBaseUrl}/classes/${classId}/assignments`);
+    }
+
+    createAssignment(classId: number, request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiBaseUrl}/classes/${classId}/assignments`, request);
+    }
+
+    deleteAssignment(classId: number, assignmentId: number): Observable<void> {
+        return this.http.delete<void>(`${environment.apiBaseUrl}/classes/${classId}/assignments/${assignmentId}`);
+    }
 }

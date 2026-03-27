@@ -1,6 +1,7 @@
 package com.guildflow.backend.dto;
 
 import com.guildflow.backend.model.enums.Frequency;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,9 +16,9 @@ public class GoalRequest {
     private String title;
     private String description;
     private Long classId; // Optional for templates
-    @NotNull(message = "Goal type ID is required")
-    private Long goalTypeId;
+    private Long goalTypeId; // Optional — category removed from template form
     private boolean applyToAll = true;
+    @JsonProperty("isTemplate")
     private boolean isTemplate = false;
     private List<Long> studentIds; // Only used if applyToAll is false
     private LocalDateTime startDate;

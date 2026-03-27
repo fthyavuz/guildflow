@@ -29,25 +29,26 @@
     <div class="form-grid">
         <div class="glass-card main-form">
             <form [formGroup]="goalForm" (ngSubmit)="onSubmit()">
+
                 <!-- General Info -->
                 <div class="section">
                     <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_IDENTITY' | translate }}</h3>
+
                     <div class="input-group">
                         <label>{{ 'HOMEWORK.FORM.LABEL_TITLE' | translate }}</label>
                         <input type="text" formControlName="title" placeholder="e.g. The 100-Page Alchemist"
                             class="glass-input">
                     </div>
 
-                    <div class="input-row">
+                    <div class="input-group">
+                        <label>{{ 'HOMEWORK.FORM.LABEL_DESCRIPTION' | translate }}</label>
+                        <textarea formControlName="description" placeholder="Brief description of this homework..."
+                            class="glass-input" rows="3"></textarea>
+                    </div>
+
+                    <!-- Frequency & Timeline (class goals only) -->
+                    <div class="input-row" *ngIf="!isTemplate">
                         <div class="input-group">
-                            <label>{{ 'HOMEWORK.FORM.LABEL_CATEGORY' | translate }}</label>
-                            <select formControlName="goalTypeId" class="glass-input">
-                                <option [value]="null" disabled>Select Category</option>
-                                <option *ngFor="let type of goalTypes$ | async" [value]="type.id">{{ type.name }}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="input-group" *ngIf="!isTemplate">
                             <label>Frequency</label>
                             <select formControlName="frequency" class="glass-input">
                                 <option [value]="null">No frequency</option>
@@ -55,7 +56,7 @@
                                 <option value="WEEKLY">Weekly</option>
                             </select>
                         </div>
-                        <div class="input-group" *ngIf="!isTemplate">
+                        <div class="input-group">
                             <label>Timeline</label>
                             <div class="date-row">
                                 <input type="date" formControlName="startDate" class="glass-input">
@@ -66,7 +67,7 @@
                     </div>
                 </div>
 
-                <!-- Scope (Only for Class Goals) -->
+                <!-- Scope (class goals only) -->
                 <div class="section" *ngIf="!isTemplate">
                     <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_SCOPE' | translate }}</h3>
                     <div class="toggle-group glass-input">
@@ -90,49 +91,76 @@
                     </div>
                 </div>
 
-                <!-- Tasks -->
+                <!-- Tasks via Resource Search -->
                 <div class="section">
-                    <div class="section-header">
-                        <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_TASKS' | translate }}</h3>
-                        <button type="button" class="btn-sm btn-ghost" (click)="addTask()">{{ 'HOMEWORK.FORM.BTN_ADD_TASK' | translate }}</button>
+                    <h3 class="section-title">{{ 'HOMEWORK.FORM.SECTION_TASKS' | translate }}</h3>
+
+                    <!-- Search Input -->
+                    <div class="resource-search-box">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input type="text" [(ngModel)]="sourceSearchQuery" [ngModelOptions]="{standalone: true}"
+                            (input)="filterSources()" placeholder="Search resources by name to add as tasks..."
+                            class="glass-input search-input">
                     </div>
 
-                    <div formArrayName="tasks" class="tasks-container">
+                    <!-- Search Results -->
+                    <div class="resource-results" *ngIf="sourceSearchQuery.length > 0">
+                        <div class="no-results" *ngIf="filteredSources.length === 0">
+                            No resources found for "{{ sourceSearchQuery }}"
+                        </div>
+                        <div class="resource-grid" *ngIf="filteredSources.length > 0">
+                            <div *ngFor="let source of filteredSources" class="resource-item"
+                                [class.is-added]="isSourceAdded(source.id)">
+                                <div class="resource-item-info">
+                                    <span class="resource-item-title">{{ source.title }}</span>
+                                    <div class="resource-item-badges">
+                                        <span class="badge badge-type">
+                                            {{ source.trackingType === 'LINEAR' ? 'NUMBER' : 'CHECKBOX' }}
+                                        </span>
+                                        <span class="badge badge-target" *ngIf="source.totalCapacity">
+                                            Target: {{ source.totalCapacity }}
+                                        </span>
+                                        <span class="badge badge-cat" *ngIf="source.categoryName">
+                                            {{ source.categoryName }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-resource-add"
+                                    [class.added]="isSourceAdded(source.id)"
+                                    [disabled]="isSourceAdded(source.id)"
+                                    (click)="addSourceAsTask(source)">
+                                    <span *ngIf="!isSourceAdded(source.id)">+ Add</span>
+                                    <span *ngIf="isSourceAdded(source.id)">✓ Added</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Added Tasks List -->
+                    <div class="added-tasks" formArrayName="tasks">
+                        <div class="added-tasks-header" *ngIf="tasks.length > 0">
+                            <span class="added-label">Added Resources ({{ tasks.length }})</span>
+                        </div>
                         <div *ngFor="let task of tasks.controls; let i = index" [formGroupName]="i"
-                            class="task-row glass-sub">
-                            <div class="task-info">
-                                <div class="task-header">
-                                    <span class="task-num">Stage #{{ i + 1 }}</span>
-                                    <button type="button" class="btn-remove" (click)="removeTask(i)">&times;</button>
-                                </div>
-                                <div class="input-group">
-                                    <input type="text" formControlName="title"
-                                        placeholder="Stage name (e.g. Read Chapter 1)" class="glass-input-sm full">
-                                </div>
-                                <div class="input-row mini mt-2">
-                                    <div class="input-group mini">
-                                        <label class="mini-label">Type</label>
-                                        <select formControlName="taskType" class="glass-input-sm full">
-                                            <option value="NUMBER">Unit Count (Summed)</option>
-                                            <option value="CHECKBOX">Pulse Tracker (Frequency)</option>
-                                        </select>
-                                    </div>
-                                    <div class="input-group mini">
-                                        <label class="mini-label">Target</label>
-                                        <input type="number" formControlName="targetValue" placeholder="Target"
-                                            class="glass-input-sm full">
-                                    </div>
-                                    <div class="input-group mini">
-                                        <label class="mini-label">Source (Optional)</label>
-                                        <select formControlName="sourceId" class="glass-input-sm full">
-                                            <option [value]="null">No Source (Manual)</option>
-                                            <option *ngFor="let source of sources$ | async" [value]="source.id">
-                                                {{ source.title }} ({{ source.categoryName }})
-                                            </option>
-                                        </select>
-                                    </div>
+                            class="task-chip">
+                            <div class="chip-left">
+                                <span class="chip-num">{{ i + 1 }}</span>
+                                <div class="chip-info">
+                                    <span class="chip-title">{{ task.get('title')?.value }}</span>
+                                    <span class="chip-meta">
+                                        {{ task.get('taskType')?.value }} · Target: {{ task.get('targetValue')?.value }}
+                                    </span>
                                 </div>
                             </div>
+                            <button type="button" class="btn-remove" (click)="removeTask(i)">&times;</button>
+                        </div>
+                        <div class="no-tasks-hint" *ngIf="tasks.length === 0">
+                            Search resources above and add them as tasks for this homework.
                         </div>
                     </div>
                 </div>

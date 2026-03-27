@@ -9,9 +9,6 @@
             {{ 'NAV.MY_GUILDS' | translate }}
         </a>
         <div class="actions">
-            <button class="btn btn-secondary"
-                *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
-                [routerLink]="['/goals/new']" [queryParams]="{ classId: classId }">Assign New Quest</button>
             <button class="btn btn-outline"
                 *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
                 (click)="scrollToEnroll()">{{ 'CLASS_DETAIL.ENROLL_BTN' | translate }}</button>
@@ -25,7 +22,6 @@
             <h1 class="grad-text">{{ data.class.name }}</h1>
             <p class="description">{{ data.class.description }}</p>
         </div>
-
         <div class="header-stats">
             <div class="stat-item">
                 <span class="label">Total Students</span>
@@ -38,7 +34,32 @@
         </div>
     </header>
 
-    <section class="roster-section">
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <button class="tab-btn" [class.active]="activeTab === 'roster'" (click)="activeTab = 'roster'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Roster
+            <span class="tab-count">{{ data.students.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'assignments'" (click)="activeTab = 'assignments'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Assignments
+            <span class="tab-count">{{ assignments.length }}</span>
+        </button>
+    </div>
+
+    <!-- ── ROSTER TAB ──────────────────────────────────────────────────────── -->
+    <section class="roster-section" *ngIf="activeTab === 'roster'">
         <div class="section-header">
             <h2>Class Roster</h2>
             <p>{{ data.students.length }} students enrolled</p>
@@ -75,10 +96,7 @@
                         (click)="$event.stopPropagation(); removeStudent(student.studentId)" title="Remove from Class">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            <line x1="10" y1="11" x2="10" y2="17" />
-                            <line x1="14" y1="11" x2="14" y2="17" />
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         </svg>
                     </button>
                     <button class="btn-icon" [routerLink]="['/students', student.studentId]">
@@ -86,16 +104,13 @@
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                             <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <polyline points="10 9 9 9 8 9" />
                         </svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Enrollment Panel (Visible only to Admin/Mentor) -->
+        <!-- Enrollment Panel -->
         <div id="enrollment-panel" class="enrollment-management glass-card"
             *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
             <div class="panel-header">
@@ -108,7 +123,6 @@
                 </div>
             </div>
 
-            <!-- Pending Enrollments Section -->
             <div class="pending-section" *ngIf="pendingEnrollments.length > 0">
                 <div class="pending-header">
                     <h4>{{ 'CLASS_DETAIL.STAGING_TITLE' | translate }} ({{ pendingEnrollments.length }})</h4>
@@ -132,9 +146,7 @@
                     </div>
                     <button class="add-btn" (click)="stageStudent(s)">{{ 'CLASS_DETAIL.SELECT' | translate }}</button>
                 </div>
-                <div class="no-results" *ngIf="available.length === 0">
-                    No matching unassigned students found.
-                </div>
+                <div class="no-results" *ngIf="available.length === 0">No matching unassigned students found.</div>
             </div>
         </div>
 
@@ -144,6 +156,144 @@
                 <h3>No Students Enrolled</h3>
                 <p>This class currently has no students. Use the enrollment panel below to add members.</p>
             </div>
+        </ng-template>
+    </section>
+
+    <!-- ── ASSIGNMENTS TAB ─────────────────────────────────────────────────── -->
+    <section class="assignments-section" *ngIf="activeTab === 'assignments'">
+        <div class="assign-section-header">
+            <div>
+                <h2>Homework Assignments</h2>
+                <p>Templates assigned to this class</p>
+            </div>
+            <button class="btn btn-primary"
+                *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                (click)="openAssignPanel()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Assign Homework
+            </button>
+        </div>
+
+        <!-- Assign Panel -->
+        <div class="assign-panel glass-card" *ngIf="showAssignPanel">
+            <div class="assign-panel-header">
+                <h3>Assign Homework to Class</h3>
+                <button class="btn-close" (click)="closeAssignPanel()">&times;</button>
+            </div>
+
+            <!-- Step 1: Pick Template -->
+            <div class="assign-step">
+                <label class="step-label">1. Select a homework template</label>
+                <div class="template-search-box">
+                    <input type="text" [(ngModel)]="templateSearch" (input)="filterTemplates()"
+                        placeholder="Search templates..." class="glass-input-sm full-width">
+                </div>
+                <div class="template-picker-list">
+                    <div *ngIf="filteredTemplates.length === 0" class="picker-empty">No templates found.</div>
+                    <div *ngFor="let t of filteredTemplates" class="template-pick-item"
+                        [class.selected]="selectedTemplate?.id === t.id"
+                        (click)="selectTemplate(t)">
+                        <div class="pick-info">
+                            <span class="pick-title">{{ t.title }}</span>
+                            <span class="pick-meta">{{ t.tasks.length }} tasks</span>
+                        </div>
+                        <svg *ngIf="selectedTemplate?.id === t.id" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round" class="check-icon">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Configure (only shown after template is selected) -->
+            <div class="assign-step" *ngIf="selectedTemplate">
+                <label class="step-label">2. Configure schedule</label>
+                <div class="assign-config-grid">
+                    <div class="config-field">
+                        <label class="config-label">Frequency</label>
+                        <select [(ngModel)]="assignFrequency" class="glass-input-sm full-width">
+                            <option value="">No frequency</option>
+                            <option value="DAILY">Daily</option>
+                            <option value="WEEKLY">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="config-field">
+                        <label class="config-label">Start Date</label>
+                        <input type="date" [(ngModel)]="assignStartDate" class="glass-input-sm full-width">
+                    </div>
+                    <div class="config-field">
+                        <label class="config-label">End Date</label>
+                        <input type="date" [(ngModel)]="assignEndDate" class="glass-input-sm full-width">
+                    </div>
+                </div>
+
+                <div class="assign-scope">
+                    <div class="scope-toggle">
+                        <span>Apply to all students</span>
+                        <label class="switch">
+                            <input type="checkbox" [(ngModel)]="assignApplyToAll">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="student-target-list" *ngIf="!assignApplyToAll">
+                        <p class="target-hint">Select specific students:</p>
+                        <div class="student-pill-list">
+                            <label class="student-pill" *ngFor="let s of data.students"
+                                [class.active]="assignStudentIds.includes(s.studentId)">
+                                <input type="checkbox"
+                                    [checked]="assignStudentIds.includes(s.studentId)"
+                                    (change)="toggleAssignStudent(s.studentId)">
+                                {{ s.firstName }} {{ s.lastName }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="assign-panel-footer">
+                <button class="btn btn-ghost" (click)="closeAssignPanel()">Cancel</button>
+                <button class="btn btn-primary" [disabled]="!selectedTemplate || isAssigning" (click)="submitAssignment()">
+                    {{ isAssigning ? 'Assigning...' : 'Assign Homework' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Assignment List -->
+        <div class="assignment-list" *ngIf="!assignmentsLoading; else assignLoading">
+            <div class="assignment-row glass-card" *ngFor="let a of assignments">
+                <div class="assignment-info">
+                    <span class="a-title">{{ a.goalTitle }}</span>
+                    <div class="a-meta">
+                        <span class="a-badge" *ngIf="a.frequency">{{ a.frequency }}</span>
+                        <span class="a-badge scope">{{ a.applyToAll ? 'All Students' : a.studentIds.length + ' students' }}</span>
+                        <span class="a-date" *ngIf="a.startDate">{{ a.startDate | date:'mediumDate' }} – {{ a.endDate | date:'mediumDate' }}</span>
+                        <span class="a-tasks">{{ a.taskCount }} tasks</span>
+                    </div>
+                </div>
+                <button class="btn-icon danger"
+                    *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'"
+                    (click)="removeAssignment(a.id)" title="Remove assignment">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="empty-state glass" *ngIf="assignments.length === 0 && !showAssignPanel">
+                <div class="icon">📋</div>
+                <h3>No Assignments Yet</h3>
+                <p>Assign homework templates to track student progress for this class.</p>
+            </div>
+        </div>
+
+        <ng-template #assignLoading>
+            <div class="loader-container"><div class="spinner"></div></div>
         </ng-template>
     </section>
 </div>

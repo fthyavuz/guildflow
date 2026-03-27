@@ -206,12 +206,122 @@
 
 ---
 
-- [ ] **Phase A — Evolve Resource Library** — replace hardcoded `SourceType` enum with a dynamic `resource_categories` table (admin-configurable); add `totalCapacity`, `dailyLimit`, `trackingType` (LINEAR/BINARY) to sources; update backend entities/DTOs/services and frontend source-list UI with category management.
+- [x] **Phase B — Evolve Homework / Checklist Module** — add `frequency` (DAILY/WEEKLY) to goals; add `status` (PENDING/APPROVED/REJECTED) + reviewer fields to `task_progress`; wire up real progress submission (was stub); add mentor approval queue endpoints; rebuild student tracking UI with period-first data entry + real-time summary; add mentor approval panel.
+  - `backend/src/main/resources/db/migration/V14__add_progress_status_and_goal_frequency.sql`
+  - `backend/src/main/java/.../model/TaskProgress.java`, `Goal.java`, new enums
+  - `backend/src/main/java/.../service/GoalProgressService.java`, `ProgressController.java`
+  - `frontend/src/app/features/goals/goal-tracking.*`, new `homework-approval` component
+
+- [x] **Phase A — Evolve Resource Library** — replace hardcoded `SourceType` enum with a dynamic `resource_categories` table (admin-configurable); add `totalCapacity`, `dailyLimit`, `trackingType` (LINEAR/BINARY) to sources; update backend entities/DTOs/services and frontend source-list UI with category management.
   - `backend/src/main/resources/db/migration/V13__evolve_resource_library.sql`
   - `backend/src/main/java/.../model/Source.java`, `ResourceCategory.java`
   - `backend/src/main/java/.../controller/SourceController.java`, new `ResourceCategoryController.java`
   - `frontend/src/app/core/models/source.model.ts`
   - `frontend/src/app/features/sources/source-list/`
+
+---
+
+## 📚 Homework Library — Simplification & Class Assignment Engine
+
+> Redesign the homework module so that the library is purely a **template store** and all scheduling/assignment logic lives inside the **class section**.
+
+### Vision summary
+
+| Area | Remove | Keep / Add |
+|---|---|---|
+| Homework template form | Category (goalTypeId), Frequency, Start/End dates, Scope toggles, Student picker | Title, Description, Task list (resource-linked) |
+| Homework Library page | "Assign template" button / flow | Browse, Create, Edit, Delete templates |
+| Class detail page | — | New **Assignments** tab: pick template → set frequency + dates → assign |
+| Goal Assignment page | Entire page (repurpose or delete) | — |
+
+---
+
+### Plan
+
+#### Phase C-1 — Simplify the Homework Template form & library
+
+- [x] **Backend — strip scheduling fields from GoalRequest (template path)**
+  - Make `goalTypeId` optional (nullable); default to a system "General" type or remove goal-type concept entirely from templates
+  - Remove `frequency`, `startDate`, `endDate` from the template creation path (keep them on the _assignment_ DTO)
+  - Keep `applyToAll` / `studentIds` on the assignment DTO only, not the template
+  - Update `GoalService.createGoal()` — when `isTemplate=true`, ignore frequency/dates/class fields
+
+- [x] **Backend — new ClassHomeworkAssignment entity + migration (V16)**
+  - New table `class_homework_assignments`: `id`, `goal_id` (FK → goals), `class_id` (FK → mentor_classes), `frequency` (VARCHAR 10), `start_date`, `end_date`, `apply_to_all`, `created_by`, `created_at`
+  - New bridge table `class_homework_assignment_students`: `assignment_id`, `student_id` (for targeted assignments)
+  - This table replaces the ad-hoc `goal_students` + class link on the goal itself for the "live assignment" concept
+
+- [x] **Backend — new AssignmentController + AssignmentService**
+  - `POST /api/classes/{classId}/assignments` — assign a template to a class (body: templateId, frequency, startDate, endDate, applyToAll, studentIds)
+  - `GET /api/classes/{classId}/assignments` — list all assignments for a class
+  - `DELETE /api/classes/{classId}/assignments/{assignmentId}` — remove an assignment
+
+- [ ] **Backend — simplify GoalController template endpoints**
+  - `GET /api/goals/templates` — list all templates (no change)
+  - `POST /api/goals` with `isTemplate=true` — create template (only title, description, tasks)
+  - `PUT /api/goals/{id}` — edit template (only title, description, tasks)
+  - `DELETE /api/goals/{id}` — soft-delete template
+
+#### Phase C-2 — Simplify task creation (resources only)
+
+- [ ] **Backend — make sourceId required on GoalTask when creating templates**
+  - A task in a template must be linked to a resource from the Resource Library
+  - `taskTitle` auto-filled from the source title (editable override)
+  - `targetValue` and `taskType` inherited from the source's `totalCapacity` and `trackingType`
+
+- [ ] **Frontend — task input becomes a resource search/picker**
+  - Replace the manual task row (title, type, target, source dropdown) with a **resource search input**
+  - User types to search resources; matching resource cards appear; click to add as a task
+  - Added tasks show: resource title, type badge, target value (editable inline), × to remove
+  - No free-text task creation in template mode — all tasks must come from the resource library
+
+#### Phase C-3 — Class Assignment Engine (inside Class Detail)
+
+- [x] **Frontend — new "Assignments" tab in Class Detail**
+  - Add a tab / section alongside the existing Students and Goals sections
+  - Shows the list of currently assigned homework templates for the class (name, frequency, date range, # students)
+  - "Assign Homework" button opens an inline panel or modal
+
+- [x] **Frontend — Assignment flow (3 steps)**
+  1. **Pick template** — searchable list of homework templates from the library
+  2. **Configure** — frequency (DAILY / WEEKLY / none), start date, end date, apply to all toggle / student picker
+  3. **Confirm** — summary card + submit → calls `POST /api/classes/{classId}/assignments`
+
+- [x] **Frontend — remove standalone Goal Assignment page**
+  - Delete or redirect `goals/assign/:id` route; all assignment now happens from the class detail
+
+#### Phase C-4 — Cleanup & data migration
+
+- [x] **Frontend — update Goal Library page**
+  - Remove "Assign" button from template cards
+  - Show only: template title, number of tasks, resource badges, Edit / Delete actions
+
+- [x] **Frontend — update goal-form for template mode**
+  - Remove: Category dropdown, Frequency selector, Timeline inputs, Scope section
+  - Keep: Title, Description, Task resource-picker
+
+- [ ] **Backend — V15 migration**
+  - Create `class_homework_assignments` and `class_homework_assignment_students` tables
+  - Migrate existing `goal_students` data that was created via the old assignment flow into the new table (optional, can be a manual step if data is dev/seed only)
+  - Add index on `class_homework_assignments(class_id)` and `class_homework_assignments(goal_id)`
+
+---
+
+### Files affected
+
+| File | Change |
+|---|---|
+| `V15__class_homework_assignments.sql` | New migration |
+| `Goal.java` | Remove frequency, startDate, endDate from template path |
+| `GoalRequest.java` | Make goalTypeId/frequency/dates optional |
+| `ClassHomeworkAssignment.java` | New entity |
+| `ClassHomeworkAssignmentRepository.java` | New repository |
+| `AssignmentService.java` | New service |
+| `AssignmentController.java` | New controller |
+| `goal-form.component.*` | Simplify: remove category/freq/dates, add resource picker |
+| `goal-library.component.*` | Remove assign button |
+| `goal-assignment.component.*` | Remove or redirect |
+| `class-detail.component.*` | Add Assignments tab + assignment engine |
 
 ---
 
@@ -238,4 +348,4 @@
 | 🟡 Medium | 18 | 10 |
 | 🟢 Low | 13 | 1 |
 | 🛠️ Admin Panel | 1 | 1 |
-| **Total** | **54** | **34** |
+| **Total** | **54** | **35** |

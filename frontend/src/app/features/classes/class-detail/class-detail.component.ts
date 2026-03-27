@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ClassService } from '../../../core/services/class.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { GoalService } from '../../../core/services/goal.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { User } from '../../../core/models/auth.model';
@@ -11,7 +12,6 @@ import { Observable, switchMap, forkJoin, BehaviorSubject, combineLatest } from 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { StudentProgressSummary } from '../../../core/models/student-progress.model';
 
 @Component({
@@ -26,6 +26,7 @@ export class ClassDetailComponent implements OnInit {
     private classService = inject(ClassService);
     private userService = inject(UserService);
     private authService = inject(AuthService);
+    private goalService = inject(GoalService);
     private destroyRef = inject(DestroyRef);
     private notifications = inject(NotificationService);
 
@@ -34,9 +35,29 @@ export class ClassDetailComponent implements OnInit {
     private refresh$ = new BehaviorSubject<void>(undefined);
 
     data$: Observable<{ class: ClassResponse; students: StudentProgressSummary[]; allStudents: User[] }> | undefined;
-    searchTerm: string = '';
+    searchTerm = '';
     pendingEnrollments: User[] = [];
-    isSaving: boolean = false;
+    isSaving = false;
+
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    activeTab: 'roster' | 'assignments' = 'roster';
+
+    // ── Assignments tab ───────────────────────────────────────────────────────
+    assignments: any[] = [];
+    assignmentsLoading = false;
+
+    // ── Assign panel ──────────────────────────────────────────────────────────
+    showAssignPanel = false;
+    allTemplates: any[] = [];
+    templateSearch = '';
+    filteredTemplates: any[] = [];
+    selectedTemplate: any = null;
+    assignFrequency = '';
+    assignStartDate = '';
+    assignEndDate = '';
+    assignApplyToAll = true;
+    assignStudentIds: number[] = [];
+    isAssigning = false;
 
     ngOnInit(): void {
         this.classId = Number(this.route.snapshot.paramMap.get('id'));
@@ -48,7 +69,11 @@ export class ClassDetailComponent implements OnInit {
                 allStudents: this.userService.getStudents()
             }))
         );
+
+        this.loadAssignments();
     }
+
+    // ── Roster methods ────────────────────────────────────────────────────────
 
     stageStudent(student: User): void {
         if (!this.pendingEnrollments.find(s => s.id === student.id)) {
@@ -62,12 +87,10 @@ export class ClassDetailComponent implements OnInit {
 
     saveEnrollments(): void {
         if (!this.classId || this.pendingEnrollments.length === 0) return;
-
         this.isSaving = true;
         const requests = this.pendingEnrollments.map(s =>
             this.classService.addStudentToClass(this.classId!, s.id)
         );
-
         forkJoin(requests).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
                 this.pendingEnrollments = [];
@@ -79,17 +102,6 @@ export class ClassDetailComponent implements OnInit {
                 this.isSaving = false;
             }
         });
-    }
-
-    addStudent(studentId: number): void {
-        if (this.classId) {
-            this.classService.addStudentToClass(this.classId, studentId)
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe({
-                    next: () => this.refresh$.next(),
-                    error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to add student'))
-                });
-        }
     }
 
     removeStudent(studentId: number): void {
@@ -106,7 +118,6 @@ export class ClassDetailComponent implements OnInit {
     getAvailableStudents(all: User[], enrolled: StudentProgressSummary[]): User[] {
         const enrolledIds = new Set(enrolled.map(s => s.studentId));
         const pendingIds = new Set(this.pendingEnrollments.map(s => s.id));
-
         return all.filter(s => !enrolledIds.has(s.id) && !pendingIds.has(s.id) &&
             (s.firstName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
                 s.lastName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -115,5 +126,95 @@ export class ClassDetailComponent implements OnInit {
 
     scrollToEnroll(): void {
         document.getElementById('enrollment-panel')?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Assignment methods ────────────────────────────────────────────────────
+
+    loadAssignments(): void {
+        if (!this.classId) return;
+        this.assignmentsLoading = true;
+        this.goalService.getClassAssignments(this.classId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (data) => { this.assignments = data; this.assignmentsLoading = false; },
+                error: (err) => {
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load assignments'));
+                    this.assignmentsLoading = false;
+                }
+            });
+    }
+
+    openAssignPanel(): void {
+        this.showAssignPanel = true;
+        this.selectedTemplate = null;
+        this.templateSearch = '';
+        this.assignFrequency = '';
+        this.assignStartDate = '';
+        this.assignEndDate = '';
+        this.assignApplyToAll = true;
+        this.assignStudentIds = [];
+        this.goalService.getTemplates()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (t) => { this.allTemplates = t; this.filteredTemplates = t; }
+            });
+    }
+
+    closeAssignPanel(): void {
+        this.showAssignPanel = false;
+    }
+
+    filterTemplates(): void {
+        const q = this.templateSearch.toLowerCase().trim();
+        this.filteredTemplates = q
+            ? this.allTemplates.filter(t => t.title.toLowerCase().includes(q))
+            : this.allTemplates;
+    }
+
+    selectTemplate(template: any): void {
+        this.selectedTemplate = template;
+    }
+
+    toggleAssignStudent(studentId: number): void {
+        const idx = this.assignStudentIds.indexOf(studentId);
+        if (idx === -1) this.assignStudentIds.push(studentId);
+        else this.assignStudentIds.splice(idx, 1);
+    }
+
+    submitAssignment(): void {
+        if (!this.classId || !this.selectedTemplate) return;
+        this.isAssigning = true;
+        const request: any = {
+            goalId: this.selectedTemplate.id,
+            frequency: this.assignFrequency || null,
+            startDate: this.assignStartDate || null,
+            endDate: this.assignEndDate || null,
+            applyToAll: this.assignApplyToAll,
+            studentIds: this.assignApplyToAll ? [] : this.assignStudentIds
+        };
+        this.goalService.createAssignment(this.classId, request)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (created) => {
+                    this.assignments.unshift(created);
+                    this.isAssigning = false;
+                    this.showAssignPanel = false;
+                    this.notifications.success('Homework assigned successfully');
+                },
+                error: (err) => {
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to assign homework'));
+                    this.isAssigning = false;
+                }
+            });
+    }
+
+    removeAssignment(assignmentId: number): void {
+        if (!this.classId || !confirm('Remove this homework assignment?')) return;
+        this.goalService.deleteAssignment(this.classId, assignmentId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: () => { this.assignments = this.assignments.filter(a => a.id !== assignmentId); },
+                error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to remove assignment'))
+            });
     }
 }

@@ -73,8 +73,10 @@ public class GoalService {
                     "Access denied: You are not the mentor of this class");
         }
 
-        GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Goal type not found"));
+        GoalType goalType = request.getGoalTypeId() != null
+                ? goalTypeRepository.findById(request.getGoalTypeId())
+                        .orElseThrow(() -> new EntityNotFoundException("Goal type not found"))
+                : null;
 
         Goal goal = Goal.builder()
                 .title(request.getTitle())
@@ -134,8 +136,10 @@ public class GoalService {
             throw new ForbiddenException("Access denied: You cannot update this goal");
         }
 
-        GoalType goalType = goalTypeRepository.findById(request.getGoalTypeId())
-                .orElseThrow(() -> new EntityNotFoundException("Goal type not found"));
+        GoalType goalType = request.getGoalTypeId() != null
+                ? goalTypeRepository.findById(request.getGoalTypeId())
+                        .orElseThrow(() -> new EntityNotFoundException("Goal type not found"))
+                : null;
 
         goal.setTitle(request.getTitle());
         goal.setDescription(request.getDescription());

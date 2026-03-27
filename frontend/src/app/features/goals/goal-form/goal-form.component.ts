@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { GoalService } from '../../../core/services/goal.service';
 import { ClassService } from '../../../core/services/class.service';
@@ -8,13 +8,13 @@ import { SourceService } from '../../../core/services/source.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { User } from '../../../core/models/auth.model';
 import { Source } from '../../../core/models/source.model';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-goal-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, TranslateModule],
     templateUrl: './goal-form.component.html',
     styleUrl: './goal-form.component.css'
 })
@@ -30,9 +30,12 @@ export class GoalFormComponent implements OnInit {
     goalForm: FormGroup;
     classId: number | null = null;
     isTemplate = false;
-    goalTypes$: Observable<any[]> | undefined;
     students$: Observable<User[]> | undefined;
-    sources$: Observable<Source[]> | undefined;
+
+    allSources: Source[] = [];
+    filteredSources: Source[] = [];
+    sourceSearchQuery = '';
+
     isSubmitting = false;
     goalId: number | null = null;
     isEditMode = false;
@@ -41,7 +44,6 @@ export class GoalFormComponent implements OnInit {
         this.goalForm = this.fb.group({
             title: ['', [Validators.required, Validators.minLength(3)]],
             description: [''],
-            goalTypeId: [null, Validators.required],
             applyToAll: [true],
             isTemplate: [false],
             startDate: [''],
@@ -67,8 +69,12 @@ export class GoalFormComponent implements OnInit {
         const templateParam = this.route.snapshot.queryParamMap.get('template');
         this.isTemplate = templateParam === 'true';
 
-        this.goalTypes$ = this.goalService.getGoalTypes();
-        this.sources$ = this.sourceService.getAllSources();
+        this.sourceService.getAllSources().subscribe({
+            next: (sources) => {
+                this.allSources = sources;
+                this.filteredSources = sources;
+            }
+        });
 
         if (this.isEditMode && this.goalId) {
             this.loadGoalData(this.goalId);
@@ -93,8 +99,6 @@ export class GoalFormComponent implements OnInit {
             if (this.classId) {
                 this.students$ = this.classService.getClassStudents(this.classId);
             }
-
-            this.addTask();
         }
     }
 
@@ -118,7 +122,6 @@ export class GoalFormComponent implements OnInit {
                 this.goalForm.patchValue({
                     title: goal.title,
                     description: goal.description,
-                    goalTypeId: goal.goalTypeId,
                     applyToAll: goal.applyToAll,
                     isTemplate: goal.isTemplate,
                     startDate: goal.startDate ? goal.startDate.split('T')[0] : '',
@@ -147,16 +150,29 @@ export class GoalFormComponent implements OnInit {
         });
     }
 
-    addTask(): void {
-        const taskForm = this.fb.group({
-            title: ['', Validators.required],
+    filterSources(): void {
+        const q = this.sourceSearchQuery.toLowerCase().trim();
+        this.filteredSources = q
+            ? this.allSources.filter(s => s.title.toLowerCase().includes(q))
+            : this.allSources;
+    }
+
+    isSourceAdded(sourceId: number): boolean {
+        return this.tasks.controls.some(c => c.get('sourceId')?.value === sourceId);
+    }
+
+    addSourceAsTask(source: Source): void {
+        if (this.isSourceAdded(source.id)) return;
+        const taskType = source.trackingType === 'LINEAR' ? 'NUMBER' : 'CHECKBOX';
+        const targetValue = source.totalCapacity ?? 1;
+        this.tasks.push(this.fb.group({
+            title: [source.title, Validators.required],
             description: [''],
-            taskType: ['NUMBER', Validators.required],
-            targetValue: [1, [Validators.required, Validators.min(1)]],
-            sourceId: [null],
+            taskType: [taskType, Validators.required],
+            targetValue: [targetValue, [Validators.required, Validators.min(1)]],
+            sourceId: [source.id],
             sortOrder: [this.tasks.length]
-        });
-        this.tasks.push(taskForm);
+        }));
     }
 
     removeTask(index: number): void {

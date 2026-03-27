@@ -124,8 +124,7 @@ export const routes: Routes = [
     },
     {
         path: 'goals/assign/:id',
-        canActivate: [authGuard],
-        loadComponent: () => import('./features/goals/goal-assignment/goal-assignment.component').then(m => m.GoalAssignmentComponent)
+        redirectTo: '/classes'
     },
     {
         path: 'goals/:id',

@@ -13,14 +13,17 @@ import com.guildflow.backend.repository.EventParticipantRepository;
 import com.guildflow.backend.repository.EventRepository;
 import com.guildflow.backend.repository.MentorClassRepository;
 import com.guildflow.backend.repository.UserRepository;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +63,21 @@ public class EventService {
             } catch (IllegalArgumentException ignored) {}
         }
 
-        return eventRepository.findWithFilters(startAfter, endBefore, level, targetClassId, pageable)
+        final LocalDateTime finalStartAfter = startAfter;
+        final LocalDateTime finalEndBefore = endBefore;
+        final EducationLevel finalLevel = level;
+
+        Specification<Event> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (finalStartAfter != null) predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), finalStartAfter));
+            if (finalEndBefore != null) predicates.add(cb.lessThan(root.get("startTime"), finalEndBefore));
+            if (finalLevel != null) predicates.add(cb.equal(root.get("educationLevel"), finalLevel));
+            if (targetClassId != null) predicates.add(cb.equal(root.get("targetClass").get("id"), targetClassId));
+            if (query != null) query.orderBy(cb.asc(root.get("startTime")));
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return eventRepository.findAll(spec, pageable)
                 .map(EventResponse::fromEntity);
     }
 

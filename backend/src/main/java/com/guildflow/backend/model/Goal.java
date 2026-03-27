@@ -46,9 +46,8 @@ public class Goal {
     @Builder.Default
     private Boolean isTemplate = false;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "goal_type_id", nullable = false)
+    @JoinColumn(name = "goal_type_id", nullable = true)
     private GoalType goalType;
 
     @Column(name = "apply_to_all", nullable = false)

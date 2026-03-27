@@ -39,7 +39,7 @@ export class DashboardComponent {
                 meetings: this.meetingService.getMyMeetings().pipe(
                     map(ms => ms.slice(0, 3)) // Last 3 meetings
                 ),
-                events: this.eventService.getUpcomingEvents().pipe(
+                events: this.eventService.getEvents().pipe(
                     map(es => es.slice(0, 3)) // Last 3 events
                 )
             };
