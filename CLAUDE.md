@@ -293,3 +293,17 @@ All tasks are tracked in [`TODO.md`](./TODO.md) at the project root.
 - Mark tasks as done with `[x]` when completed — never delete completed tasks.
 - Add any newly discovered tasks to `TODO.md` in the appropriate priority section.
 - Update the progress summary table at the bottom of `TODO.md` when tasks are completed.
+
+---
+
+### Feature Development Workflow
+
+Every new feature or improvement must follow this exact workflow:
+
+1. **Add to TODO.md** — under the relevant module name, add a checklist entry and a clear description explaining what the task does and why.
+2. **Create a git branch** — `git checkout -b feature/<short-name>` from `main`.
+3. **Implement** — write all code changes needed.
+4. **Verify build** — confirm both backend (`mvn spring-boot:run`) and frontend (`ng serve`) compile without errors.
+5. **Ask the user** — present the completed feature and ask: *"Feature is ready. Please review and type YES to merge or NO to revise."*
+6. **On YES** — mark the task `[x]` in TODO.md, merge the branch into `main`, and delete the feature branch.
+7. **On NO** — stay on the branch, address the feedback, then repeat from step 4.

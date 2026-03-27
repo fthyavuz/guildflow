@@ -217,4 +217,72 @@ export class ClassDetailComponent implements OnInit {
                 error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to remove assignment'))
             });
     }
+
+    // ── Preview modal ─────────────────────────────────────────────────────────
+
+    previewAssignment: any = null;
+    previewTemplate: any = null;
+    previewLoading = false;
+    previewInputs: { [taskId: number]: number | boolean } = {};
+
+    openPreview(assignment: any): void {
+        this.previewAssignment = assignment;
+        this.previewTemplate = null;
+        this.previewInputs = {};
+        this.previewLoading = true;
+        this.goalService.getGoalById(assignment.goalId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (goal) => {
+                    this.previewTemplate = goal;
+                    for (const task of goal.tasks ?? []) {
+                        this.previewInputs[task.id] = task.taskType === 'CHECKBOX' ? false : 0;
+                    }
+                    this.previewLoading = false;
+                },
+                error: () => { this.previewLoading = false; }
+            });
+    }
+
+    closePreview(): void {
+        this.previewAssignment = null;
+        this.previewTemplate = null;
+        this.previewInputs = {};
+    }
+
+    previewNumberInput(taskId: number): number {
+        return (this.previewInputs[taskId] as number) ?? 0;
+    }
+
+    previewCheckboxInput(taskId: number): boolean {
+        return (this.previewInputs[taskId] as boolean) ?? false;
+    }
+
+    setPreviewNumber(taskId: number, value: string): void {
+        this.previewInputs[taskId] = Math.max(0, Number(value) || 0);
+    }
+
+    togglePreviewCheckbox(taskId: number): void {
+        this.previewInputs[taskId] = !(this.previewInputs[taskId] as boolean);
+    }
+
+    get previewNumberTasks(): any[] {
+        return (this.previewTemplate?.tasks ?? []).filter((t: any) => t.taskType === 'NUMBER');
+    }
+
+    get previewCheckboxTasks(): any[] {
+        return (this.previewTemplate?.tasks ?? []).filter((t: any) => t.taskType === 'CHECKBOX');
+    }
+
+    get previewNumberTotal(): number {
+        return this.previewNumberTasks.reduce((sum: number, t: any) => sum + (this.previewNumberInput(t.id)), 0);
+    }
+
+    get previewNumberTargetTotal(): number {
+        return this.previewNumberTasks.reduce((sum: number, t: any) => sum + (t.targetValue ?? 0), 0);
+    }
+
+    get previewCheckedCount(): number {
+        return this.previewCheckboxTasks.filter((t: any) => this.previewCheckboxInput(t.id)).length;
+    }
 }
