@@ -1,361 +1,150 @@
 # GuildFlow — TODO
 
-> Generated from full codebase audit on 2026-03-19.
-> Tasks are grouped by priority. Check off items as they are completed.
+> Feature tracker organized by user role and module.
+> Follow the **Feature Development Workflow** in `CLAUDE.md` for every new task.
 
 ---
 
-## 🔴 High Priority — Bugs, Security Issues, Broken Things
+## 🛡️ Admin Dashboard
+
+### Classes
+
+- [x] **Class list** — browse all classes with search and filtering
+- [x] **Class detail — Roster tab** — view enrolled students with progress circles; add or remove students via the enrollment panel
+- [x] **Class detail — Assignments tab** — assign homework templates to the class; configure frequency, date range, and target students
+- [x] **Homework form preview** — eye icon on each assignment row opens a read-only modal showing the exact student-facing entry form, with a live summary panel at the bottom
+- [x] **Back button** — consistent top-left back navigation on all detail, form, and sub-pages
+
+### Users
+
+*(User management is accessible from the admin dashboard — no pending improvements yet)*
+
+### Homework Library
+
+- [x] **Rename module** — "Goal/Quest" renamed to "Homework" across the UI in all three languages (TR/EN/DE)
+- [x] **Simplified template form** — create a homework template with just a title, description, and task list; all scheduling fields removed from templates
+- [x] **Clean library view** — template cards show title, task count, and resource badges; Edit and Delete only (no Assign button)
+- [ ] **Task picker from Resource Library** — when building a template, tasks must be selected from the resource library via a search-and-pick flow; the resource's title and target value auto-fill the task
+
+### Resource Library
+
+- [x] **Dynamic categories** — resource categories are admin-managed (create, edit, delete) instead of hardcoded
+- [x] **Tracking types** — each resource has a tracking type (LINEAR / BINARY), total capacity, and daily limit
+
+### Meetings
+
+*(Meeting management is functional — no pending improvements)*
+
+### Events
+
+- [ ] **Participant list** — view the RSVP list for a specific event (currently no way to see who has joined)
+
+### Rooms
+
+*(Room management and booking is functional — no pending improvements)*
+
+---
+
+## 👨‍🏫 Mentor Dashboard
+
+### My Classes
+
+*(Mentors share the same class detail view as admins — all Classes improvements above apply here too)*
+
+### Homework Approval
+
+- [x] **Approval queue** — review pending student progress entries; approve or reject each with optional notes; approved entries update the student's progress bar
+
+### Meetings
+
+*(Meeting scheduling and recurrence is functional — no pending improvements)*
+
+---
+
+## 🎓 Student Dashboard
+
+### Homework Tracking
+
+- [x] **Period-first data entry** — student selects a date then sees all assigned homework for that day; NUMBER tasks have a numeric input, CHECKBOX tasks have a toggle; each entry is submitted individually and enters a pending approval queue
+- [x] **Progress summary** — overall progress bar per homework assignment, colour-coded by completion percentage
+
+---
+
+## 👨‍👩‍👧 Parent Dashboard
+
+*(No features implemented yet — planned for a future phase)*
+
+---
+
+## ⚙️ Performance / Security / Code Quality
+
+> Internal improvements that do not map to a specific dashboard feature.
 
 ### Security
 
-- [x] **Move JWT secret out of `application.properties`** — use an environment variable (`APP_JWT_SECRET`) and reference it via `${APP_JWT_SECRET}`. The current value is committed to version control.
-  - `backend/src/main/resources/application.properties`
-  - `backend/src/main/java/.../security/JwtTokenProvider.java`
-
-- [x] **Guard `DataSeeder` behind a Spring profile or property** — currently seeds 16 test accounts (including `admin@guildflow.com / admin123`) on every startup regardless of environment. Add `@ConditionalOnProperty(name = "app.seed-data.enabled", havingValue = "true")` or restrict to `@Profile("dev")`.
-  - `backend/src/main/java/.../config/DataSeeder.java`
-
-- [x] **Implement the password change endpoint** — `PUT /api/auth/password` returns `200 OK` with a success message but is a complete no-op (`// TODO` comment). Users believe their password changed when it hasn't.
-  - `backend/src/main/java/.../controller/AuthController.java:44-50`
-
-- [x] **Fix CORS misconfiguration** — `setAllowedHeaders(List.of("*"))` combined with `setAllowCredentials(true)` violates the CORS security spec. Replace `"*"` with an explicit header whitelist (`Authorization`, `Content-Type`, `Accept`).
-  - `backend/src/main/java/.../security/SecurityConfig.java:75-86`
-
-- [x] **Externalize CORS allowed origin** — `http://localhost:4200` is hardcoded. Read it from a property (`app.cors.allowed-origins`) so it can be set per environment.
-  - `backend/src/main/java/.../security/SecurityConfig.java:77`
-
-- [x] **Fix JWT auth filter null-safety** — if a valid JWT references a deleted user, `userRepository.findByEmail().orElse(null)` returns `null` and authentication silently proceeds with no principal. Use `.orElseThrow()` or explicitly clear the security context.
-  - `backend/src/main/java/.../security/JwtAuthenticationFilter.java:40-44`
-
-- [x] **Add token refresh mutex in the Angular interceptor** — when multiple requests simultaneously receive 401, each independently calls `refreshToken()`, causing N parallel refresh attempts and token rotation desync. Implement a shared refresh observable with `BehaviorSubject` + `switchMap`.
-  - `frontend/src/app/core/interceptors/auth.interceptor.ts:24-53`
-
-### Bugs
-
-- [x] **Fix missing `submitReview` / `submitProgress` methods in `GoalService`** — `GoalReviewController` and `ProgressController` called methods that didn't exist, preventing backend compilation. Added stub implementations with TODO comments pending `GoalReview` / `GoalProgress` entity creation.
-  - `backend/src/main/java/.../service/GoalService.java`
-
-- [x] **Fix dashboard calling non-existent `getUpcomingEvents()`** — `DashboardComponent` called `eventService.getUpcomingEvents()` which doesn't exist on `EventService`. Replaced with `getEvents()`.
-  - `frontend/src/app/features/dashboard/dashboard.component.ts`
-
-- [x] **Fix PostgreSQL "could not determine data type" on events query** — JPQL `IS NULL OR` pattern with null bind parameters causes PostgreSQL to fail when it can't infer the parameter type. Replaced the static JPQL query with a dynamic `JpaSpecificationExecutor` + `Specification<Event>` that only adds predicates for non-null values.
-  - `backend/src/main/java/.../repository/EventRepository.java`
-  - `backend/src/main/java/.../service/EventService.java`
-
-- [x] **Fix N+1 query in `GoalService.getStudentGoalsWithProgress()`** — each task triggers 2 individual DB queries (one load + one progress fetch). For 10 goals × 3 tasks = 60+ queries per call. Use `@EntityGraph` or a `JOIN FETCH` query.
-  - `backend/src/main/java/.../service/GoalService.java:232-281`
-
-- [x] **Fix compounding N+1 in `ClassService.getClassProgressSummary()`** — calls `getStudentGoalsWithProgress()` inside a per-student loop. For a class of 10 students this results in ~81 DB queries for a single API call.
-  - `backend/src/main/java/.../service/ClassService.java:172-198`
-
-- [x] **Fix race condition in class enrollment** — two concurrent calls to `addStudentToClass()` can both pass the duplicate-check and insert two active enrollment rows. Add a unique DB constraint on `(class_id, student_id, active)` or use pessimistic locking.
-  - `backend/src/main/java/.../service/ClassService.java:122-148`
-
-- [x] **Add null-check for `goal.getMentorClass()`** — `goal.getMentorClass().getMentor()` will throw `NullPointerException` if `mentorClass` is null (which the JPA mapping allows).
-  - `backend/src/main/java/.../service/GoalService.java:314-320`
-
-- [x] **Validate that attendance students are enrolled in the class** — `markAttendance()` accepts any `studentId` without checking class membership. A mentor can record attendance for students from other classes.
-  - `backend/src/main/java/.../service/MeetingService.java:116-143`
-
-- [x] **Fix Goal entity vs. Flyway schema inconsistency** — `V3` migration defines `class_id BIGINT NOT NULL`, but the `Goal` Java entity has `@JoinColumn(name = "class_id")` without `nullable = false`. Align them. *(Resolved by V9 migration which already dropped the NOT NULL constraint on `class_id` to support templates — DB and entity are consistent.)*
-  - `backend/src/main/java/.../model/Goal.java`
-  - `backend/src/main/resources/db/migration/V3__create_goals_and_tasks_tables.sql`
+- [x] JWT secret moved out of version control — uses environment variable
+- [x] Seed data guarded behind dev profile — test accounts don't load in production
+- [x] Password change endpoint — was a silent no-op; now actually updates the password
+- [x] CORS configuration fixed — explicit header whitelist, no wildcard with credentials
+- [x] JWT filter null-safety — deleted users can no longer silently authenticate
+- [x] Token refresh race condition — parallel 401s share a single refresh observable instead of firing N refreshes
+- [ ] **Rate limiting on login** — no brute-force protection on the login endpoint
 
 ### Performance
 
-- [x] **Add pagination to all list endpoints** — every `GET` list endpoint returns an unbounded `List<T>`. Replace with `Page<T>` and accept `Pageable` parameters. Affected: `/users`, `/classes`, `/goals`, `/meetings`, `/events`, `/rooms`, `/sources`.
-  - `backend/src/main/java/.../controller/` (all controllers)
-
-- [x] **Add missing database indexes** — the following are absent from the migration files and cause full table scans:
-  - `goal_tasks(goal_id)`
-  - `goal_students(student_id)`
-  - `class_students(student_id, active)` — composite
-  - `task_progress(task_id, student_id)` — composite
-  - Added as `V11__add_missing_indexes.sql`
-
-- [x] **Replace lazy-load loops with `JOIN FETCH` / `@EntityGraph`** — `Goal`, `MentorClass`, `Meeting` entities all use `FetchType.LAZY` but are accessed in loops without batch loading, causing one query per entity access.
-  - `backend/src/main/java/.../model/Goal.java`
-  - `backend/src/main/java/.../service/GoalService.java`
-
-### Angular
-
-- [x] **Fix subscription leaks in `GoalTrackingComponent`** — `quickLog()` and `submitProgress()` call `.subscribe()` without cleanup. Implement `OnDestroy` with `takeUntil(destroy$)` or use `takeUntilDestroyed()`.
-  - `frontend/src/app/features/goals/goal-tracking.component.ts`
-
-- [x] **Fix subscription leaks in `ClassDetailComponent`** — `saveEnrollments()`, `addStudent()`, and `removeStudent()` all call `.subscribe()` without unsubscribing.
-  - `frontend/src/app/features/classes/class-detail/class-detail.component.ts`
-
-- [x] **Move all hardcoded API base URLs to `environment.ts`** — 9+ service files hardcode `http://localhost:8080/api/...`. Create `environment.ts` / `environment.prod.ts` and reference `environment.apiBaseUrl` in every service.
-  - `frontend/src/app/core/services/*.service.ts` (all services)
-
----
-
-## 🟡 Medium Priority — Refactoring & Missing Best Practices
-
-### Error Handling
-
-- [x] **Create a custom exception hierarchy** — replace the 55+ `new RuntimeException(...)` calls with typed exceptions (`EntityNotFoundException`, `ForbiddenException`, `ConflictException`). Update `GlobalExceptionHandler` to map each to the correct HTTP status (404, 403, 409, 422).
-  - `backend/src/main/java/.../exception/GlobalExceptionHandler.java`
-  - All `*Service.java` files
-
-- [x] **Fix incorrect HTTP status codes** — services throw `RuntimeException` for all error cases, causing every business error to return HTTP 500. Map: not found → 404, unauthorized → 403, duplicate → 409, validation → 422.
-  - All controllers and `GlobalExceptionHandler.java`
-
-- [x] **Add user-facing error messages in Angular components** — errors are currently logged to `console.error()` or shown via raw `alert()`. Replace with a consistent UI notification pattern (toast, inline error, etc.).
-  - `frontend/src/app/features/` (all feature components)
-
-- [x] **Distinguish error types in auth interceptor `catchError`** — currently any error during token refresh triggers logout. Network timeouts and server errors should not log the user out; only an explicit 401 on the refresh request should.
-  - `frontend/src/app/core/interceptors/auth.interceptor.ts:37-41`
+- [x] Pagination on all list endpoints
+- [x] Missing database indexes added
+- [x] N+1 queries fixed in homework and class progress queries
+- [x] Lazy-load loops replaced with JOIN FETCH / EntityGraph
+- [ ] **Caching** — read-heavy, rarely-changed data (resource types, rooms, user profiles) should be cached
+- [ ] **Redis for token storage** — refresh tokens stored only in the JWT payload cannot be invalidated before expiry; move to Redis with TTL
 
 ### Code Quality
 
-- [x] **Extract duplicated access-control checks into a shared utility** — the same user-state validation and mentor-ownership check pattern appears copy-pasted in `ClassService`, `GoalService`, `MeetingService`, and `RoomService`. Extract to a `SecurityUtils` component or Spring AOP aspect.
-  - Created `backend/src/main/java/.../util/SecurityUtils.java` with `validateUserState()` and `requireAdminOrOwner()`
-
-- [x] **Break up `GoalService` (god class)** — it handles goal CRUD, template management, assignment, progress tracking, and student lookups. Split into at least `GoalTemplateService`, `GoalProgressService`, and `GoalAssignmentService`.
-  - `backend/src/main/java/.../service/GoalService.java` — now handles only goal types + goal CRUD
-  - `backend/src/main/java/.../service/GoalTemplateService.java` — template listing + assignment
-  - `backend/src/main/java/.../service/GoalProgressService.java` — student progress + mentor reviews
-
-- [x] **Remove redundant null-check in `EvaluationService`** — `if (student == null ...)` appears after `.orElseThrow()`, making the check dead code that misleads readers.
-  - `backend/src/main/java/.../service/EvaluationService.java:29`
-
-- [x] **Replace manual cascade deletes with JPA cascade** — `EventService.deleteEvent()` manually deletes participants and assignments before deleting the event. If the entity already has `cascade = CascadeType.ALL`, this double-deletes. Align cascade config with deletion logic.
-  - Added `@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)` to `Event.java` for participants and assignments
-  - Simplified `EventService.deleteEvent()` to a single `eventRepository.delete(event)`
-
-- [x] **Make meeting recurrence duration configurable** — the `for (int i = 0; i < 13; i++)` loop hardcodes exactly 13 recurring instances. Accept a `recurrenceCount` field in the request DTO.
-  - Added `recurrenceCount` (default 13, max 52) to `MeetingRequest.java`
-
-### DTO Validation
-
-- [ ] **Add validation to `EventRequest`** — `startTime` and `endTime` have no `@NotNull` annotations. Add a custom cross-field validator to enforce `startTime < endTime`.
-
-- [ ] **Add validation to `GoalRequest`** — task target values can be null or negative. Add `@NotNull` and `@Min(1)` to numeric task fields.
-
-- [ ] **Add validation to `RoomBookingRequest`** — start/end time ordering is only checked in the service layer. Move it to a DTO-level validator.
-
-- [ ] **Restrict `active` field in `UserResponse`** — the `active` soft-delete flag is returned to all roles, enabling enumeration of disabled accounts. Return it only to ADMIN.
-
-### Configuration & Infrastructure
-
-- [x] **Add Spring profiles for dev/prod** — create `application-dev.properties` and `application-prod.properties`. DB credentials, CORS origins, seed-data flag, and JWT secrets should differ by environment.
-
-- [ ] **Add rate limiting on the login endpoint** — `POST /api/auth/login` has no brute-force protection. Integrate Spring's `RateLimiter` or Bucket4j to limit to ~5 attempts per minute per IP.
-
-- [ ] **Add Swagger/OpenAPI documentation** — add `springdoc-openapi-starter-webmvc-ui` dependency and annotate controllers with `@Operation` and DTOs with `@Schema`. Expose docs at `/swagger-ui.html`.
-
-- [ ] **Add structured request/response logging** — add a `HandlerInterceptor` or AOP aspect that logs user ID, HTTP method, endpoint, and response time for every API call. Use MDC for correlation IDs.
-
-### Frontend
-
-- [ ] **Add `ChangeDetectionStrategy.OnPush` to all components** — all feature components use the default change detection strategy, causing the entire tree to re-check on every event.
-
-- [ ] **Add a global Angular `ErrorHandler`** — create a class that `implements ErrorHandler` and centralizes error reporting instead of scattered `console.error()` calls.
-
-- [ ] **Add loading and empty states to all list views** — list components show no feedback while data is loading and no message when results are empty.
-
----
-
-## 🟢 Low Priority — Nice-to-Have Improvements & Cleanup
+- [x] Custom exception hierarchy — typed exceptions map to correct HTTP status codes (404, 403, 409, 422)
+- [x] UI error notifications — toast messages replace raw alert() and console.error() across all components
+- [x] Shared access-control utility — SecurityUtils used across all services instead of copy-pasted checks
+- [x] GoalService split into GoalTemplateService, GoalProgressService, GoalAssignmentService
+- [x] JPA cascade on event deletion — no more manual pre-delete loops
+- [x] Meeting recurrence count configurable — was hardcoded to 13 instances
+- [ ] **DTO validation** — EventRequest (start < end enforced), GoalRequest (task target ≥ 1), RoomBookingRequest (time ordering)
+- [ ] **Restrict soft-delete flag** — the `active` field in UserResponse should be visible to ADMIN only
+- [ ] **Loading & empty states** — list views show no feedback while loading and no message when the list is empty
+- [ ] **Global error handler** — Angular errors currently scattered across components; needs a centralised ErrorHandler
+- [ ] **OnPush change detection** — all components use default strategy; switching to OnPush reduces unnecessary re-renders
 
 ### Testing
 
-- [ ] **Write unit tests for `GoalService`** — cover `createGoal`, `assignGoalTemplate`, `submitProgress`, and access-control rules. Use Mockito to mock repositories.
+- [ ] **Unit tests: GoalService** — createGoal, assignTemplate, submitProgress, access-control rules
+- [ ] **Unit tests: ClassService** — enrollment (including concurrent edge case), progress summary
+- [ ] **Unit tests: JwtTokenProvider** — token generation, parsing, expiry detection, tampering
+- [ ] **Integration tests: auth flow** — login, refresh, logout; invalid and expired token behaviour
+- [ ] **Angular component tests** — GoalTrackingComponent and ClassDetailComponent render logic and form submission
 
-- [ ] **Write unit tests for `ClassService`** — cover `addStudentToClass` (including duplicate/concurrent enrollment edge cases) and `getClassProgressSummary`.
+### Infrastructure
 
-- [ ] **Write integration tests for authentication flow** — cover login, token refresh, and logout using `@SpringBootTest` + `MockMvc`. Verify that invalid tokens return 401 and expired tokens trigger refresh.
-
-- [ ] **Write unit tests for `JwtTokenProvider`** — verify token generation, parsing, expiry detection, and tampered-token rejection.
-
-- [ ] **Add Angular component tests** — write `spec.ts` tests for `GoalTrackingComponent` and `ClassDetailComponent` covering render logic and form submission.
-
-### Performance & Caching
-
-- [ ] **Add `@Cacheable` to read-heavy, rarely-changed endpoints** — goal type list, room list, and user profile lookups are strong cache candidates. Use Spring's built-in cache abstraction (backed by Caffeine or Redis).
-
-- [ ] **Add Redis for refresh token storage** — storing refresh tokens only in the JWT payload means they cannot be invalidated before expiry. Track them in Redis with TTL to support proper logout.
-
-### Developer Experience
-
-- [ ] **Add a `Makefile` or root-level `package.json` scripts** — simplify the dev workflow with `make start`, `make stop`, `make test` rather than requiring separate commands in `backend/` and `frontend/`.
-
-- [x] **Add `.env.example` file** — document required environment variables (`APP_JWT_SECRET`, `DB_PASSWORD`, `CORS_ORIGINS`, `SEED_DATA_ENABLED`) so new developers know what to configure.
-
-- [ ] **Add API versioning strategy** — prefix all routes with `/api/v1/` to allow non-breaking evolution of the API. Document the versioning policy in `CLAUDE.md`.
-
-- [ ] **Add `DELETE` endpoint for goal types** — `GoalTypeController` is missing a delete operation.
-
-- [ ] **Add `GET /{id}/participants` endpoint for events** — there is no endpoint to list RSVP participants for a specific event.
-
-- [ ] **Remove `@SuppressWarnings("null")` from `DataSeeder`** — this annotation suppresses real null warnings rather than fixing them. Address the underlying nullability issues and remove the suppression.
-  - `backend/src/main/java/.../config/DataSeeder.java`
-
-- [ ] **Add `CHANGELOG.md`** — track changes between versions to support future contributors and release management.
-
----
-
-## 🌐 UI / UX Improvements
-
-- [x] **Rename "Goal/Quest" module to "Homework" across all three languages** — the goal module is student-facing and should use the more familiar "Homework" terminology. Update all translation keys and hardcoded strings in goal-form, goal-library, goal-assignment, and goal-tracking templates for EN, TR, and DE.
-  - `frontend/src/app/public/i18n/en.json`, `tr.json`, `de.json`
-  - `frontend/src/app/features/goals/**/*.html`
-  - `frontend/src/app/features/dashboard/dashboard.component.html`
-
----
-
-- [x] **Phase B — Evolve Homework / Checklist Module** — add `frequency` (DAILY/WEEKLY) to goals; add `status` (PENDING/APPROVED/REJECTED) + reviewer fields to `task_progress`; wire up real progress submission (was stub); add mentor approval queue endpoints; rebuild student tracking UI with period-first data entry + real-time summary; add mentor approval panel.
-  - `backend/src/main/resources/db/migration/V14__add_progress_status_and_goal_frequency.sql`
-  - `backend/src/main/java/.../model/TaskProgress.java`, `Goal.java`, new enums
-  - `backend/src/main/java/.../service/GoalProgressService.java`, `ProgressController.java`
-  - `frontend/src/app/features/goals/goal-tracking.*`, new `homework-approval` component
-
-- [x] **Phase A — Evolve Resource Library** — replace hardcoded `SourceType` enum with a dynamic `resource_categories` table (admin-configurable); add `totalCapacity`, `dailyLimit`, `trackingType` (LINEAR/BINARY) to sources; update backend entities/DTOs/services and frontend source-list UI with category management.
-  - `backend/src/main/resources/db/migration/V13__evolve_resource_library.sql`
-  - `backend/src/main/java/.../model/Source.java`, `ResourceCategory.java`
-  - `backend/src/main/java/.../controller/SourceController.java`, new `ResourceCategoryController.java`
-  - `frontend/src/app/core/models/source.model.ts`
-  - `frontend/src/app/features/sources/source-list/`
-
----
-
-## 📚 Homework Library — Simplification & Class Assignment Engine
-
-> Redesign the homework module so that the library is purely a **template store** and all scheduling/assignment logic lives inside the **class section**.
-
-### Vision summary
-
-| Area | Remove | Keep / Add |
-|---|---|---|
-| Homework template form | Category (goalTypeId), Frequency, Start/End dates, Scope toggles, Student picker | Title, Description, Task list (resource-linked) |
-| Homework Library page | "Assign template" button / flow | Browse, Create, Edit, Delete templates |
-| Class detail page | — | New **Assignments** tab: pick template → set frequency + dates → assign |
-| Goal Assignment page | Entire page (repurpose or delete) | — |
-
----
-
-### Plan
-
-#### Phase C-1 — Simplify the Homework Template form & library
-
-- [x] **Backend — strip scheduling fields from GoalRequest (template path)**
-  - Make `goalTypeId` optional (nullable); default to a system "General" type or remove goal-type concept entirely from templates
-  - Remove `frequency`, `startDate`, `endDate` from the template creation path (keep them on the _assignment_ DTO)
-  - Keep `applyToAll` / `studentIds` on the assignment DTO only, not the template
-  - Update `GoalService.createGoal()` — when `isTemplate=true`, ignore frequency/dates/class fields
-
-- [x] **Backend — new ClassHomeworkAssignment entity + migration (V16)**
-  - New table `class_homework_assignments`: `id`, `goal_id` (FK → goals), `class_id` (FK → mentor_classes), `frequency` (VARCHAR 10), `start_date`, `end_date`, `apply_to_all`, `created_by`, `created_at`
-  - New bridge table `class_homework_assignment_students`: `assignment_id`, `student_id` (for targeted assignments)
-  - This table replaces the ad-hoc `goal_students` + class link on the goal itself for the "live assignment" concept
-
-- [x] **Backend — new AssignmentController + AssignmentService**
-  - `POST /api/classes/{classId}/assignments` — assign a template to a class (body: templateId, frequency, startDate, endDate, applyToAll, studentIds)
-  - `GET /api/classes/{classId}/assignments` — list all assignments for a class
-  - `DELETE /api/classes/{classId}/assignments/{assignmentId}` — remove an assignment
-
-- [ ] **Backend — simplify GoalController template endpoints**
-  - `GET /api/goals/templates` — list all templates (no change)
-  - `POST /api/goals` with `isTemplate=true` — create template (only title, description, tasks)
-  - `PUT /api/goals/{id}` — edit template (only title, description, tasks)
-  - `DELETE /api/goals/{id}` — soft-delete template
-
-#### Phase C-2 — Simplify task creation (resources only)
-
-- [ ] **Backend — make sourceId required on GoalTask when creating templates**
-  - A task in a template must be linked to a resource from the Resource Library
-  - `taskTitle` auto-filled from the source title (editable override)
-  - `targetValue` and `taskType` inherited from the source's `totalCapacity` and `trackingType`
-
-- [ ] **Frontend — task input becomes a resource search/picker**
-  - Replace the manual task row (title, type, target, source dropdown) with a **resource search input**
-  - User types to search resources; matching resource cards appear; click to add as a task
-  - Added tasks show: resource title, type badge, target value (editable inline), × to remove
-  - No free-text task creation in template mode — all tasks must come from the resource library
-
-#### Phase C-3 — Class Assignment Engine (inside Class Detail)
-
-- [x] **Frontend — new "Assignments" tab in Class Detail**
-  - Add a tab / section alongside the existing Students and Goals sections
-  - Shows the list of currently assigned homework templates for the class (name, frequency, date range, # students)
-  - "Assign Homework" button opens an inline panel or modal
-
-- [x] **Frontend — Assignment flow (3 steps)**
-  1. **Pick template** — searchable list of homework templates from the library
-  2. **Configure** — frequency (DAILY / WEEKLY / none), start date, end date, apply to all toggle / student picker
-  3. **Confirm** — summary card + submit → calls `POST /api/classes/{classId}/assignments`
-
-- [x] **Frontend — remove standalone Goal Assignment page**
-  - Delete or redirect `goals/assign/:id` route; all assignment now happens from the class detail
-
-#### Phase C-4 — Cleanup & data migration
-
-- [x] **Frontend — update Goal Library page**
-  - Remove "Assign" button from template cards
-  - Show only: template title, number of tasks, resource badges, Edit / Delete actions
-
-- [x] **Frontend — update goal-form for template mode**
-  - Remove: Category dropdown, Frequency selector, Timeline inputs, Scope section
-  - Keep: Title, Description, Task resource-picker
-
-- [ ] **Backend — V15 migration**
-  - Create `class_homework_assignments` and `class_homework_assignment_students` tables
-  - Migrate existing `goal_students` data that was created via the old assignment flow into the new table (optional, can be a manual step if data is dev/seed only)
-  - Add index on `class_homework_assignments(class_id)` and `class_homework_assignments(goal_id)`
-
----
-
-### Files affected
-
-| File | Change |
-|---|---|
-| `V15__class_homework_assignments.sql` | New migration |
-| `Goal.java` | Remove frequency, startDate, endDate from template path |
-| `GoalRequest.java` | Make goalTypeId/frequency/dates optional |
-| `ClassHomeworkAssignment.java` | New entity |
-| `ClassHomeworkAssignmentRepository.java` | New repository |
-| `AssignmentService.java` | New service |
-| `AssignmentController.java` | New controller |
-| `goal-form.component.*` | Simplify: remove category/freq/dates, add resource picker |
-| `goal-library.component.*` | Remove assign button |
-| `goal-assignment.component.*` | Remove or redirect |
-| `class-detail.component.*` | Add Assignments tab + assignment engine |
-
----
-
-## 🔭 Upcoming Features
-
-### Module: Class Detail — Homework Assignments
-
-- [x] **Homework Form Preview (Eye Icon)** — Add a preview button (eye icon) to each assignment row in the Class Detail → Assignments tab. Clicking it opens a modal that renders the student-facing homework entry form exactly as a student would see it: one card per task with NUMBER inputs or CHECKBOX toggles, and a running total / summary panel at the bottom of the form. No data is saved — this is purely a read-only visual preview so admins and mentors can verify the form looks correct before students use it.
-
-  **Branch:** `feature/homework-form-preview`
-
----
-
-## 🛠️ Admin Panel
-
-> Feature tasks for building out and polishing the admin-facing UI and its supporting backend.
-
-### General
-
-- [x] **Fix back button — presence, behavior, and placement** — several pages either have no back button at all, or have one that does not work correctly (e.g. navigates to the wrong page or does nothing). Additionally, existing back buttons are placed in the middle of the page instead of the top-left corner where users expect them. Audit every feature page and apply the following rules consistently:
-  - Every detail, form, and sub-page must have a back button in the **top-left** of the page header.
-  - The button must navigate to the **logical parent page** (e.g. class detail → class list, student profile → class detail).
-  - Use Angular's `Location.back()` only when the previous history entry is guaranteed to be the correct parent; otherwise navigate explicitly with `Router.navigate([...])` to avoid broken behaviour on direct URL access or external links.
-  - Affected pages (audit required): `class-detail`, `class-form`, `student-profile`, `goal-form`, `goal-assignment`, `meeting-form`, `event-detail`, `event-form`, `user-form`, `source-list`, `room-management`.
-  - `frontend/src/app/features/**/*.component.{ts,html}`
+- [x] Spring dev/prod profiles — DB credentials, CORS, seed-data flag, and JWT secrets separated by environment
+- [x] `.env.example` — documents all required environment variables for new developers
+- [x] API base URL in environment.ts — no more hardcoded localhost URLs in services
+- [ ] **Swagger / OpenAPI** — interactive API docs at `/swagger-ui.html`
+- [ ] **Request/response logging** — log user ID, method, endpoint, and response time per API call
+- [ ] **Dev workflow scripts** — Makefile or npm scripts for `start`, `stop`, `test` across both services
+- [ ] **API versioning** — prefix all routes with `/api/v1/`
+- [ ] **CHANGELOG.md** — track notable changes between versions
 
 ---
 
 ## Progress Summary
 
-| Priority | Total | Done |
+| Section | Total | Done |
 |---|---|---|
-| 🔴 High | 22 | 22 |
-| 🟡 Medium | 18 | 10 |
-| 🟢 Low | 13 | 1 |
-| 🛠️ Admin Panel | 1 | 1 |
-| **Total** | **54** | **35** |
+| 🛡️ Admin Dashboard | 12 | 10 |
+| 👨‍🏫 Mentor Dashboard | 1 | 1 |
+| 🎓 Student Dashboard | 2 | 2 |
+| 👨‍👩‍👧 Parent Dashboard | 0 | 0 |
+| ⚙️ Security | 7 | 6 |
+| ⚙️ Performance | 6 | 4 |
+| ⚙️ Code Quality | 11 | 6 |
+| ⚙️ Testing | 5 | 0 |
+| ⚙️ Infrastructure | 8 | 3 |
+| **Total** | **52** | **32** |
