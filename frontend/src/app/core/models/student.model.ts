@@ -42,9 +42,11 @@ export interface DayEntry {
 
 // ── Student Report (mentor/admin) ─────────────────────────────────────────
 
-export interface TaskReport {
+export interface ReportTaskItem {
     taskId: number;
-    title: string;
+    assignmentId: number;
+    taskTitle: string;
+    assignmentTitle: string;
     taskType: 'NUMBER' | 'CHECKBOX';
     targetValue?: number;
     currentValue: number;
@@ -55,13 +57,10 @@ export interface TaskReport {
     approverNotes?: string;
 }
 
-export interface AssignmentReport {
-    assignmentId: number;
-    title: string;
-    startDate: string;
-    endDate: string;
-    frequency?: string;
-    tasks: TaskReport[];
+export interface CategorySection {
+    categoryId?: number;
+    categoryName: string;
+    tasks: ReportTaskItem[];
 }
 
 export interface StudentReport {
@@ -69,7 +68,15 @@ export interface StudentReport {
     firstName: string;
     lastName: string;
     email: string;
-    assignments: AssignmentReport[];
+    inProgress: CategorySection[];
+    finished: CategorySection[];
+}
+
+export interface StudentSummary {
+    studentId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
 }
 
 // ── Legacy (kept for student-profile component) ───────────────────────────

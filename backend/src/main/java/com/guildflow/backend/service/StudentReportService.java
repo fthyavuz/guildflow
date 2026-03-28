@@ -2,12 +2,13 @@ package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.ApproveTaskRequest;
 import com.guildflow.backend.dto.StudentReportResponse;
+import com.guildflow.backend.dto.StudentReportResponse.CategorySection;
+import com.guildflow.backend.dto.StudentReportResponse.TaskItem;
 import com.guildflow.backend.exception.EntityNotFoundException;
 import com.guildflow.backend.model.*;
 import com.guildflow.backend.model.enums.Role;
 import com.guildflow.backend.model.enums.TaskType;
 import com.guildflow.backend.repository.*;
-import com.guildflow.backend.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@SuppressWarnings("null")
 public class StudentReportService {
+
+    private static final String GENERAL_CATEGORY = "General";
 
     private final UserRepository userRepository;
     private final ClassStudentRepository classStudentRepository;
@@ -26,22 +28,22 @@ public class StudentReportService {
     private final GoalTaskRepository goalTaskRepository;
     private final TaskProgressRepository taskProgressRepository;
     private final TaskCompletionRepository taskCompletionRepository;
-    private final SecurityUtils securityUtils;
 
     public List<StudentReportResponse> getStudentList() {
-        List<User> students = userRepository.findByRole(Role.STUDENT)
-                .stream().filter(u -> Boolean.TRUE.equals(u.getActive()))
+        return userRepository.findByRole(Role.STUDENT).stream()
+                .filter(u -> Boolean.TRUE.equals(u.getActive()))
+                .map(s -> StudentReportResponse.builder()
+                        .studentId(s.getId())
+                        .firstName(s.getFirstName())
+                        .lastName(s.getLastName())
+                        .email(s.getEmail())
+                        .inProgress(Collections.emptyList())
+                        .finished(Collections.emptyList())
+                        .build())
                 .collect(Collectors.toList());
-
-        return students.stream().map(s -> StudentReportResponse.builder()
-                .studentId(s.getId())
-                .firstName(s.getFirstName())
-                .lastName(s.getLastName())
-                .email(s.getEmail())
-                .assignments(Collections.emptyList())
-                .build()).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public StudentReportResponse getStudentReport(Long studentId) {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found: " + studentId));
@@ -60,39 +62,71 @@ public class StudentReportService {
                           || a.getStudentIds().contains(student.getId()))
                 .collect(Collectors.toList());
 
-        // Pre-fetch all completions for this student in one query
+        if (assignments.isEmpty()) {
+            return buildEmptyReport(student);
+        }
+
         Map<String, TaskCompletion> completionMap = taskCompletionRepository
                 .findByAssignments(assignments)
                 .stream()
                 .filter(tc -> tc.getStudent().getId().equals(studentId))
                 .collect(Collectors.toMap(
                         tc -> tc.getAssignment().getId() + "_" + tc.getTask().getId(),
-                        tc -> tc));
+                        tc -> tc,
+                        (a, b) -> a));
 
-        List<StudentReportResponse.AssignmentReport> reportItems = assignments.stream().map(a -> {
-            List<GoalTask> tasks = a.getGoal().getTasks();
+        Map<String, List<TaskItem>> inProgressByCategory = new TreeMap<>();
+        Map<String, List<TaskItem>> finishedByCategory = new TreeMap<>();
+        Map<String, Long> categoryIdByName = new HashMap<>();
 
-            List<StudentReportResponse.TaskReport> taskReports = tasks.stream()
+        for (ClassHomeworkAssignment assignment : assignments) {
+            assignment.getGoal().getTasks().stream()
                     .sorted(Comparator.comparing(GoalTask::getSortOrder))
-                    .map(task -> buildTaskReport(task, student, a, completionMap))
-                    .collect(Collectors.toList());
+                    .forEach(task -> {
+                        double current = computeCurrentValue(task, student);
+                        double target = task.getTargetValue() != null ? task.getTargetValue() : 1.0;
+                        double pct = Math.min((current / target) * 100.0, 100.0);
 
-            return StudentReportResponse.AssignmentReport.builder()
-                    .assignmentId(a.getId())
-                    .title(a.getGoal().getTitle())
-                    .startDate(a.getStartDate())
-                    .endDate(a.getEndDate())
-                    .frequency(a.getFrequency() != null ? a.getFrequency().name() : null)
-                    .tasks(taskReports)
-                    .build();
-        }).collect(Collectors.toList());
+                        String catName = resolveCategoryName(task);
+                        Long catId = resolveCategoryId(task);
+                        if (catId != null) categoryIdByName.put(catName, catId);
+
+                        TaskCompletion completion =
+                                completionMap.get(assignment.getId() + "_" + task.getId());
+
+                        TaskItem item = TaskItem.builder()
+                                .taskId(task.getId())
+                                .assignmentId(assignment.getId())
+                                .taskTitle(task.getTitle())
+                                .assignmentTitle(assignment.getGoal().getTitle())
+                                .taskType(task.getTaskType().name())
+                                .targetValue(task.getTargetValue())
+                                .currentValue(current)
+                                .progressPercentage(pct)
+                                .approved(completion != null)
+                                .approvedAt(completion != null ? completion.getApprovedAt() : null)
+                                .approvedByName(completion != null
+                                        ? completion.getApprovedBy().getFirstName() + " "
+                                          + completion.getApprovedBy().getLastName()
+                                        : null)
+                                .approverNotes(completion != null ? completion.getNotes() : null)
+                                .build();
+
+                        if (pct >= 100.0) {
+                            finishedByCategory.computeIfAbsent(catName, k -> new ArrayList<>()).add(item);
+                        } else {
+                            inProgressByCategory.computeIfAbsent(catName, k -> new ArrayList<>()).add(item);
+                        }
+                    });
+        }
 
         return StudentReportResponse.builder()
                 .studentId(student.getId())
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
                 .email(student.getEmail())
-                .assignments(reportItems)
+                .inProgress(buildSections(inProgressByCategory, categoryIdByName))
+                .finished(buildSections(finishedByCategory, categoryIdByName))
                 .build();
     }
 
@@ -130,40 +164,41 @@ public class StudentReportService {
                 .ifPresent(taskCompletionRepository::delete);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private StudentReportResponse.TaskReport buildTaskReport(GoalTask task, User student,
-            ClassHomeworkAssignment assignment,
-            Map<String, TaskCompletion> completionMap) {
-
-        double currentValue = 0.0;
+    private double computeCurrentValue(GoalTask task, User student) {
         if (task.getTaskType() == TaskType.NUMBER) {
-            currentValue = taskProgressRepository.sumNumericValueByTaskAndStudent(task, student);
-        } else if (task.getTaskType() == TaskType.CHECKBOX) {
-            currentValue = taskProgressRepository
-                    .existsByTaskAndStudentAndDonePermanentlyTrue(task, student) ? 1.0 : 0.0;
+            return taskProgressRepository.sumNumericValueByTaskAndStudent(task, student);
         }
+        return taskProgressRepository.existsByTaskAndStudentAndDonePermanentlyTrue(task, student)
+                ? 1.0 : 0.0;
+    }
 
-        double target = task.getTargetValue() != null ? task.getTargetValue() : 1.0;
-        double percentage = Math.min((currentValue / target) * 100.0, 100.0);
+    private String resolveCategoryName(GoalTask task) {
+        if (task.getSource() != null && task.getSource().getCategory() != null) {
+            return task.getSource().getCategory().getName();
+        }
+        return GENERAL_CATEGORY;
+    }
 
-        TaskCompletion completion = completionMap.get(assignment.getId() + "_" + task.getId());
-        boolean approved = completion != null;
+    private Long resolveCategoryId(GoalTask task) {
+        if (task.getSource() != null && task.getSource().getCategory() != null) {
+            return task.getSource().getCategory().getId();
+        }
+        return null;
+    }
 
-        return StudentReportResponse.TaskReport.builder()
-                .taskId(task.getId())
-                .title(task.getTitle())
-                .taskType(task.getTaskType().name())
-                .targetValue(task.getTargetValue())
-                .currentValue(currentValue)
-                .progressPercentage(percentage)
-                .approved(approved)
-                .approvedAt(completion != null ? completion.getApprovedAt() : null)
-                .approvedByName(completion != null
-                        ? completion.getApprovedBy().getFirstName() + " " + completion.getApprovedBy().getLastName()
-                        : null)
-                .approverNotes(completion != null ? completion.getNotes() : null)
-                .build();
+    private List<CategorySection> buildSections(Map<String, List<TaskItem>> byCategory,
+                                                 Map<String, Long> categoryIdByName) {
+        List<String> keys = new ArrayList<>(byCategory.keySet());
+        keys.remove(GENERAL_CATEGORY);
+        Collections.sort(keys);
+        if (byCategory.containsKey(GENERAL_CATEGORY)) keys.add(GENERAL_CATEGORY);
+        return keys.stream()
+                .map(name -> CategorySection.builder()
+                        .categoryId(categoryIdByName.get(name))
+                        .categoryName(name)
+                        .tasks(byCategory.get(name))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private StudentReportResponse buildEmptyReport(User student) {
@@ -172,7 +207,8 @@ public class StudentReportService {
                 .firstName(student.getFirstName())
                 .lastName(student.getLastName())
                 .email(student.getEmail())
-                .assignments(Collections.emptyList())
+                .inProgress(Collections.emptyList())
+                .finished(Collections.emptyList())
                 .build();
     }
 }

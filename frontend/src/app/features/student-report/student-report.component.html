@@ -45,109 +45,159 @@
 
         <!-- Report detail -->
         <main class="report-main">
+
             <!-- Prompt to select -->
             <div class="select-prompt glass-card" *ngIf="!selectedStudent && !isLoadingReport">
                 <div class="prompt-icon">👈</div>
                 <p>{{ 'REPORT.SELECT_PROMPT' | translate }}</p>
             </div>
 
-            <!-- Loading report -->
+            <!-- Loading -->
             <div *ngIf="isLoadingReport" class="loader-container">
                 <div class="spinner large"></div>
             </div>
 
             <!-- Report content -->
             <div *ngIf="selectedStudent && !isLoadingReport">
+
+                <!-- Student header -->
                 <div class="report-header">
                     <div class="report-avatar">
                         {{ selectedStudent.firstName[0] }}{{ selectedStudent.lastName[0] }}
                     </div>
-                    <div>
+                    <div class="report-header-info">
                         <h2>{{ selectedStudent.firstName }} {{ selectedStudent.lastName }}</h2>
                         <p class="student-email-large">{{ selectedStudent.email }}</p>
                     </div>
+                    <div class="report-counters">
+                        <div class="counter-chip in-progress-chip">
+                            <span class="counter-num">{{ totalInProgress() }}</span>
+                            <span class="counter-label">{{ 'REPORT.IN_PROGRESS' | translate }}</span>
+                        </div>
+                        <div class="counter-chip finished-chip">
+                            <span class="counter-num">{{ totalFinished() }}</span>
+                            <span class="counter-label">{{ 'REPORT.FINISHED' | translate }}</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="empty-report" *ngIf="selectedStudent.assignments.length === 0">
+                <!-- Empty state -->
+                <div class="empty-report glass-card" *ngIf="!hasAnyData">
                     {{ 'REPORT.NO_ASSIGNMENTS' | translate }}
                 </div>
 
-                <!-- Assignment blocks -->
-                <div class="assignment-block glass-card" *ngFor="let a of selectedStudent.assignments">
-                    <!-- Assignment header -->
-                    <div class="assignment-header" (click)="toggleAssignment(a.assignmentId)">
-                        <div class="assignment-meta">
-                            <h3>{{ a.title }}</h3>
-                            <div class="assignment-badges">
-                                <span class="freq-badge" *ngIf="a.frequency">{{ a.frequency }}</span>
-                                <span class="date-text" *ngIf="a.startDate">
-                                    {{ a.startDate | date:'dd MMM' }} → {{ a.endDate | date:'dd MMM yyyy' }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="assignment-right">
-                            <div class="mini-progress">
-                                <div class="mini-fill"
-                                    [style.width.%]="overallAssignmentProgress(a)"
-                                    [style.background-color]="getProgressColor(overallAssignmentProgress(a))">
-                                </div>
-                            </div>
-                            <span class="pct-label" [style.color]="getProgressColor(overallAssignmentProgress(a))">
-                                {{ overallAssignmentProgress(a) | number:'1.0-0' }}%
-                            </span>
-                            <svg class="chevron" [class.open]="isExpanded(a.assignmentId)"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </div>
+                <!-- ── IN PROGRESS section ── -->
+                <div *ngIf="selectedStudent.inProgress.length > 0" class="report-section">
+                    <div class="section-heading in-progress-heading">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        {{ 'REPORT.IN_PROGRESS' | translate }}
+                        <span class="section-count">{{ totalInProgress() }}</span>
                     </div>
 
-                    <!-- Task rows -->
-                    <div class="task-list" *ngIf="isExpanded(a.assignmentId)">
-                        <div class="task-report-row" *ngFor="let task of a.tasks">
-                            <div class="task-left">
-                                <span class="task-name">{{ task.title }}</span>
-                                <span class="task-type-badge" [class.checkbox]="task.taskType === 'CHECKBOX'">
-                                    {{ task.taskType }}
-                                </span>
-                            </div>
+                    <div class="category-block glass-card" *ngFor="let cat of selectedStudent.inProgress">
+                        <div class="category-header">
+                            <span class="category-name">{{ cat.categoryName }}</span>
+                            <span class="category-count">{{ cat.tasks.length }}</span>
+                        </div>
 
-                            <div class="task-progress">
-                                <div class="task-bar-wrap">
-                                    <div class="task-bar-fill"
-                                        [style.width.%]="task.progressPercentage"
-                                        [style.background-color]="getProgressColor(task.progressPercentage)">
+                        <div class="task-list">
+                            <div class="task-row" *ngFor="let task of cat.tasks">
+                                <div class="task-left">
+                                    <div class="task-titles">
+                                        <span class="task-name">{{ task.taskTitle }}</span>
+                                        <span class="assignment-context">{{ task.assignmentTitle }}</span>
                                     </div>
-                                </div>
-                                <span class="task-val" [style.color]="getProgressColor(task.progressPercentage)">
-                                    <ng-container *ngIf="task.taskType === 'NUMBER'">
-                                        {{ task.currentValue | number:'1.0-1' }} / {{ task.targetValue }}
-                                    </ng-container>
-                                    <ng-container *ngIf="task.taskType === 'CHECKBOX'">
-                                        {{ task.currentValue === 1 ? ('REPORT.DONE' | translate) : ('REPORT.NOT_DONE' | translate) }}
-                                    </ng-container>
-                                </span>
-                            </div>
-
-                            <div class="task-action">
-                                <ng-container *ngIf="!task.approved">
-                                    <button class="btn btn-sm btn-approve" (click)="approve(a, task)">
-                                        {{ 'REPORT.APPROVE' | translate }}
-                                    </button>
-                                </ng-container>
-                                <ng-container *ngIf="task.approved">
-                                    <span class="approved-badge" [title]="task.approvedByName + ' • ' + (task.approvedAt | date:'dd MMM yyyy')">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                            <polyline points="20 6 9 17 4 12"/>
-                                        </svg>
-                                        {{ 'REPORT.APPROVED' | translate }}
+                                    <span class="type-badge" [class.checkbox]="task.taskType === 'CHECKBOX'">
+                                        {{ task.taskType }}
                                     </span>
-                                    <button class="btn-revoke" (click)="revoke(a, task)" [title]="'REPORT.REVOKE' | translate">✕</button>
-                                </ng-container>
+                                </div>
+                                <div class="task-progress">
+                                    <div class="bar-wrap">
+                                        <div class="bar-fill"
+                                            [style.width.%]="task.progressPercentage"
+                                            [style.background-color]="getProgressColor(task.progressPercentage)">
+                                        </div>
+                                    </div>
+                                    <span class="pct-val" [style.color]="getProgressColor(task.progressPercentage)">
+                                        <ng-container *ngIf="task.taskType === 'NUMBER'">
+                                            {{ task.currentValue | number:'1.0-1' }} / {{ task.targetValue }}
+                                        </ng-container>
+                                        <ng-container *ngIf="task.taskType === 'CHECKBOX'">
+                                            {{ task.progressPercentage | number:'1.0-0' }}%
+                                        </ng-container>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- ── FINISHED section ── -->
+                <div *ngIf="selectedStudent.finished.length > 0" class="report-section">
+                    <div class="section-heading finished-heading">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        {{ 'REPORT.FINISHED' | translate }}
+                        <span class="section-count finished-count">{{ totalFinished() }}</span>
+                    </div>
+
+                    <div class="category-block glass-card" *ngFor="let cat of selectedStudent.finished">
+                        <div class="category-header">
+                            <span class="category-name">{{ cat.categoryName }}</span>
+                            <span class="category-count">{{ cat.tasks.length }}</span>
+                        </div>
+
+                        <div class="task-list">
+                            <div class="task-row finished-row" *ngFor="let task of cat.tasks">
+                                <div class="task-left">
+                                    <div class="task-titles">
+                                        <span class="task-name">{{ task.taskTitle }}</span>
+                                        <span class="assignment-context">{{ task.assignmentTitle }}</span>
+                                    </div>
+                                    <span class="type-badge" [class.checkbox]="task.taskType === 'CHECKBOX'">
+                                        {{ task.taskType }}
+                                    </span>
+                                </div>
+                                <div class="task-progress">
+                                    <div class="bar-wrap">
+                                        <div class="bar-fill full-bar"></div>
+                                    </div>
+                                    <span class="pct-val done-text">
+                                        <ng-container *ngIf="task.taskType === 'NUMBER'">
+                                            {{ task.currentValue | number:'1.0-1' }} / {{ task.targetValue }}
+                                        </ng-container>
+                                        <ng-container *ngIf="task.taskType === 'CHECKBOX'">
+                                            {{ 'REPORT.DONE' | translate }}
+                                        </ng-container>
+                                    </span>
+                                </div>
+                                <div class="task-action">
+                                    <ng-container *ngIf="!task.approved">
+                                        <button class="btn btn-sm btn-approve" (click)="approve(task)">
+                                            {{ 'REPORT.APPROVE' | translate }}
+                                        </button>
+                                    </ng-container>
+                                    <ng-container *ngIf="task.approved">
+                                        <span class="approved-badge"
+                                            [title]="(task.approvedByName || '') + ' • ' + (task.approvedAt | date:'dd MMM yyyy')">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                            {{ 'REPORT.APPROVED' | translate }}
+                                        </span>
+                                        <button class="btn-revoke" (click)="revoke(task)"
+                                            [title]="'REPORT.REVOKE' | translate">✕</button>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
     </div>

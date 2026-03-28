@@ -190,6 +190,8 @@
         "NO_STUDENTS": "Keine Schüler gefunden.",
         "SELECT_PROMPT": "Wählen Sie einen Schüler, um den Bericht anzuzeigen",
         "NO_ASSIGNMENTS": "Diesem Schüler sind keine Hausaufgaben zugewiesen.",
+        "IN_PROGRESS": "In Bearbeitung",
+        "FINISHED": "Abgeschlossen",
         "DONE": "Erledigt",
         "NOT_DONE": "Nicht erledigt",
         "APPROVE": "Genehmigen",

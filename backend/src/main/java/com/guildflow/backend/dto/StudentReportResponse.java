@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,28 +18,32 @@ public class StudentReportResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private List<AssignmentReport> assignments;
+
+    /** Tasks with progressPercentage < 100, grouped by resource category */
+    private List<CategorySection> inProgress;
+
+    /** Tasks with progressPercentage >= 100, grouped by resource category */
+    private List<CategorySection> finished;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AssignmentReport {
-        private Long assignmentId;
-        private String title;
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private String frequency;
-        private List<TaskReport> tasks;
+    public static class CategorySection {
+        private Long categoryId;     // null for "General"
+        private String categoryName; // e.g. "Book", "Podcast", "General"
+        private List<TaskItem> tasks;
     }
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class TaskReport {
+    public static class TaskItem {
         private Long taskId;
-        private String title;
+        private Long assignmentId;
+        private String taskTitle;
+        private String assignmentTitle;
         private String taskType;
         private Double targetValue;
         private Double currentValue;

@@ -199,6 +199,8 @@
         "NO_STUDENTS": "Öğrenci bulunamadı.",
         "SELECT_PROMPT": "Raporu görüntülemek için bir öğrenci seçin",
         "NO_ASSIGNMENTS": "Bu öğrenciye atanmış ödev yok.",
+        "IN_PROGRESS": "Devam Ediyor",
+        "FINISHED": "Tamamlandı",
         "DONE": "Yapıldı",
         "NOT_DONE": "Yapılmadı",
         "APPROVE": "Onayla",

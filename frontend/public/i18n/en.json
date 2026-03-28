@@ -199,6 +199,8 @@
         "NO_STUDENTS": "No students found.",
         "SELECT_PROMPT": "Select a student to view their report",
         "NO_ASSIGNMENTS": "No homework assigned to this student.",
+        "IN_PROGRESS": "In Progress",
+        "FINISHED": "Finished",
         "DONE": "Done",
         "NOT_DONE": "Not Done",
         "APPROVE": "Approve",

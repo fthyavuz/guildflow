@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HomeworkSummary, DayEntry, StudentReport } from '../models/student.model';
+import { HomeworkSummary, DayEntry, StudentReport, StudentSummary } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -35,8 +35,8 @@ export class GoalService {
 
     // ── Student Report (mentor/admin) ───────────────────────────────────────
 
-    getStudentList(): Observable<StudentReport[]> {
-        return this.http.get<StudentReport[]>(`${this.reportApiUrl}/students`);
+    getStudentList(): Observable<StudentSummary[]> {
+        return this.http.get<StudentSummary[]>(`${this.reportApiUrl}/students`);
     }
 
     getStudentReport(studentId: number): Observable<StudentReport> {
