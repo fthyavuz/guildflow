@@ -42,7 +42,8 @@
         "SOURCES": "Kaynaklar",
         "ROOMS": "Odalar",
         "GOAL_LIBRARY": "Ödev Kütüphanesi",
-        "HOMEWORK_APPROVAL": "Ödev Onayı"
+        "HOMEWORK_APPROVAL": "Ödev Onayı",
+        "STUDENT_REPORTS": "Öğrenci Raporları"
     },
     "USERS": {
         "TITLE": "Kullanıcı Yönetimi",
@@ -165,6 +166,43 @@
             "LOADING": "Ödevleriniz yükleniyor...",
             "DATE_LABEL": "Tarih",
             "SUBMITTED_TODAY": "gönderildi"
+        },
+        "LIST": {
+            "TITLE": "Ödevlerim",
+            "SUBTITLE": "Günlük ilerlemenizi takip edin ve ödevlerinizi tamamlayın",
+            "EMPTY_TITLE": "Aktif Ödev Yok",
+            "EMPTY_MSG": "Mentörünüz henüz ödev atamamış.",
+            "TASKS": "görev",
+            "PROGRESS": "İlerleme",
+            "OPEN_HINT": "Günlük ilerleme girmek için tıklayın"
+        },
+        "DETAIL": {
+            "BACK": "Ödevlere Dön",
+            "SELECT_DATE": "Tarih Seçin",
+            "SAVED_LOCKED": "Gün Kaydedildi",
+            "SAVED": "kaydedildi",
+            "DONE_PERMANENTLY": "Tamamlandı",
+            "MARKED_DONE": "Yapıldı olarak işaretlendi",
+            "NOT_DONE": "Yapılmadı",
+            "MARK_DONE": "Yapıldı Olarak İşaretle",
+            "MARK_DONE_CHECKED": "Yapıldı!",
+            "NO_TASKS": "Bu ödev için tanımlanmış görev yok.",
+            "SAVE_HINT": "Bu günün ilerlemenizi kaydedin. Kaydettikten sonra düzenleyemezsiniz.",
+            "SAVE_DAY": "Günü Kaydet",
+            "SAVING": "Kaydediliyor..."
         }
+    },
+    "REPORT": {
+        "TITLE": "Öğrenci Raporları",
+        "SUBTITLE": "Öğrenci ödev ilerlemelerini inceleyin ve onaylayın",
+        "STUDENTS": "Öğrenciler",
+        "NO_STUDENTS": "Öğrenci bulunamadı.",
+        "SELECT_PROMPT": "Raporu görüntülemek için bir öğrenci seçin",
+        "NO_ASSIGNMENTS": "Bu öğrenciye atanmış ödev yok.",
+        "DONE": "Yapıldı",
+        "NOT_DONE": "Yapılmadı",
+        "APPROVE": "Onayla",
+        "APPROVED": "Onaylandı",
+        "REVOKE": "Onayı geri al"
     }
 }

@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { GoalProgress, PendingProgressEntry } from '../models/student.model';
+import { HomeworkSummary, DayEntry, StudentReport } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -12,31 +12,48 @@ import { environment } from '../../../environments/environment';
 export class GoalService {
     private http = inject(HttpClient);
     private readonly goalsApiUrl = `${environment.apiBaseUrl}/goals`;
-    private readonly progressApiUrl = `${environment.apiBaseUrl}/progress`;
+    private readonly reportApiUrl = `${environment.apiBaseUrl}/report`;
 
-    getMyGoals(): Observable<GoalProgress[]> {
-        return this.http.get<GoalProgress[]>(`${this.goalsApiUrl}/my-goals`);
+    // ── Student homework ────────────────────────────────────────────────────
+
+    getMyGoals(): Observable<HomeworkSummary[]> {
+        return this.http.get<HomeworkSummary[]>(`${this.goalsApiUrl}/my-goals`);
     }
 
-    submitProgress(taskId: number, entryDate: string, numericValue?: number, booleanValue?: boolean): Observable<void> {
-        return this.http.post<void>(this.progressApiUrl, {
-            taskId,
-            numericValue,
-            booleanValue,
-            entryDate
-        });
+    getDayEntries(assignmentId: number, date: string): Observable<DayEntry[]> {
+        const params = new HttpParams().set('date', date);
+        return this.http.get<DayEntry[]>(`${this.goalsApiUrl}/my-goals/${assignmentId}/day`, { params });
     }
 
-    getPendingApprovals(): Observable<PendingProgressEntry[]> {
-        return this.http.get<PendingProgressEntry[]>(`${this.progressApiUrl}/pending`);
+    saveDayEntries(assignmentId: number, date: string, entries: { taskId: number; numericValue?: number; booleanValue?: boolean }[]): Observable<DayEntry[]> {
+        return this.http.post<DayEntry[]>(`${this.goalsApiUrl}/my-goals/${assignmentId}/save-day`, { date, entries });
     }
 
-    approveEntry(entryId: number, mentorNotes?: string): Observable<void> {
-        return this.http.post<void>(`${this.progressApiUrl}/${entryId}/approve`, { mentorNotes });
+    unlockEntry(entryId: number): Observable<void> {
+        return this.http.delete<void>(`${this.goalsApiUrl}/entries/${entryId}/unlock`);
     }
 
-    rejectEntry(entryId: number, mentorNotes?: string): Observable<void> {
-        return this.http.post<void>(`${this.progressApiUrl}/${entryId}/reject`, { mentorNotes });
+    // ── Student Report (mentor/admin) ───────────────────────────────────────
+
+    getStudentList(): Observable<StudentReport[]> {
+        return this.http.get<StudentReport[]>(`${this.reportApiUrl}/students`);
+    }
+
+    getStudentReport(studentId: number): Observable<StudentReport> {
+        return this.http.get<StudentReport>(`${this.reportApiUrl}/students/${studentId}`);
+    }
+
+    approveTask(studentId: number, assignmentId: number, taskId: number, notes?: string): Observable<void> {
+        return this.http.post<void>(
+            `${this.reportApiUrl}/students/${studentId}/assignments/${assignmentId}/tasks/${taskId}/approve`,
+            { notes }
+        );
+    }
+
+    revokeApproval(studentId: number, assignmentId: number, taskId: number): Observable<void> {
+        return this.http.delete<void>(
+            `${this.reportApiUrl}/students/${studentId}/assignments/${assignmentId}/tasks/${taskId}/approve`
+        );
     }
 
     getGoalTypes(): Observable<any[]> {

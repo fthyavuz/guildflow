@@ -10,30 +10,69 @@ export interface EvaluationResponse {
     createdAt: string;
 }
 
-export type ProgressEntryStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export type Frequency = 'DAILY' | 'WEEKLY';
 
-export interface TaskProgress {
+// ── Homework list (student) ────────────────────────────────────────────────
+
+export interface HomeworkSummary {
+    assignmentId: number;
+    title: string;
+    description?: string;
+    startDate: string;
+    endDate: string;
+    frequency?: Frequency;
+    taskCount: number;
+    overallProgress: number;
+}
+
+// ── Day entry (student data entry) ────────────────────────────────────────
+
+export interface DayEntry {
     taskId: number;
     title: string;
     taskType: 'NUMBER' | 'CHECKBOX';
-    targetValue: number;
-    currentValue: number;
-    progressPercentage: number;
-    // Per-entry fields
+    targetValue?: number;
+    cumulativeValue: number;
     entryId?: number;
-    entryDate?: string;
-    status?: ProgressEntryStatus;
-    mentorNotes?: string;
+    numericEntry?: number;
+    booleanEntry?: boolean;
+    dayLocked: boolean;
+    donePermanently: boolean;
 }
 
-export interface GoalProgress {
-    goalId: number;
+// ── Student Report (mentor/admin) ─────────────────────────────────────────
+
+export interface TaskReport {
+    taskId: number;
     title: string;
-    frequency?: Frequency;
-    tasks: TaskProgress[];
-    overallProgress: number;
+    taskType: 'NUMBER' | 'CHECKBOX';
+    targetValue?: number;
+    currentValue: number;
+    progressPercentage: number;
+    approved: boolean;
+    approvedAt?: string;
+    approvedByName?: string;
+    approverNotes?: string;
 }
+
+export interface AssignmentReport {
+    assignmentId: number;
+    title: string;
+    startDate: string;
+    endDate: string;
+    frequency?: string;
+    tasks: TaskReport[];
+}
+
+export interface StudentReport {
+    studentId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    assignments: AssignmentReport[];
+}
+
+// ── Legacy (kept for student-profile component) ───────────────────────────
 
 export interface PendingProgressEntry {
     entryId: number;
@@ -54,5 +93,5 @@ export interface StudentProfile {
     student: User;
     currentClass?: ClassResponse;
     evaluations: EvaluationResponse[];
-    goals: GoalProgress[];
+    goals: HomeworkSummary[];
 }

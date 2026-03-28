@@ -1,15 +1,13 @@
 package com.guildflow.backend.controller;
 
-import com.guildflow.backend.dto.GoalAssignmentRequest;
-import com.guildflow.backend.dto.GoalProgressResponse;
-import com.guildflow.backend.dto.GoalRequest;
-import com.guildflow.backend.dto.GoalResponse;
+import com.guildflow.backend.dto.*;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.service.GoalProgressService;
 import com.guildflow.backend.service.GoalService;
 import com.guildflow.backend.service.GoalTemplateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -71,8 +70,35 @@ public class GoalController {
 
     @GetMapping("/my-goals")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<List<GoalProgressResponse>> getMyGoals(@AuthenticationPrincipal User student) {
-        return ResponseEntity.ok(goalProgressService.getStudentGoalsWithProgress(student));
+    public ResponseEntity<List<HomeworkSummaryResponse>> getMyGoals(@AuthenticationPrincipal User student) {
+        return ResponseEntity.ok(goalProgressService.getStudentHomeworkList(student));
+    }
+
+    @GetMapping("/my-goals/{assignmentId}/day")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<DayEntryResponse>> getDayEntries(
+            @PathVariable Long assignmentId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @AuthenticationPrincipal User student) {
+        return ResponseEntity.ok(goalProgressService.getDayEntries(assignmentId, date, student));
+    }
+
+    @PostMapping("/my-goals/{assignmentId}/save-day")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<DayEntryResponse>> saveDayEntries(
+            @PathVariable Long assignmentId,
+            @Valid @RequestBody SaveDayRequest request,
+            @AuthenticationPrincipal User student) {
+        return ResponseEntity.ok(goalProgressService.saveDayEntries(assignmentId, request, student));
+    }
+
+    @DeleteMapping("/entries/{entryId}/unlock")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<Void> unlockEntry(
+            @PathVariable Long entryId,
+            @AuthenticationPrincipal User mentor) {
+        goalProgressService.unlockEntry(entryId, mentor);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/assign-template")

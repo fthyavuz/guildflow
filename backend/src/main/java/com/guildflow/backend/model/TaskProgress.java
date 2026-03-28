@@ -57,6 +57,16 @@ public class TaskProgress {
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
+    /** True once the student saves the day — prevents further edits. */
+    @Column(name = "locked", nullable = false)
+    @Builder.Default
+    private Boolean locked = false;
+
+    /** True for CHECKBOX tasks once permanently marked done — only a mentor can reverse. */
+    @Column(name = "done_permanently", nullable = false)
+    @Builder.Default
+    private Boolean donePermanently = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

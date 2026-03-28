@@ -84,12 +84,12 @@ export const routes: Routes = [
     {
         path: 'goals',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/goals/goal-tracking.component').then(m => m.GoalTrackingComponent)
+        loadComponent: () => import('./features/goals/homework-list/homework-list.component').then(m => m.HomeworkListComponent)
     },
     {
-        path: 'goals/approval',
+        path: 'student-report',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/goals/homework-approval/homework-approval.component').then(m => m.HomeworkApprovalComponent)
+        loadComponent: () => import('./features/student-report/student-report.component').then(m => m.StudentReportComponent)
     },
 
     {
@@ -132,9 +132,9 @@ export const routes: Routes = [
         redirectTo: '/classes'
     },
     {
-        path: 'goals/:id',
+        path: 'goals/:assignmentId',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/goals/goal-tracking.component').then(m => m.GoalTrackingComponent)
+        loadComponent: () => import('./features/goals/homework-detail/homework-detail.component').then(m => m.HomeworkDetailComponent)
     },
     {
         path: 'rooms',

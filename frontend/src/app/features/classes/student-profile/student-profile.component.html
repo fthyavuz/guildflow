@@ -63,33 +63,9 @@
                                 [style.background-color]="getProgressColor(goal.overallProgress)"></div>
                         </div>
 
-                        <!-- Task Breakdown (Nested) -->
-                        <div class="task-grid">
-                            <div class="task-card" *ngFor="let task of goal.tasks">
-                                <div class="task-icon-bg">
-                                    <svg *ngIf="task.taskType === 'CHECKBOX'" xmlns="http://www.w3.org/2000/svg"
-                                        width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12"></polyline>
-                                    </svg>
-                                    <svg *ngIf="task.taskType === 'NUMBER'" xmlns="http://www.w3.org/2000/svg"
-                                        width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                                        <polyline points="17 6 23 6 23 12"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="task-info">
-                                    <span class="task-title">{{ task.title }}</span>
-                                    <span class="task-progress-sm">
-                                        {{ task.currentValue | number:'1.0-0' }} / {{ task.targetValue }}
-                                        <span class="unit">{{ task.taskType === 'NUMBER' ? 'units' : 'checks' }}</span>
-                                    </span>
-                                </div>
-                                <div class="task-pb-mini">
-                                    <div class="fill" [style.width.%]="task.progressPercentage"></div>
-                                </div>
-                            </div>
+                        <!-- Task count summary -->
+                        <div class="task-count-hint">
+                            {{ goal.taskCount }} task{{ goal.taskCount !== 1 ? 's' : '' }}
                         </div>
                     </div>
                 </div>

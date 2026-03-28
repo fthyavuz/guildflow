@@ -1,0 +1,160 @@
+<div class="page-container fade-in">
+    <!-- Back -->
+    <div class="nav-header">
+        <a routerLink="/goals" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            {{ 'HOMEWORK.DETAIL.BACK' | translate }}
+        </a>
+    </div>
+
+    <!-- Header -->
+    <header class="page-header" *ngIf="homework">
+        <div class="header-content">
+            <h1 class="grad-text">{{ homework.title }}</h1>
+            <p class="subtitle" *ngIf="homework.description">{{ homework.description }}</p>
+        </div>
+        <div class="hw-meta-badges">
+            <span class="meta-badge" *ngIf="homework.frequency">{{ homework.frequency }}</span>
+            <span class="meta-badge date-badge" *ngIf="homework.startDate">
+                {{ homework.startDate | date:'dd MMM yyyy' }} → {{ homework.endDate | date:'dd MMM yyyy' }}
+            </span>
+        </div>
+    </header>
+
+    <!-- Date picker -->
+    <div class="date-bar glass-card">
+        <label class="date-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cal-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            {{ 'HOMEWORK.DETAIL.SELECT_DATE' | translate }}
+        </label>
+        <input type="date"
+            class="glass-input date-input"
+            [(ngModel)]="selectedDate"
+            [min]="minDate"
+            [max]="maxDate"
+            (change)="onDateChange()" />
+        <span class="locked-pill" *ngIf="isDayLocked">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            {{ 'HOMEWORK.DETAIL.SAVED_LOCKED' | translate }}
+        </span>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loader-container">
+        <div class="spinner large"></div>
+    </div>
+
+    <!-- Task entries -->
+    <div *ngIf="!isLoading" class="tasks-panel glass-card">
+        <div class="task-row" *ngFor="let entry of entries">
+            <!-- Task info -->
+            <div class="task-info">
+                <div class="task-top">
+                    <span class="task-name">{{ entry.title }}</span>
+                    <span class="type-badge" [class.checkbox]="entry.taskType === 'CHECKBOX'">
+                        {{ entry.taskType }}
+                    </span>
+                </div>
+
+                <!-- Cumulative progress bar (NUMBER tasks) -->
+                <div class="cumulative-row" *ngIf="entry.taskType === 'NUMBER'">
+                    <div class="cum-bar-wrap">
+                        <div class="cum-bar-fill"
+                            [style.width.%]="cumulativePct(entry)"
+                            [style.background-color]="getProgressColor(cumulativePct(entry))">
+                        </div>
+                    </div>
+                    <span class="cum-label" [style.color]="getProgressColor(cumulativePct(entry))">
+                        {{ entry.cumulativeValue | number:'1.0-1' }} / {{ entry.targetValue }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Input area -->
+            <div class="task-input">
+
+                <!-- NUMBER — day locked: show saved value -->
+                <ng-container *ngIf="entry.taskType === 'NUMBER' && isDayLocked">
+                    <span class="saved-value" *ngIf="entry.numericEntry != null">
+                        +{{ entry.numericEntry }} {{ 'HOMEWORK.DETAIL.SAVED' | translate }}
+                    </span>
+                    <span class="no-entry" *ngIf="entry.numericEntry == null">—</span>
+                </ng-container>
+
+                <!-- NUMBER — editable -->
+                <ng-container *ngIf="entry.taskType === 'NUMBER' && !isDayLocked">
+                    <div class="num-group">
+                        <input type="number"
+                            class="glass-input-sm num-input"
+                            [(ngModel)]="entry.inputNumeric"
+                            min="0"
+                            placeholder="0" />
+                        <span class="unit-hint" *ngIf="entry.targetValue">/ {{ entry.targetValue }}</span>
+                    </div>
+                </ng-container>
+
+                <!-- CHECKBOX — permanently done (any state) -->
+                <ng-container *ngIf="entry.taskType === 'CHECKBOX' && entry.donePermanently">
+                    <span class="done-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        {{ 'HOMEWORK.DETAIL.DONE_PERMANENTLY' | translate }}
+                    </span>
+                </ng-container>
+
+                <!-- CHECKBOX — day locked: show saved value -->
+                <ng-container *ngIf="entry.taskType === 'CHECKBOX' && !entry.donePermanently && isDayLocked">
+                    <span class="saved-value" *ngIf="entry.booleanEntry === true">
+                        {{ 'HOMEWORK.DETAIL.MARKED_DONE' | translate }}
+                    </span>
+                    <span class="no-entry" *ngIf="entry.booleanEntry !== true">
+                        {{ 'HOMEWORK.DETAIL.NOT_DONE' | translate }}
+                    </span>
+                </ng-container>
+
+                <!-- CHECKBOX — editable -->
+                <ng-container *ngIf="entry.taskType === 'CHECKBOX' && !entry.donePermanently && !isDayLocked">
+                    <label class="checkbox-pill" [class.checked]="entry.inputBoolean"
+                        (click)="entry.inputBoolean = !entry.inputBoolean">
+                        <svg *ngIf="entry.inputBoolean" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        {{ entry.inputBoolean ? ('HOMEWORK.DETAIL.MARK_DONE_CHECKED' | translate) : ('HOMEWORK.DETAIL.MARK_DONE' | translate) }}
+                    </label>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Empty tasks -->
+        <div class="empty-tasks" *ngIf="entries.length === 0">
+            {{ 'HOMEWORK.DETAIL.NO_TASKS' | translate }}
+        </div>
+    </div>
+
+    <!-- Save button -->
+    <div class="save-bar" *ngIf="!isLoading && !isDayLocked && entries.length > 0">
+        <p class="save-hint">{{ 'HOMEWORK.DETAIL.SAVE_HINT' | translate }}</p>
+        <button class="btn btn-primary save-btn" (click)="saveDay()" [disabled]="isSaving">
+            <svg *ngIf="!isSaving" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span class="spinner-sm" *ngIf="isSaving"></span>
+            {{ isSaving ? ('HOMEWORK.DETAIL.SAVING' | translate) : ('HOMEWORK.DETAIL.SAVE_DAY' | translate) }}
+        </button>
+    </div>
+</div>

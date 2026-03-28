@@ -42,7 +42,8 @@
         "SOURCES": "Ressourcen",
         "ROOMS": "Räume",
         "GOAL_LIBRARY": "Hausaufgaben-Bibliothek",
-        "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung"
+        "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung",
+        "STUDENT_REPORTS": "Schülerberichte"
     },
     "USERS": {
         "TITLE": "Benutzerverwaltung",
@@ -156,6 +157,43 @@
             "LOADING": "Hausaufgaben werden geladen...",
             "DATE_LABEL": "Datum",
             "SUBMITTED_TODAY": "eingereicht"
+        },
+        "LIST": {
+            "TITLE": "Meine Hausaufgaben",
+            "SUBTITLE": "Verfolgen Sie Ihren täglichen Fortschritt und erledigen Sie Ihre Aufgaben",
+            "EMPTY_TITLE": "Keine aktiven Hausaufgaben",
+            "EMPTY_MSG": "Ihr Mentor hat noch keine Hausaufgaben zugewiesen.",
+            "TASKS": "Aufgaben",
+            "PROGRESS": "Fortschritt",
+            "OPEN_HINT": "Klicken Sie, um den täglichen Fortschritt einzugeben"
+        },
+        "DETAIL": {
+            "BACK": "Zurück zu den Hausaufgaben",
+            "SELECT_DATE": "Datum auswählen",
+            "SAVED_LOCKED": "Tag gespeichert",
+            "SAVED": "gespeichert",
+            "DONE_PERMANENTLY": "Erledigt",
+            "MARKED_DONE": "Als erledigt markiert",
+            "NOT_DONE": "Nicht erledigt",
+            "MARK_DONE": "Als erledigt markieren",
+            "MARK_DONE_CHECKED": "Erledigt!",
+            "NO_TASKS": "Keine Aufgaben für diese Hausaufgabe definiert.",
+            "SAVE_HINT": "Speichern Sie Ihren Fortschritt für diesen Tag. Nach dem Speichern können Sie nicht mehr bearbeiten.",
+            "SAVE_DAY": "Tag speichern",
+            "SAVING": "Wird gespeichert..."
         }
+    },
+    "REPORT": {
+        "TITLE": "Schülerberichte",
+        "SUBTITLE": "Überprüfen und genehmigen Sie den Hausaufgabenfortschritt der Schüler",
+        "STUDENTS": "Schüler",
+        "NO_STUDENTS": "Keine Schüler gefunden.",
+        "SELECT_PROMPT": "Wählen Sie einen Schüler, um den Bericht anzuzeigen",
+        "NO_ASSIGNMENTS": "Diesem Schüler sind keine Hausaufgaben zugewiesen.",
+        "DONE": "Erledigt",
+        "NOT_DONE": "Nicht erledigt",
+        "APPROVE": "Genehmigen",
+        "APPROVED": "Genehmigt",
+        "REVOKE": "Genehmigung widerrufen"
     }
 }

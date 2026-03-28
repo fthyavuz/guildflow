@@ -2,11 +2,8 @@ package com.guildflow.backend.controller;
 
 import com.guildflow.backend.dto.PendingProgressResponse;
 import com.guildflow.backend.dto.ProgressApprovalRequest;
-import com.guildflow.backend.dto.ProgressRequest;
 import com.guildflow.backend.model.User;
-import com.guildflow.backend.service.GoalProgressService;
 import com.guildflow.backend.service.ProgressApprovalService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,17 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProgressController {
 
-    private final GoalProgressService goalProgressService;
     private final ProgressApprovalService progressApprovalService;
-
-    @PostMapping
-    @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<Void> submitProgress(
-            @Valid @RequestBody ProgressRequest request,
-            @AuthenticationPrincipal User student) {
-        goalProgressService.submitProgress(request, student);
-        return ResponseEntity.ok().build();
-    }
 
     @GetMapping("/pending")
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")

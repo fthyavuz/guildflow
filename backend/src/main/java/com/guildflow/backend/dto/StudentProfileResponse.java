@@ -15,5 +15,5 @@ public class StudentProfileResponse {
     private UserResponse student;
     private ClassResponse currentClass;
     private List<EvaluationResponse> evaluations;
-    private List<GoalProgressResponse> goals;
+    private List<HomeworkSummaryResponse> goals;
 }

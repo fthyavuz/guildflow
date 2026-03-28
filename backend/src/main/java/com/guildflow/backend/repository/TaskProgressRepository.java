@@ -35,4 +35,14 @@ public interface TaskProgressRepository extends JpaRepository<TaskProgress, Long
 
     @Query("SELECT tp FROM TaskProgress tp WHERE tp.task.id IN :taskIds AND tp.student = :student AND tp.entryDate = :date")
     List<TaskProgress> findByTaskIdsAndStudentAndDate(@Param("taskIds") List<Long> taskIds, @Param("student") User student, @Param("date") LocalDate date);
+
+    /** True if this student has permanently completed this CHECKBOX task. */
+    boolean existsByTaskAndStudentAndDonePermanentlyTrue(GoalTask task, User student);
+
+    /** Find entries for a specific day to check lock status. */
+    List<TaskProgress> findByStudentAndEntryDateAndLockedTrue(User student, LocalDate entryDate);
+
+    /** Cumulative sum queries used by the report service. */
+    @Query("SELECT COALESCE(SUM(tp.numericValue), 0) FROM TaskProgress tp WHERE tp.task = :task AND tp.student = :student")
+    Double sumNumericValueByTaskAndStudent(@Param("task") GoalTask task, @Param("student") User student);
 }

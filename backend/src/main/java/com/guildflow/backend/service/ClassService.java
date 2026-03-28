@@ -275,7 +275,7 @@ public class ClassService {
                 : null;
 
         List<EvaluationResponse> evaluations = evaluationService.getStudentEvaluations(studentId, currentUser);
-        List<GoalProgressResponse> goals = goalProgressService.getStudentGoalsWithProgress(student);
+        List<HomeworkSummaryResponse> goals = goalProgressService.getStudentHomeworkList(student);
 
         return StudentProfileResponse.builder()
                 .student(UserResponse.fromEntity(student))

@@ -42,7 +42,8 @@
         "SOURCES": "Resources",
         "ROOMS": "Rooms",
         "GOAL_LIBRARY": "Homework Library",
-        "HOMEWORK_APPROVAL": "Homework Approval"
+        "HOMEWORK_APPROVAL": "Homework Approval",
+        "STUDENT_REPORTS": "Student Reports"
     },
     "USERS": {
         "TITLE": "User Management",
@@ -165,6 +166,43 @@
             "LOADING": "Loading your homework...",
             "DATE_LABEL": "Date",
             "SUBMITTED_TODAY": "submitted"
+        },
+        "LIST": {
+            "TITLE": "My Homework",
+            "SUBTITLE": "Track your daily progress and complete your assignments",
+            "EMPTY_TITLE": "No Active Homework",
+            "EMPTY_MSG": "Your mentor hasn't assigned any homework yet.",
+            "TASKS": "tasks",
+            "PROGRESS": "Progress",
+            "OPEN_HINT": "Click to enter daily progress"
+        },
+        "DETAIL": {
+            "BACK": "Back to Homework",
+            "SELECT_DATE": "Select Date",
+            "SAVED_LOCKED": "Day Saved",
+            "SAVED": "saved",
+            "DONE_PERMANENTLY": "Done",
+            "MARKED_DONE": "Marked Done",
+            "NOT_DONE": "Not Done",
+            "MARK_DONE": "Mark as Done",
+            "MARK_DONE_CHECKED": "Done!",
+            "NO_TASKS": "No tasks defined for this homework.",
+            "SAVE_HINT": "Save your progress for this day. You won't be able to edit after saving.",
+            "SAVE_DAY": "Save Day",
+            "SAVING": "Saving..."
         }
+    },
+    "REPORT": {
+        "TITLE": "Student Reports",
+        "SUBTITLE": "Review and approve student homework progress",
+        "STUDENTS": "Students",
+        "NO_STUDENTS": "No students found.",
+        "SELECT_PROMPT": "Select a student to view their report",
+        "NO_ASSIGNMENTS": "No homework assigned to this student.",
+        "DONE": "Done",
+        "NOT_DONE": "Not Done",
+        "APPROVE": "Approve",
+        "APPROVED": "Approved",
+        "REVOKE": "Revoke approval"
     }
 }

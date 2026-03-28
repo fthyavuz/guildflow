@@ -1,0 +1,88 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/dashboard" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
+        </a>
+    </div>
+
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="grad-text">{{ 'HOMEWORK.LIST.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'HOMEWORK.LIST.SUBTITLE' | translate }}</p>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="loader-container">
+        <div class="spinner large"></div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoading && homeworks.length === 0" class="empty-state glass-card">
+        <div class="icon">📚</div>
+        <h3>{{ 'HOMEWORK.LIST.EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'HOMEWORK.LIST.EMPTY_MSG' | translate }}</p>
+    </div>
+
+    <!-- Homework cards -->
+    <div *ngIf="!isLoading" class="hw-grid">
+        <div class="hw-card glass-card" *ngFor="let hw of homeworks" (click)="openHomework(hw)">
+            <div class="card-glow"></div>
+
+            <div class="card-top-row">
+                <span class="freq-badge" *ngIf="hw.frequency">{{ hw.frequency }}</span>
+                <span class="status-dot" [class.active]="isActive(hw)" [title]="isActive(hw) ? 'Active' : 'Inactive'"></span>
+            </div>
+
+            <h3 class="hw-title">{{ hw.title }}</h3>
+            <p class="hw-desc" *ngIf="hw.description">{{ hw.description }}</p>
+
+            <div class="hw-meta">
+                <span class="meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    {{ dateRange(hw) }}
+                </span>
+                <span class="meta-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    {{ hw.taskCount }} {{ 'HOMEWORK.LIST.TASKS' | translate }}
+                </span>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-labels">
+                    <span class="label-text">{{ 'HOMEWORK.LIST.PROGRESS' | translate }}</span>
+                    <span class="pct-text" [style.color]="getProgressColor(hw.overallProgress)">
+                        {{ hw.overallProgress | number:'1.0-0' }}%
+                    </span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill"
+                        [style.width.%]="hw.overallProgress"
+                        [style.background-color]="getProgressColor(hw.overallProgress)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="open-hint">{{ 'HOMEWORK.LIST.OPEN_HINT' | translate }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>

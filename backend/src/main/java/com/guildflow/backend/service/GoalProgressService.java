@@ -6,22 +6,17 @@ import com.guildflow.backend.exception.ForbiddenException;
 import com.guildflow.backend.exception.ValidationException;
 import com.guildflow.backend.model.*;
 import com.guildflow.backend.model.enums.ProgressEntryStatus;
-import com.guildflow.backend.model.enums.Role;
+import com.guildflow.backend.model.enums.TaskType;
 import com.guildflow.backend.repository.*;
 import com.guildflow.backend.util.SecurityUtils;
-import com.guildflow.backend.repository.ClassHomeworkAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Handles student-facing goal progress tracking and mentor reviews.
- */
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("null")
@@ -37,90 +32,145 @@ public class GoalProgressService {
     private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
 
-    public List<GoalProgressResponse> getStudentGoalsWithProgress(User student) {
-        List<Goal> goals = getGoalEntitiesForStudent(student);
-        if (goals.isEmpty()) return Collections.emptyList();
+    // ── Student homework list ─────────────────────────────────────────────────
 
-        List<Long> taskIds = goals.stream()
-                .flatMap(g -> g.getTasks().stream())
-                .map(GoalTask::getId)
-                .collect(Collectors.toList());
+    public List<HomeworkSummaryResponse> getStudentHomeworkList(User student) {
+        List<ClassHomeworkAssignment> assignments = getAssignmentsForStudent(student);
+        if (assignments.isEmpty()) return Collections.emptyList();
 
-        if (taskIds.isEmpty()) return Collections.emptyList();
-
-        Map<Long, List<TaskProgress>> progressByTaskId = taskProgressRepository
-                .findByTaskIdsAndStudentAndStatus(taskIds, student, ProgressEntryStatus.APPROVED)
-                .stream()
-                .collect(Collectors.groupingBy(tp -> tp.getTask().getId()));
-
-        return goals.stream().map(goal -> {
-            List<TaskProgressResponse> taskProgresses = goal.getTasks().stream().map(task -> {
-                List<TaskProgress> entries = progressByTaskId.getOrDefault(task.getId(), Collections.emptyList());
-
-                Double currentVal = 0.0;
-                if (task.getTaskType() == com.guildflow.backend.model.enums.TaskType.NUMBER) {
-                    currentVal = entries.stream()
-                            .mapToDouble(e -> e.getNumericValue() != null ? e.getNumericValue() : 0.0)
-                            .sum();
-                } else if (task.getTaskType() == com.guildflow.backend.model.enums.TaskType.CHECKBOX) {
-                    currentVal = (double) entries.stream()
-                            .filter(e -> Boolean.TRUE.equals(e.getBooleanValue()))
-                            .count();
-                }
-
-                double percentage = task.getTargetValue() != null && task.getTargetValue() > 0
-                        ? (currentVal / task.getTargetValue()) * 100
-                        : 0;
-                if (percentage > 100) percentage = 100;
-
-                return TaskProgressResponse.builder()
-                        .taskId(task.getId())
-                        .title(task.getTitle())
-                        .taskType(task.getTaskType())
-                        .targetValue(task.getTargetValue())
-                        .currentValue(currentVal)
-                        .progressPercentage(percentage)
-                        .build();
-            }).collect(Collectors.toList());
-
-            double overallProgress = taskProgresses.isEmpty() ? 0
-                    : taskProgresses.stream()
-                            .mapToDouble(TaskProgressResponse::getProgressPercentage)
-                            .average().orElse(0.0);
-
-            return GoalProgressResponse.builder()
-                    .goalId(goal.getId())
-                    .title(goal.getTitle())
-                    .tasks(taskProgresses)
-                    .overallProgress(overallProgress)
+        return assignments.stream().map(a -> {
+            List<GoalTask> tasks = a.getGoal().getTasks();
+            double overall = computeOverallProgress(tasks, student);
+            return HomeworkSummaryResponse.builder()
+                    .assignmentId(a.getId())
+                    .title(a.getGoal().getTitle())
+                    .description(a.getGoal().getDescription())
+                    .startDate(a.getStartDate())
+                    .endDate(a.getEndDate())
+                    .frequency(a.getFrequency() != null ? a.getFrequency().name() : null)
+                    .taskCount(tasks.size())
+                    .overallProgress(overall)
                     .build();
         }).collect(Collectors.toList());
     }
 
+    // ── Day entries ────────────────────────────────────────────────────────────
+
+    public List<DayEntryResponse> getDayEntries(Long assignmentId, LocalDate date, User student) {
+        ClassHomeworkAssignment assignment = assignmentRepository(assignmentId);
+        validateStudentAccess(assignment, student);
+
+        List<GoalTask> tasks = assignment.getGoal().getTasks();
+        List<Long> taskIds = tasks.stream().map(GoalTask::getId).collect(Collectors.toList());
+
+        // All entries for this day
+        Map<Long, TaskProgress> entriesByTaskId = taskProgressRepository
+                .findByTaskIdsAndStudentAndDate(taskIds, student, date)
+                .stream().collect(Collectors.toMap(tp -> tp.getTask().getId(), tp -> tp));
+
+        // Check if day is locked (at least one locked entry)
+        boolean dayLocked = entriesByTaskId.values().stream().anyMatch(tp -> Boolean.TRUE.equals(tp.getLocked()));
+
+        return tasks.stream().sorted(Comparator.comparing(GoalTask::getSortOrder)).map(task -> {
+            TaskProgress entry = entriesByTaskId.get(task.getId());
+
+            // CHECKBOX permanent-done check (any entry ever)
+            boolean donePermanently = task.getTaskType() == TaskType.CHECKBOX
+                    && taskProgressRepository.existsByTaskAndStudentAndDonePermanentlyTrue(task, student);
+
+            // Cumulative value for NUMBER tasks
+            Double cumulative = 0.0;
+            if (task.getTaskType() == TaskType.NUMBER) {
+                cumulative = taskProgressRepository.sumNumericValueByTaskAndStudent(task, student);
+            }
+
+            return DayEntryResponse.builder()
+                    .taskId(task.getId())
+                    .title(task.getTitle())
+                    .taskType(task.getTaskType())
+                    .targetValue(task.getTargetValue())
+                    .cumulativeValue(cumulative)
+                    .entryId(entry != null ? entry.getId() : null)
+                    .numericEntry(entry != null ? entry.getNumericValue() : null)
+                    .booleanEntry(entry != null ? entry.getBooleanValue() : null)
+                    .dayLocked(dayLocked)
+                    .donePermanently(donePermanently)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+    // ── Save & lock a day ─────────────────────────────────────────────────────
+
     @Transactional
-    public void submitProgress(ProgressRequest request, User student) {
-        GoalTask task = goalTaskRepository.findById(request.getTaskId())
-                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+    public List<DayEntryResponse> saveDayEntries(Long assignmentId, SaveDayRequest request, User student) {
+        ClassHomeworkAssignment assignment = assignmentRepository(assignmentId);
+        validateStudentAccess(assignment, student);
 
-        TaskProgress progress = taskProgressRepository
-                .findByTaskAndStudentAndEntryDate(task, student, request.getEntryDate())
-                .orElse(TaskProgress.builder()
-                        .task(task)
-                        .student(student)
-                        .entryDate(request.getEntryDate())
-                        .status(ProgressEntryStatus.PENDING)
-                        .build());
-
-        // If already approved, do not allow re-submission
-        if (ProgressEntryStatus.APPROVED.equals(progress.getStatus())) {
-            return;
+        // Validate date is within assignment range
+        LocalDate date = request.getDate();
+        if (assignment.getStartDate() != null && date.isBefore(assignment.getStartDate())) {
+            throw new ValidationException("Date is before assignment start date");
+        }
+        if (assignment.getEndDate() != null && date.isAfter(assignment.getEndDate())) {
+            throw new ValidationException("Date is after assignment end date");
         }
 
-        progress.setNumericValue(request.getNumericValue());
-        progress.setBooleanValue(request.getBooleanValue());
-        progress.setStatus(ProgressEntryStatus.PENDING);
-        taskProgressRepository.save(progress);
+        // Check if already locked
+        boolean alreadyLocked = !taskProgressRepository
+                .findByStudentAndEntryDateAndLockedTrue(student, date).isEmpty();
+        if (alreadyLocked) {
+            throw new ValidationException("This day's entries are already saved and locked");
+        }
+
+        List<Long> taskIds = assignment.getGoal().getTasks()
+                .stream().map(GoalTask::getId).collect(Collectors.toList());
+
+        for (SaveDayRequest.TaskEntry e : request.getEntries()) {
+            if (!taskIds.contains(e.getTaskId())) continue;
+
+            GoalTask task = goalTaskRepository.findById(e.getTaskId())
+                    .orElseThrow(() -> new EntityNotFoundException("Task not found: " + e.getTaskId()));
+
+            // CHECKBOX: if already permanently done, skip
+            if (task.getTaskType() == TaskType.CHECKBOX
+                    && taskProgressRepository.existsByTaskAndStudentAndDonePermanentlyTrue(task, student)) {
+                continue;
+            }
+
+            TaskProgress progress = taskProgressRepository
+                    .findByTaskAndStudentAndEntryDate(task, student, date)
+                    .orElse(TaskProgress.builder()
+                            .task(task).student(student).entryDate(date)
+                            .status(ProgressEntryStatus.PENDING)
+                            .build());
+
+            progress.setNumericValue(e.getNumericValue());
+            progress.setBooleanValue(e.getBooleanValue());
+            progress.setLocked(true);
+
+            // Mark CHECKBOX task as permanently done when student checks it
+            if (task.getTaskType() == TaskType.CHECKBOX && Boolean.TRUE.equals(e.getBooleanValue())) {
+                progress.setDonePermanently(true);
+            }
+
+            taskProgressRepository.save(progress);
+        }
+
+        return getDayEntries(assignmentId, date, student);
     }
+
+    // ── Mentor unlock a single entry ──────────────────────────────────────────
+
+    @Transactional
+    public void unlockEntry(Long entryId, User mentor) {
+        TaskProgress entry = taskProgressRepository.findById(entryId)
+                .orElseThrow(() -> new EntityNotFoundException("Entry not found: " + entryId));
+        entry.setLocked(false);
+        entry.setDonePermanently(false);
+        taskProgressRepository.save(entry);
+    }
+
+    // ── Legacy: review submission (kept for backwards compat) ─────────────────
 
     @Transactional
     public void submitReview(GoalReviewRequest request, User mentor) {
@@ -141,44 +191,52 @@ public class GoalProgressService {
         GoalStudentReview review = reviewRepository
                 .findByGoalAndStudent(goal, student)
                 .orElse(GoalStudentReview.builder()
-                        .goal(goal)
-                        .student(student)
-                        .build());
+                        .goal(goal).student(student).build());
 
         review.setCompleted(request.getCompleted());
         review.setComment(request.getComment());
         reviewRepository.save(review);
     }
 
-    private List<Goal> getGoalEntitiesForStudent(User student) {
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private List<ClassHomeworkAssignment> getAssignmentsForStudent(User student) {
         ClassStudent activeEnrollment = classStudentRepository.findByStudentAndActiveTrue(student)
                 .orElse(null);
+        if (activeEnrollment == null) return Collections.emptyList();
 
-        if (activeEnrollment == null || activeEnrollment.getMentorClass() == null)
-            return Collections.emptyList();
-
-        // Homework assigned via the Assignments tab is stored in class_homework_assignments.
-        // The linked goal is a template (mentorClass = null), so querying goals by mentorClass
-        // never finds them. We must resolve the goals through assignments instead.
-        List<Goal> assignedGoals = classHomeworkAssignmentRepository
+        return classHomeworkAssignmentRepository
                 .findByMentorClassOrderByCreatedAtDesc(activeEnrollment.getMentorClass())
                 .stream()
                 .filter(a -> Boolean.TRUE.equals(a.getApplyToAll())
                           || a.getStudentIds().contains(student.getId()))
-                .map(ClassHomeworkAssignment::getGoal)
                 .collect(Collectors.toList());
+    }
 
-        // Legacy path: goals directly attached to the class (old assignment model)
-        List<Goal> legacyClassGoals = goalRepository
-                .findByMentorClassAndActiveTrueWithTasks(activeEnrollment.getMentorClass())
-                .stream().filter(Goal::getApplyToAll).collect(Collectors.toList());
+    private ClassHomeworkAssignment assignmentRepository(Long assignmentId) {
+        return classHomeworkAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Assignment not found: " + assignmentId));
+    }
 
-        // Private goals explicitly assigned to this student
-        List<Goal> privateGoals = goalStudentRepository.findByStudentWithGoalTasks(student)
-                .stream().map(GoalStudent::getGoal).collect(Collectors.toList());
+    private void validateStudentAccess(ClassHomeworkAssignment assignment, User student) {
+        boolean allowed = Boolean.TRUE.equals(assignment.getApplyToAll())
+                || assignment.getStudentIds().contains(student.getId());
+        if (!allowed) throw new ForbiddenException("You do not have access to this assignment");
+    }
 
-        assignedGoals.addAll(legacyClassGoals);
-        assignedGoals.addAll(privateGoals);
-        return assignedGoals.stream().distinct().collect(Collectors.toList());
+    private double computeOverallProgress(List<GoalTask> tasks, User student) {
+        if (tasks.isEmpty()) return 0.0;
+        double total = 0.0;
+        for (GoalTask task : tasks) {
+            if (task.getTaskType() == TaskType.NUMBER && task.getTargetValue() != null && task.getTargetValue() > 0) {
+                Double sum = taskProgressRepository.sumNumericValueByTaskAndStudent(task, student);
+                total += Math.min((sum / task.getTargetValue()) * 100.0, 100.0);
+            } else if (task.getTaskType() == TaskType.CHECKBOX) {
+                if (taskProgressRepository.existsByTaskAndStudentAndDonePermanentlyTrue(task, student)) {
+                    total += 100.0;
+                }
+            }
+        }
+        return total / tasks.size();
     }
 }

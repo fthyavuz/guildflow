@@ -72,12 +72,12 @@
                     </svg>
                     {{ 'NAV.GOAL_LIBRARY' | translate }}
                 </a>
-                <a routerLink="/goals/approval" routerLinkActive="active" class="nav-item">
+                <a routerLink="/student-report" routerLinkActive="active" class="nav-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
                         <path d="M9 11l3 3L22 4"></path>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
-                    {{ 'NAV.HOMEWORK_APPROVAL' | translate }}
+                    {{ 'NAV.STUDENT_REPORTS' | translate }}
                 </a>
             </ng-container>
 
@@ -136,12 +136,12 @@
                     </svg>
                     {{ 'NAV.GOAL_LIBRARY' | translate }}
                 </a>
-                <a routerLink="/goals/approval" routerLinkActive="active" class="nav-item" *ngIf="user.role === 'MENTOR'">
+                <a routerLink="/student-report" routerLinkActive="active" class="nav-item" *ngIf="user.role === 'MENTOR'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
                         <path d="M9 11l3 3L22 4"></path>
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
                     </svg>
-                    {{ 'NAV.HOMEWORK_APPROVAL' | translate }}
+                    {{ 'NAV.STUDENT_REPORTS' | translate }}
                 </a>
             </ng-container>
         </nav>
@@ -389,7 +389,7 @@
                                     <span class="quest-tag">{{ 'DASHBOARD.QUEST.TAG' | translate }}</span>
                                     <h4>{{ goal.title }}</h4>
                                     <div class="quest-meta">
-                                        <span>{{ goal.tasks.length }} {{ 'DASHBOARD.QUEST.TASKS' | translate }}</span>
+                                        <span>{{ goal.taskCount }} {{ 'DASHBOARD.QUEST.TASKS' | translate }}</span>
                                         <span class="sep">•</span>
                                         <span class="perc">{{ goal.overallProgress | number:'1.0-0' }}% Mastery</span>
                                     </div>
