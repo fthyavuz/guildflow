@@ -87,7 +87,7 @@
                 </div>
 
                 <!-- ── IN PROGRESS section ── -->
-                <div *ngIf="selectedStudent.inProgress.length > 0" class="report-section">
+                <div *ngIf="(selectedStudent.inProgress?.length ?? 0) > 0" class="report-section">
                     <div class="section-heading in-progress-heading">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
                             <circle cx="12" cy="12" r="10"/>
@@ -136,7 +136,7 @@
                 </div>
 
                 <!-- ── FINISHED section ── -->
-                <div *ngIf="selectedStudent.finished.length > 0" class="report-section">
+                <div *ngIf="(selectedStudent.finished?.length ?? 0) > 0" class="report-section">
                     <div class="section-heading finished-heading">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
                             <polyline points="20 6 9 17 4 12"/>

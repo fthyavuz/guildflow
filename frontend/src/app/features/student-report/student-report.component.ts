@@ -44,7 +44,14 @@ export class StudentReportComponent implements OnInit {
         this.goalService.getStudentReport(student.studentId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (report) => { this.selectedStudent = report; this.isLoadingReport = false; },
+                next: (report) => {
+                    this.selectedStudent = {
+                        ...report,
+                        inProgress: report.inProgress ?? [],
+                        finished: report.finished ?? []
+                    };
+                    this.isLoadingReport = false;
+                },
                 error: (err) => {
                     this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load report'));
                     this.isLoadingReport = false;
@@ -83,17 +90,16 @@ export class StudentReportComponent implements OnInit {
 
     get hasAnyData(): boolean {
         if (!this.selectedStudent) return false;
-        return this.selectedStudent.inProgress.length > 0 || this.selectedStudent.finished.length > 0;
+        return (this.selectedStudent.inProgress?.length ?? 0) > 0
+            || (this.selectedStudent.finished?.length ?? 0) > 0;
     }
 
     totalInProgress(): number {
-        if (!this.selectedStudent) return 0;
-        return this.selectedStudent.inProgress.reduce((sum, cat) => sum + cat.tasks.length, 0);
+        return this.selectedStudent?.inProgress?.reduce((sum, cat) => sum + cat.tasks.length, 0) ?? 0;
     }
 
     totalFinished(): number {
-        if (!this.selectedStudent) return 0;
-        return this.selectedStudent.finished.reduce((sum, cat) => sum + cat.tasks.length, 0);
+        return this.selectedStudent?.finished?.reduce((sum, cat) => sum + cat.tasks.length, 0) ?? 0;
     }
 
     getProgressColor(pct: number): string {
