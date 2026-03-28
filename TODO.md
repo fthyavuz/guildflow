@@ -56,9 +56,9 @@ _(Room management and booking is functional — no pending improvements)_
 
 _(Mentors share the same class detail view as admins — all Classes improvements above apply here too)_
 
-### Homework Approval
+### Student Reports
 
-- [x] **Approval queue** — review pending student progress entries; approve or reject each with optional notes; approved entries update the student's progress bar
+- [x] **Student report module** — mentor/admin selects a student from the sidebar to view all assigned homework; each assignment is expandable to show per-task progress; tasks can be individually Approved or Revoked
 
 ### Meetings
 
@@ -70,8 +70,11 @@ _(Meeting scheduling and recurrence is functional — no pending improvements)_
 
 ### Homework Tracking
 
-- [x] **Period-first data entry** — student selects a date then sees all assigned homework for that day; NUMBER tasks have a numeric input, CHECKBOX tasks have a toggle; each entry is submitted individually and enters a pending approval queue
-- [x] **Progress summary** — overall progress bar per homework assignment, colour-coded by completion percentage
+- [x] **Homework list** — cards showing each assigned homework with date range, frequency badge, task count, and overall progress; click a card to open the detail view
+- [x] **Daily entry with date picker** — date input clamped to the homework's start/end range; loads NUMBER and CHECKBOX task inputs for the selected day
+- [x] **Save-lock per day** — saving a day locks it; locked days show read-only values and a "Day Saved" pill; no re-editing after save
+- [x] **Permanent CHECKBOX done** — CHECKBOX tasks marked done and saved are permanently completed across all dates; shown as "Done" regardless of selected day
+- [x] **Progress summary** — cumulative progress bar per NUMBER task; overall progress bar per homework card, colour-coded by completion percentage
 
 ---
 
@@ -145,11 +148,11 @@ _(No features implemented yet — planned for a future phase)_
 | -------------------- | ------ | ------ |
 | 🛡️ Admin Dashboard   | 16     | 14     |
 | 👨‍🏫 Mentor Dashboard  | 1      | 1      |
-| 🎓 Student Dashboard | 2      | 2      |
+| 🎓 Student Dashboard | 5      | 5      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |
 | ⚙️ Security          | 7      | 6      |
 | ⚙️ Performance       | 6      | 4      |
 | ⚙️ Code Quality      | 11     | 6      |
 | ⚙️ Testing           | 5      | 0      |
 | ⚙️ Infrastructure    | 8      | 3      |
-| **Total**            | **56** | **36** |
+| **Total**            | **59** | **39** |
