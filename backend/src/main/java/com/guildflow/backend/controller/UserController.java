@@ -1,5 +1,6 @@
 package com.guildflow.backend.controller;
 
+import com.guildflow.backend.dto.AdminResetPasswordRequest;
 import com.guildflow.backend.dto.CreateUserRequest;
 import com.guildflow.backend.dto.UserResponse;
 import com.guildflow.backend.model.enums.Role;
@@ -33,8 +34,18 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getUsers(
             @RequestParam(required = false) Role role,
-            @PageableDefault(size = 50) Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsers(role, pageable));
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(userService.getUsers(role, search, pageable));
+    }
+
+    @PutMapping("/{id}/admin-reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> adminResetPassword(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminResetPasswordRequest request) {
+        userService.adminResetPassword(id, request);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
@@ -63,18 +74,18 @@ public class UserController {
     @GetMapping("/mentors")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getMentors(@PageableDefault(size = 50) Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsers(Role.MENTOR, pageable));
+        return ResponseEntity.ok(userService.getUsers(Role.MENTOR, null, pageable));
     }
 
     @GetMapping("/students")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getStudents(@PageableDefault(size = 50) Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsers(Role.STUDENT, pageable));
+        return ResponseEntity.ok(userService.getUsers(Role.STUDENT, null, pageable));
     }
 
     @GetMapping("/parents")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getParents(@PageableDefault(size = 50) Pageable pageable) {
-        return ResponseEntity.ok(userService.getUsers(Role.PARENT, pageable));
+        return ResponseEntity.ok(userService.getUsers(Role.PARENT, null, pageable));
     }
 }

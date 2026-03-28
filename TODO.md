@@ -17,7 +17,10 @@
 
 ### Users
 
-_(User management is accessible from the admin dashboard — no pending improvements yet)_
+- [x] **User list page** — unified table showing all users across all roles; columns: name, email, role badge, status (active/inactive); paginated
+- [x] **Role filter** — dropdown to filter the list by role (ALL / ADMIN / MENTOR / STUDENT / PARENT)
+- [x] **Name & email search** — live search input that filters users by full name or email address
+- [x] **Admin password reset** — each user row has a "Reset Password" action that opens a modal; admin enters and confirms a new password; backend enforces ADMIN-only access on the endpoint
 
 ### Homework Library
 
@@ -140,7 +143,7 @@ _(No features implemented yet — planned for a future phase)_
 
 | Section              | Total  | Done   |
 | -------------------- | ------ | ------ |
-| 🛡️ Admin Dashboard   | 12     | 10     |
+| 🛡️ Admin Dashboard   | 16     | 14     |
 | 👨‍🏫 Mentor Dashboard  | 1      | 1      |
 | 🎓 Student Dashboard | 2      | 2      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |
@@ -149,4 +152,4 @@ _(No features implemented yet — planned for a future phase)_
 | ⚙️ Code Quality      | 11     | 6      |
 | ⚙️ Testing           | 5      | 0      |
 | ⚙️ Infrastructure    | 8      | 3      |
-| **Total**            | **52** | **32** |
+| **Total**            | **56** | **36** |

@@ -13,4 +13,7 @@ export interface AuthResponse {
     user: User;
 }
 
-export type UserResponse = User;
+export interface UserResponse extends User {
+    active: boolean;
+    createdAt: string;
+}

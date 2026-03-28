@@ -102,13 +102,21 @@ public class UserService {
     }
 
     /**
-     * Get all users, optionally filtered by role, with pagination.
+     * Get all users, optionally filtered by role and/or search term, with pagination.
      */
-    public Page<UserResponse> getUsers(Role role, Pageable pageable) {
-        if (role != null) {
-            return userRepository.findByRoleAndActiveTrue(role, pageable).map(UserResponse::fromEntity);
-        }
-        return userRepository.findByActiveTrue(pageable).map(UserResponse::fromEntity);
+    public Page<UserResponse> getUsers(Role role, String search, Pageable pageable) {
+        return userRepository.findByFilters(role, search, pageable).map(UserResponse::fromEntity);
+    }
+
+    /**
+     * Admin-only password reset — no current password verification required.
+     */
+    @Transactional
+    public void adminResetPassword(Long id, AdminResetPasswordRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     /**

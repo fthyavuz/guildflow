@@ -13,6 +13,15 @@ export class UserService {
     private http = inject(HttpClient);
     private readonly apiUrl = `${environment.apiBaseUrl}/users`;
 
+    getUsersPage(options: { role?: string; search?: string; page?: number; size?: number }): Observable<PagedResponse<UserResponse>> {
+        let params = new HttpParams()
+            .set('page', String(options.page ?? 0))
+            .set('size', String(options.size ?? 20));
+        if (options.role) params = params.set('role', options.role);
+        if (options.search?.trim()) params = params.set('search', options.search.trim());
+        return this.http.get<PagedResponse<UserResponse>>(this.apiUrl, { params });
+    }
+
     getUsers(role?: string): Observable<UserResponse[]> {
         let params = new HttpParams();
         if (role) {
@@ -46,5 +55,9 @@ export class UserService {
 
     deleteUser(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    }
+
+    adminResetPassword(id: number, newPassword: string): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/${id}/admin-reset-password`, { newPassword });
     }
 }
