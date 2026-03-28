@@ -17,7 +17,7 @@
 
 ### Users
 
-*(User management is accessible from the admin dashboard — no pending improvements yet)*
+_(User management is accessible from the admin dashboard — no pending improvements yet)_
 
 ### Homework Library
 
@@ -30,10 +30,12 @@
 
 - [x] **Dynamic categories** — resource categories are admin-managed (create, edit, delete) instead of hardcoded
 - [x] **Tracking types** — each resource has a tracking type (LINEAR / BINARY), total capacity, and daily limit
+- [ ] In Resource managemnet modul return panel button is not working
+- [ ] The View of Resource , i mean for for CRUD is ugly. We need to align the css with other of applications.
 
 ### Meetings
 
-*(Meeting management is functional — no pending improvements)*
+_(Meeting management is functional — no pending improvements)_
 
 ### Events
 
@@ -41,7 +43,7 @@
 
 ### Rooms
 
-*(Room management and booking is functional — no pending improvements)*
+_(Room management and booking is functional — no pending improvements)_
 
 ---
 
@@ -49,7 +51,7 @@
 
 ### My Classes
 
-*(Mentors share the same class detail view as admins — all Classes improvements above apply here too)*
+_(Mentors share the same class detail view as admins — all Classes improvements above apply here too)_
 
 ### Homework Approval
 
@@ -57,7 +59,7 @@
 
 ### Meetings
 
-*(Meeting scheduling and recurrence is functional — no pending improvements)*
+_(Meeting scheduling and recurrence is functional — no pending improvements)_
 
 ---
 
@@ -72,7 +74,7 @@
 
 ## 👨‍👩‍👧 Parent Dashboard
 
-*(No features implemented yet — planned for a future phase)*
+_(No features implemented yet — planned for a future phase)_
 
 ---
 
@@ -136,15 +138,15 @@
 
 ## Progress Summary
 
-| Section | Total | Done |
-|---|---|---|
-| 🛡️ Admin Dashboard | 12 | 10 |
-| 👨‍🏫 Mentor Dashboard | 1 | 1 |
-| 🎓 Student Dashboard | 2 | 2 |
-| 👨‍👩‍👧 Parent Dashboard | 0 | 0 |
-| ⚙️ Security | 7 | 6 |
-| ⚙️ Performance | 6 | 4 |
-| ⚙️ Code Quality | 11 | 6 |
-| ⚙️ Testing | 5 | 0 |
-| ⚙️ Infrastructure | 8 | 3 |
-| **Total** | **52** | **32** |
+| Section              | Total  | Done   |
+| -------------------- | ------ | ------ |
+| 🛡️ Admin Dashboard   | 12     | 10     |
+| 👨‍🏫 Mentor Dashboard  | 1      | 1      |
+| 🎓 Student Dashboard | 2      | 2      |
+| 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |
+| ⚙️ Security          | 7      | 6      |
+| ⚙️ Performance       | 6      | 4      |
+| ⚙️ Code Quality      | 11     | 6      |
+| ⚙️ Testing           | 5      | 0      |
+| ⚙️ Infrastructure    | 8      | 3      |
+| **Total**            | **52** | **32** |
