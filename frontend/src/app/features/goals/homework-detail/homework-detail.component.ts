@@ -46,9 +46,11 @@ export class HomeworkDetailComponent implements OnInit {
                 next: (list) => {
                     this.homework = list.find(h => h.assignmentId === this.assignmentId) ?? null;
                     if (this.homework) {
+                        const today = new Date().toISOString().split('T')[0];
                         this.minDate = this.homework.startDate ?? '';
-                        this.maxDate = this.homework.endDate   ?? '';
-                        this.selectedDate = this.clampDate(new Date().toISOString().split('T')[0]);
+                        const endDate = this.homework.endDate ?? '';
+                        this.maxDate = endDate && endDate < today ? endDate : today;
+                        this.selectedDate = this.clampDate(today);
                     }
                     this.loadEntries();
                 },
@@ -82,6 +84,12 @@ export class HomeworkDetailComponent implements OnInit {
 
     get isDayLocked(): boolean {
         return this.entries.some(e => e.dayLocked);
+    }
+
+    get hasLimitViolation(): boolean {
+        return this.entries.some(e =>
+            e.taskType === 'NUMBER' && e.dailyLimit != null && (e.inputNumeric ?? 0) > e.dailyLimit
+        );
     }
 
     saveDay(): void {

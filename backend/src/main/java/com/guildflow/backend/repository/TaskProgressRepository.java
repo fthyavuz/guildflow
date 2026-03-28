@@ -45,4 +45,12 @@ public interface TaskProgressRepository extends JpaRepository<TaskProgress, Long
     /** Cumulative sum queries used by the report service. */
     @Query("SELECT COALESCE(SUM(tp.numericValue), 0) FROM TaskProgress tp WHERE tp.task = :task AND tp.student = :student")
     Double sumNumericValueByTaskAndStudent(@Param("task") GoalTask task, @Param("student") User student);
+
+    /** Daily entries for a set of tasks + student within a date range, for category-level charting. */
+    @Query("SELECT tp FROM TaskProgress tp WHERE tp.task IN :tasks AND tp.student = :student AND tp.entryDate BETWEEN :start AND :end ORDER BY tp.entryDate ASC")
+    List<TaskProgress> findByTasksAndStudentAndDateBetween(
+            @Param("tasks") List<GoalTask> tasks,
+            @Param("student") User student,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end);
 }

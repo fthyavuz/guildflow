@@ -33,6 +33,7 @@
 
 - [x] **Dynamic categories** — resource categories are admin-managed (create, edit, delete) instead of hardcoded
 - [x] **Tracking types** — each resource has a tracking type (LINEAR / BINARY), total capacity, and daily limit
+- [x] **Mandatory capacity & daily limit** — total capacity and daily limit are now required fields when creating or editing a resource
 - [ ] In Resource managemnet modul return panel button is not working
 - [ ] The View of Resource , i mean for for CRUD is ugly. We need to align the css with other of applications.
 
@@ -58,7 +59,9 @@ _(Mentors share the same class detail view as admins — all Classes improvement
 
 ### Student Reports
 
-- [x] **Student report module** — mentor/admin selects a student from the sidebar to view all assigned homework; each assignment is expandable to show per-task progress; tasks can be individually Approved or Revoked
+- [x] **Student report module** — mentor/admin selects a student from the sidebar to view all assigned homework; tasks grouped by resource category into In Progress / Finished sections; tasks can be individually Approved or Revoked
+- [x] **Sidebar filter** — filter student list by name (live search) and education level dropdown
+- [x] **Category progress chart** — bar chart showing daily aggregated totals by resource category (Book, Podcast, etc.); quick-select range buttons (1W / 1M / 6M / 1Y / All) plus manual date range inputs; defaults to showing all history
 
 ### Meetings
 
@@ -75,6 +78,8 @@ _(Meeting scheduling and recurrence is functional — no pending improvements)_
 - [x] **Save-lock per day** — saving a day locks it; locked days show read-only values and a "Day Saved" pill; no re-editing after save
 - [x] **Permanent CHECKBOX done** — CHECKBOX tasks marked done and saved are permanently completed across all dates; shown as "Done" regardless of selected day
 - [x] **Progress summary** — cumulative progress bar per NUMBER task; overall progress bar per homework card, colour-coded by completion percentage
+- [x] **Block future date entry** — date picker capped to today; students cannot enter data for future dates
+- [x] **Daily limit enforcement** — homework entry screen shows per-task daily limit hint; input highlighted and Save button blocked when value exceeds the resource's daily limit
 
 ---
 
@@ -114,6 +119,7 @@ _(No features implemented yet — planned for a future phase)_
 - [x] Shared access-control utility — SecurityUtils used across all services instead of copy-pasted checks
 - [x] GoalService split into GoalTemplateService, GoalProgressService, GoalAssignmentService
 - [x] JPA cascade on event deletion — no more manual pre-delete loops
+- [x] FK cascade on task deletion — task_progress and task_completion rows are deleted automatically when a GoalTask is removed (fixes FK constraint error when editing homework)
 - [x] Meeting recurrence count configurable — was hardcoded to 13 instances
 - [ ] **DTO validation** — EventRequest (start < end enforced), GoalRequest (task target ≥ 1), RoomBookingRequest (time ordering)
 - [ ] **Restrict soft-delete flag** — the `active` field in UserResponse should be visible to ADMIN only
@@ -146,13 +152,13 @@ _(No features implemented yet — planned for a future phase)_
 
 | Section              | Total  | Done   |
 | -------------------- | ------ | ------ |
-| 🛡️ Admin Dashboard   | 16     | 14     |
-| 👨‍🏫 Mentor Dashboard  | 1      | 1      |
-| 🎓 Student Dashboard | 5      | 5      |
+| 🛡️ Admin Dashboard   | 17     | 15     |
+| 👨‍🏫 Mentor Dashboard  | 3      | 3      |
+| 🎓 Student Dashboard | 7      | 7      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |
 | ⚙️ Security          | 7      | 6      |
 | ⚙️ Performance       | 6      | 4      |
-| ⚙️ Code Quality      | 11     | 6      |
+| ⚙️ Code Quality      | 12     | 7      |
 | ⚙️ Testing           | 5      | 0      |
 | ⚙️ Infrastructure    | 8      | 3      |
-| **Total**            | **59** | **39** |
+| **Total**            | **65** | **45** |

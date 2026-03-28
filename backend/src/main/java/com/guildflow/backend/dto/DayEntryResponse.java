@@ -31,4 +31,7 @@ public class DayEntryResponse {
 
     /** True for CHECKBOX tasks that have been permanently marked done. */
     private boolean donePermanently;
+
+    /** Daily limit from the linked resource (null if task has no source). */
+    private Double dailyLimit;
 }

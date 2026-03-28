@@ -98,11 +98,19 @@
                     <div class="num-group">
                         <input type="number"
                             class="glass-input-sm num-input"
+                            [class.input-error]="entry.dailyLimit != null && (entry.inputNumeric ?? 0) > entry.dailyLimit"
                             [(ngModel)]="entry.inputNumeric"
                             min="0"
+                            [max]="entry.dailyLimit ?? null"
                             placeholder="0" />
                         <span class="unit-hint" *ngIf="entry.targetValue">/ {{ entry.targetValue }}</span>
                     </div>
+                    <span class="limit-hint" *ngIf="entry.dailyLimit != null">
+                        {{ 'HOMEWORK.DETAIL.DAILY_LIMIT' | translate }}: {{ entry.dailyLimit }}
+                    </span>
+                    <span class="limit-error" *ngIf="entry.dailyLimit != null && (entry.inputNumeric ?? 0) > entry.dailyLimit">
+                        {{ 'HOMEWORK.DETAIL.EXCEEDS_LIMIT' | translate }}
+                    </span>
                 </ng-container>
 
                 <!-- CHECKBOX — permanently done (any state) -->
@@ -147,7 +155,7 @@
     <!-- Save button -->
     <div class="save-bar" *ngIf="!isLoading && !isDayLocked && entries.length > 0">
         <p class="save-hint">{{ 'HOMEWORK.DETAIL.SAVE_HINT' | translate }}</p>
-        <button class="btn btn-primary save-btn" (click)="saveDay()" [disabled]="isSaving">
+        <button class="btn btn-primary save-btn" (click)="saveDay()" [disabled]="isSaving || hasLimitViolation">
             <svg *ngIf="!isSaving" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 <polyline points="17 21 17 13 7 13 7 21"></polyline>

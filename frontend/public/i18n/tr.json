@@ -189,7 +189,9 @@
             "NO_TASKS": "Bu ödev için tanımlanmış görev yok.",
             "SAVE_HINT": "Bu günün ilerlemenizi kaydedin. Kaydettikten sonra düzenleyemezsiniz.",
             "SAVE_DAY": "Günü Kaydet",
-            "SAVING": "Kaydediliyor..."
+            "SAVING": "Kaydediliyor...",
+            "DAILY_LIMIT": "Günlük limit",
+            "EXCEEDS_LIMIT": "Değer günlük limiti aşıyor"
         }
     },
     "REPORT": {
@@ -197,6 +199,9 @@
         "SUBTITLE": "Öğrenci ödev ilerlemelerini inceleyin ve onaylayın",
         "STUDENTS": "Öğrenciler",
         "NO_STUDENTS": "Öğrenci bulunamadı.",
+        "NO_MATCH": "Filtreye uyan öğrenci yok.",
+        "FILTER_NAME": "İsme göre ara...",
+        "ALL_LEVELS": "Tüm seviyeler",
         "SELECT_PROMPT": "Raporu görüntülemek için bir öğrenci seçin",
         "NO_ASSIGNMENTS": "Bu öğrenciye atanmış ödev yok.",
         "IN_PROGRESS": "Devam Ediyor",
@@ -205,6 +210,17 @@
         "NOT_DONE": "Yapılmadı",
         "APPROVE": "Onayla",
         "APPROVED": "Onaylandı",
-        "REVOKE": "Onayı geri al"
+        "REVOKE": "Onayı geri al",
+        "CHART_TITLE": "İlerleme Grafiği",
+        "CHART_SELECT_CAT": "Kategori seçin...",
+        "CHART_FROM": "Başlangıç",
+        "CHART_TO": "Bitiş",
+        "CHART_NO_DATA": "Bu dönemde ilerleme verisi yok.",
+        "CHART_TOTAL": "Toplam",
+        "CHART_1W": "1H",
+        "CHART_1M": "1A",
+        "CHART_6M": "6A",
+        "CHART_1Y": "1Y",
+        "CHART_ALL": "Tümü"
     }
 }

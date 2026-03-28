@@ -189,7 +189,9 @@
             "NO_TASKS": "No tasks defined for this homework.",
             "SAVE_HINT": "Save your progress for this day. You won't be able to edit after saving.",
             "SAVE_DAY": "Save Day",
-            "SAVING": "Saving..."
+            "SAVING": "Saving...",
+            "DAILY_LIMIT": "Daily limit",
+            "EXCEEDS_LIMIT": "Value exceeds daily limit"
         }
     },
     "REPORT": {
@@ -197,6 +199,9 @@
         "SUBTITLE": "Review and approve student homework progress",
         "STUDENTS": "Students",
         "NO_STUDENTS": "No students found.",
+        "NO_MATCH": "No students match the filter.",
+        "FILTER_NAME": "Search by name...",
+        "ALL_LEVELS": "All levels",
         "SELECT_PROMPT": "Select a student to view their report",
         "NO_ASSIGNMENTS": "No homework assigned to this student.",
         "IN_PROGRESS": "In Progress",
@@ -205,6 +210,17 @@
         "NOT_DONE": "Not Done",
         "APPROVE": "Approve",
         "APPROVED": "Approved",
-        "REVOKE": "Revoke approval"
+        "REVOKE": "Revoke approval",
+        "CHART_TITLE": "Progress Chart",
+        "CHART_SELECT_CAT": "Select category...",
+        "CHART_FROM": "From",
+        "CHART_TO": "To",
+        "CHART_NO_DATA": "No progress data for this period.",
+        "CHART_TOTAL": "Total",
+        "CHART_1W": "1W",
+        "CHART_1M": "1M",
+        "CHART_6M": "6M",
+        "CHART_1Y": "1Y",
+        "CHART_ALL": "All"
     }
 }

@@ -237,6 +237,24 @@
     letter-spacing: 0;
 }
 
+.limit-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+.limit-error {
+    font-size: 0.72rem;
+    color: #f87171;
+    margin-top: 0.2rem;
+    font-weight: 600;
+}
+
+.input-error {
+    border-color: #f87171 !important;
+    outline-color: #f87171 !important;
+}
+
 .btn-back {
     display: flex; align-items: center; gap: 0.5rem;
     color: var(--text-secondary); text-decoration: none;

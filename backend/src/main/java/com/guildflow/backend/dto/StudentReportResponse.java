@@ -18,6 +18,7 @@ public class StudentReportResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private String educationLevel;
 
     /** Tasks with progressPercentage < 100, grouped by resource category */
     private List<CategorySection> inProgress;

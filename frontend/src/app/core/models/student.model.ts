@@ -38,6 +38,14 @@ export interface DayEntry {
     booleanEntry?: boolean;
     dayLocked: boolean;
     donePermanently: boolean;
+    dailyLimit?: number;
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────
+
+export interface DailyProgressEntry {
+    date: string;
+    value: number;
 }
 
 // ── Student Report (mentor/admin) ─────────────────────────────────────────
@@ -77,6 +85,7 @@ export interface StudentSummary {
     firstName: string;
     lastName: string;
     email: string;
+    educationLevel?: string;
 }
 
 // ── Legacy (kept for student-profile component) ───────────────────────────

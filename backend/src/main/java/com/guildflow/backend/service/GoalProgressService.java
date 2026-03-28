@@ -84,6 +84,8 @@ public class GoalProgressService {
                 cumulative = taskProgressRepository.sumNumericValueByTaskAndStudent(task, student);
             }
 
+            Double dailyLimit = (task.getSource() != null) ? task.getSource().getDailyLimit() : null;
+
             return DayEntryResponse.builder()
                     .taskId(task.getId())
                     .title(task.getTitle())
@@ -95,6 +97,7 @@ public class GoalProgressService {
                     .booleanEntry(entry != null ? entry.getBooleanValue() : null)
                     .dayLocked(dayLocked)
                     .donePermanently(donePermanently)
+                    .dailyLimit(dailyLimit)
                     .build();
         }).collect(Collectors.toList());
     }
@@ -143,6 +146,16 @@ public class GoalProgressService {
                             .task(task).student(student).entryDate(date)
                             .status(ProgressEntryStatus.PENDING)
                             .build());
+
+            // Enforce daily limit for NUMBER tasks
+            if (task.getTaskType() == TaskType.NUMBER
+                    && task.getSource() != null
+                    && task.getSource().getDailyLimit() != null
+                    && e.getNumericValue() != null
+                    && e.getNumericValue() > task.getSource().getDailyLimit()) {
+                throw new ValidationException("Value for task '" + task.getTitle()
+                        + "' exceeds the daily limit of " + task.getSource().getDailyLimit());
+            }
 
             progress.setNumericValue(e.getNumericValue());
             progress.setBooleanValue(e.getBooleanValue());

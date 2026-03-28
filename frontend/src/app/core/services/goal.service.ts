@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HomeworkSummary, DayEntry, StudentReport, StudentSummary } from '../models/student.model';
+import { HomeworkSummary, DayEntry, StudentReport, StudentSummary, DailyProgressEntry } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -53,6 +53,15 @@ export class GoalService {
     revokeApproval(studentId: number, assignmentId: number, taskId: number): Observable<void> {
         return this.http.delete<void>(
             `${this.reportApiUrl}/students/${studentId}/assignments/${assignmentId}/tasks/${taskId}/approve`
+        );
+    }
+
+    getCategoryChart(studentId: number, category: string, startDate?: string, endDate?: string): Observable<DailyProgressEntry[]> {
+        let params = new HttpParams().set('category', category);
+        if (startDate) params = params.set('startDate', startDate);
+        if (endDate) params = params.set('endDate', endDate);
+        return this.http.get<DailyProgressEntry[]>(
+            `${this.reportApiUrl}/students/${studentId}/chart`, { params }
         );
     }
 

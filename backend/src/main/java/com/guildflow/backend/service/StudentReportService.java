@@ -1,6 +1,7 @@
 package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.ApproveTaskRequest;
+import com.guildflow.backend.dto.DailyProgressEntry;
 import com.guildflow.backend.dto.StudentReportResponse;
 import com.guildflow.backend.dto.StudentReportResponse.CategorySection;
 import com.guildflow.backend.dto.StudentReportResponse.TaskItem;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,14 +34,22 @@ public class StudentReportService {
     public List<StudentReportResponse> getStudentList() {
         return userRepository.findByRole(Role.STUDENT).stream()
                 .filter(u -> Boolean.TRUE.equals(u.getActive()))
-                .map(s -> StudentReportResponse.builder()
-                        .studentId(s.getId())
-                        .firstName(s.getFirstName())
-                        .lastName(s.getLastName())
-                        .email(s.getEmail())
-                        .inProgress(Collections.emptyList())
-                        .finished(Collections.emptyList())
-                        .build())
+                .map(s -> {
+                    ClassStudent enrollment = classStudentRepository.findByStudentAndActiveTrue(s).orElse(null);
+                    String educationLevel = (enrollment != null && enrollment.getMentorClass() != null
+                            && enrollment.getMentorClass().getEducationLevel() != null)
+                            ? enrollment.getMentorClass().getEducationLevel().name()
+                            : null;
+                    return StudentReportResponse.builder()
+                            .studentId(s.getId())
+                            .firstName(s.getFirstName())
+                            .lastName(s.getLastName())
+                            .email(s.getEmail())
+                            .educationLevel(educationLevel)
+                            .inProgress(Collections.emptyList())
+                            .finished(Collections.emptyList())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
@@ -198,6 +208,47 @@ public class StudentReportService {
                         .categoryName(name)
                         .tasks(byCategory.get(name))
                         .build())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns daily aggregated progress for all NUMBER tasks belonging to the given category.
+     * "General" covers tasks that have no linked source/category.
+     */
+    public List<DailyProgressEntry> getCategoryChart(Long studentId, String category,
+                                                      LocalDate startDate, LocalDate endDate) {
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("Student not found: " + studentId));
+
+        ClassStudent enrollment = classStudentRepository.findByStudentAndActiveTrue(student).orElse(null);
+        if (enrollment == null) return Collections.emptyList();
+
+        List<ClassHomeworkAssignment> assignments = assignmentRepository
+                .findByMentorClassOrderByCreatedAtDesc(enrollment.getMentorClass())
+                .stream()
+                .filter(a -> Boolean.TRUE.equals(a.getApplyToAll())
+                          || a.getStudentIds().contains(student.getId()))
+                .collect(Collectors.toList());
+
+        List<GoalTask> matchingTasks = assignments.stream()
+                .flatMap(a -> a.getGoal().getTasks().stream())
+                .filter(t -> t.getTaskType() == com.guildflow.backend.model.enums.TaskType.NUMBER)
+                .filter(t -> resolveCategoryName(t).equals(category))
+                .collect(Collectors.toList());
+
+        if (matchingTasks.isEmpty()) return Collections.emptyList();
+
+        LocalDate from = startDate != null ? startDate : LocalDate.now().minusDays(30);
+        LocalDate to = endDate != null ? endDate : LocalDate.now();
+
+        Map<LocalDate, Double> dailyTotals = new TreeMap<>();
+        taskProgressRepository.findByTasksAndStudentAndDateBetween(matchingTasks, student, from, to)
+                .stream()
+                .filter(tp -> tp.getNumericValue() != null && tp.getNumericValue() > 0)
+                .forEach(tp -> dailyTotals.merge(tp.getEntryDate(), tp.getNumericValue(), Double::sum));
+
+        return dailyTotals.entrySet().stream()
+                .map(e -> new DailyProgressEntry(e.getKey(), e.getValue()))
                 .collect(Collectors.toList());
     }
 

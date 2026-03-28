@@ -41,8 +41,8 @@ export class SourceListComponent implements OnInit {
             title:         ['', Validators.required],
             categoryId:    [null, Validators.required],
             trackingType:  ['LINEAR', Validators.required],
-            totalCapacity: [null],
-            dailyLimit:    [null],
+            totalCapacity: [null, Validators.required],
+            dailyLimit:    [null, Validators.required],
             language:      [''],
             part:          ['']
         });

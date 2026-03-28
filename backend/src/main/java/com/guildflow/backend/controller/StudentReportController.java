@@ -1,6 +1,7 @@
 package com.guildflow.backend.controller;
 
 import com.guildflow.backend.dto.ApproveTaskRequest;
+import com.guildflow.backend.dto.DailyProgressEntry;
 import com.guildflow.backend.dto.StudentReportResponse;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.service.StudentReportService;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -41,6 +43,16 @@ public class StudentReportController {
             @AuthenticationPrincipal User approver) {
         studentReportService.approveTask(assignmentId, taskId, studentId, request, approver);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/students/{studentId}/chart")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<List<DailyProgressEntry>> getCategoryChart(
+            @PathVariable Long studentId,
+            @RequestParam String category,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate) {
+        return ResponseEntity.ok(studentReportService.getCategoryChart(studentId, category, startDate, endDate));
     }
 
     @DeleteMapping("/students/{studentId}/assignments/{assignmentId}/tasks/{taskId}/approve")

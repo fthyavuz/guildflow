@@ -180,7 +180,9 @@
             "NO_TASKS": "Keine Aufgaben für diese Hausaufgabe definiert.",
             "SAVE_HINT": "Speichern Sie Ihren Fortschritt für diesen Tag. Nach dem Speichern können Sie nicht mehr bearbeiten.",
             "SAVE_DAY": "Tag speichern",
-            "SAVING": "Wird gespeichert..."
+            "SAVING": "Wird gespeichert...",
+            "DAILY_LIMIT": "Tageslimit",
+            "EXCEEDS_LIMIT": "Wert überschreitet das Tageslimit"
         }
     },
     "REPORT": {
@@ -188,6 +190,9 @@
         "SUBTITLE": "Überprüfen und genehmigen Sie den Hausaufgabenfortschritt der Schüler",
         "STUDENTS": "Schüler",
         "NO_STUDENTS": "Keine Schüler gefunden.",
+        "NO_MATCH": "Keine Schüler entsprechen dem Filter.",
+        "FILTER_NAME": "Nach Name suchen...",
+        "ALL_LEVELS": "Alle Niveaus",
         "SELECT_PROMPT": "Wählen Sie einen Schüler, um den Bericht anzuzeigen",
         "NO_ASSIGNMENTS": "Diesem Schüler sind keine Hausaufgaben zugewiesen.",
         "IN_PROGRESS": "In Bearbeitung",
@@ -196,6 +201,17 @@
         "NOT_DONE": "Nicht erledigt",
         "APPROVE": "Genehmigen",
         "APPROVED": "Genehmigt",
-        "REVOKE": "Genehmigung widerrufen"
+        "REVOKE": "Genehmigung widerrufen",
+        "CHART_TITLE": "Fortschrittsdiagramm",
+        "CHART_SELECT_CAT": "Kategorie auswählen...",
+        "CHART_FROM": "Von",
+        "CHART_TO": "Bis",
+        "CHART_NO_DATA": "Keine Fortschrittsdaten für diesen Zeitraum.",
+        "CHART_TOTAL": "Gesamt",
+        "CHART_1W": "1W",
+        "CHART_1M": "1M",
+        "CHART_6M": "6M",
+        "CHART_1Y": "1J",
+        "CHART_ALL": "Alle"
     }
 }

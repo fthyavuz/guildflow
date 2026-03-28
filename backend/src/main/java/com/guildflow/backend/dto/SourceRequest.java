@@ -17,7 +17,10 @@ public class SourceRequest {
     @NotNull(message = "Tracking type is required")
     private TrackingType trackingType;
 
+    @NotNull(message = "Total capacity is required")
     private Double totalCapacity;
+
+    @NotNull(message = "Daily limit is required")
     private Double dailyLimit;
     private String language;
     private String part;

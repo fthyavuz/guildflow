@@ -22,16 +22,30 @@
         <aside class="student-sidebar glass-card">
             <h3 class="sidebar-title">{{ 'REPORT.STUDENTS' | translate }}</h3>
 
+            <!-- Filters -->
+            <div class="sidebar-filters" *ngIf="!isLoadingList && students.length > 0">
+                <input type="text" class="glass-input filter-input"
+                    [(ngModel)]="nameFilter"
+                    (input)="applyFilter()"
+                    placeholder="{{ 'REPORT.FILTER_NAME' | translate }}" />
+                <select class="glass-input filter-select"
+                    [(ngModel)]="levelFilter"
+                    (change)="applyFilter()">
+                    <option value="">{{ 'REPORT.ALL_LEVELS' | translate }}</option>
+                    <option *ngFor="let lv of educationLevels" [value]="lv">{{ lv }}</option>
+                </select>
+            </div>
+
             <div *ngIf="isLoadingList" class="loader-container-sm">
                 <div class="spinner"></div>
             </div>
 
-            <div *ngIf="!isLoadingList && students.length === 0" class="sidebar-empty">
-                {{ 'REPORT.NO_STUDENTS' | translate }}
+            <div *ngIf="!isLoadingList && filteredStudents.length === 0" class="sidebar-empty">
+                {{ students.length === 0 ? ('REPORT.NO_STUDENTS' | translate) : ('REPORT.NO_MATCH' | translate) }}
             </div>
 
             <button
-                *ngFor="let s of students"
+                *ngFor="let s of filteredStudents"
                 class="student-item"
                 [class.selected]="selectedStudent?.studentId === s.studentId"
                 (click)="selectStudent(s)">
@@ -194,6 +208,66 @@
                                     </ng-container>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PROGRESS CHART section ── -->
+                <div *ngIf="chartableCategories.length > 0" class="report-section chart-section glass-card">
+                    <div class="section-heading chart-title-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        {{ 'REPORT.CHART_TITLE' | translate }}
+                    </div>
+
+                    <div class="chart-controls">
+                        <select class="glass-input chart-select"
+                            [(ngModel)]="chartCategory"
+                            (change)="loadChart()">
+                            <option [ngValue]="null" disabled>{{ 'REPORT.CHART_SELECT_CAT' | translate }}</option>
+                            <option *ngFor="let cat of chartableCategories" [ngValue]="cat">{{ cat }}</option>
+                        </select>
+
+                        <div class="chart-quick-btns">
+                            <button class="btn-period" (click)="setDateRange('week')">{{ 'REPORT.CHART_1W' | translate }}</button>
+                            <button class="btn-period" (click)="setDateRange('month')">{{ 'REPORT.CHART_1M' | translate }}</button>
+                            <button class="btn-period" (click)="setDateRange('6months')">{{ 'REPORT.CHART_6M' | translate }}</button>
+                            <button class="btn-period" (click)="setDateRange('year')">{{ 'REPORT.CHART_1Y' | translate }}</button>
+                            <button class="btn-period" (click)="setDateRange('all')">{{ 'REPORT.CHART_ALL' | translate }}</button>
+                        </div>
+
+                        <div class="chart-date-range">
+                            <input type="date" class="glass-input chart-date-input"
+                                [(ngModel)]="chartStartDate"
+                                (change)="loadChart()" />
+                            <span class="date-sep">→</span>
+                            <input type="date" class="glass-input chart-date-input"
+                                [(ngModel)]="chartEndDate"
+                                (change)="loadChart()" />
+                        </div>
+                    </div>
+
+                    <div *ngIf="isLoadingChart" class="loader-container-sm" style="padding: 2rem 0">
+                        <div class="spinner"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingChart && chartCategory && chartData.length === 0" class="chart-empty">
+                        {{ 'REPORT.CHART_NO_DATA' | translate }}
+                    </div>
+
+                    <div *ngIf="!isLoadingChart && chartData.length > 0" class="chart-area">
+                        <div class="bar-chart" [style.height.px]="CHART_BAR_PX + 40">
+                            <div class="chart-bar-col" *ngFor="let entry of chartData">
+                                <span class="bar-value">{{ entry.value | number:'1.0-1' }}</span>
+                                <div class="bar-track">
+                                    <div class="chart-bar" [style.height.px]="getBarPx(entry.value)"></div>
+                                </div>
+                                <span class="bar-date">{{ entry.date | date:'dd/MM' }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-total">
+                            {{ 'REPORT.CHART_TOTAL' | translate }}: <strong>{{ chartTotal | number:'1.0-1' }}</strong>
                         </div>
                     </div>
                 </div>
