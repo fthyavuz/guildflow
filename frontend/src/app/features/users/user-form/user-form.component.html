@@ -1,6 +1,6 @@
 <div class="page-container fade-in">
     <div class="nav-header">
-        <a [routerLink]="userType === 'MENTOR' ? '/mentors' : '/students'" class="btn-back">
+        <a [routerLink]="backRoute" class="btn-back">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12" />
@@ -14,18 +14,44 @@
         <header class="form-header glass">
             <h1 class="grad-text">
                 <ng-container *ngIf="isEditMode; else createTitle">
-                    {{ userType === 'MENTOR' ? 'Modify Mentor' : 'Update Scholar' }}
+                    <ng-container [ngSwitch]="userType">
+                        <ng-container *ngSwitchCase="'MENTOR'">Modify Mentor</ng-container>
+                        <ng-container *ngSwitchCase="'PARENT'">{{ 'FAMILY.EDIT_PARENT' | translate }}</ng-container>
+                        <ng-container *ngSwitchDefault>Update Scholar</ng-container>
+                    </ng-container>
                 </ng-container>
                 <ng-template #createTitle>
-                    {{ userType === 'MENTOR' ? 'Enlist New Mentor' : 'Register New Student' }}
+                    <ng-container [ngSwitch]="userType">
+                        <ng-container *ngSwitchCase="'MENTOR'">Enlist New Mentor</ng-container>
+                        <ng-container *ngSwitchCase="'PARENT'">{{ 'FAMILY.NEW_PARENT' | translate }}</ng-container>
+                        <ng-container *ngSwitchDefault>{{ 'FAMILY.NEW_STUDENT' | translate }}</ng-container>
+                    </ng-container>
                 </ng-template>
             </h1>
             <p class="subtitle">{{ isEditMode ? 'Keep the guild records accurate' : 'Grant access to the GuildFlow platform' }}</p>
         </header>
 
         <form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="glass-card form-card">
+
+            <!-- Parent selector — only shown when creating a new student -->
+            <div class="form-group full-width parent-section"
+                 *ngIf="userType === 'STUDENT' && !isEditMode">
+                <label for="parentId">{{ 'FAMILY.LABEL_PARENT' | translate }} <span class="required">*</span></label>
+                <div *ngIf="isLoadingParents" class="loading-hint">{{ 'FAMILY.LOADING_PARENTS' | translate }}</div>
+                <select id="parentId" formControlName="parentId" class="glass-input"
+                        *ngIf="!isLoadingParents">
+                    <option [value]="null">{{ 'FAMILY.SELECT_PARENT' | translate }}</option>
+                    <option *ngFor="let p of parents" [value]="p.id">
+                        {{ p.firstName }} {{ p.lastName }} ({{ p.email }})
+                    </option>
+                </select>
+                <small class="form-hint warn" *ngIf="parents.length === 0 && !isLoadingParents">
+                    {{ 'FAMILY.NO_PARENTS_HINT' | translate }}
+                    <a routerLink="/parents/new">{{ 'FAMILY.CREATE_PARENT_FIRST' | translate }}</a>
+                </small>
+            </div>
+
             <div class="form-grid">
-                <!-- ... names ... -->
                 <div class="form-group">
                     <label for="firstName">First Name</label>
                     <input type="text" id="firstName" formControlName="firstName" class="glass-input"
@@ -59,10 +85,9 @@
             </div>
 
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary"
-                    [routerLink]="userType === 'MENTOR' ? '/mentors' : '/students'">Cancel</button>
+                <button type="button" class="btn btn-secondary" [routerLink]="backRoute">Cancel</button>
                 <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid || isSubmitting">
-                    {{ isSubmitting ? 'Channeling...' : (isEditMode ? 'Update Profile' : (userType === 'MENTOR' ? 'Create Mentor' : 'Create Student')) }}
+                    {{ isSubmitting ? 'Channeling...' : (isEditMode ? 'Update Profile' : (userType === 'MENTOR' ? 'Create Mentor' : (userType === 'PARENT' ? ('FAMILY.CREATE_PARENT' | translate) : ('FAMILY.CREATE_STUDENT' | translate)))) }}
                 </button>
             </div>
         </form>

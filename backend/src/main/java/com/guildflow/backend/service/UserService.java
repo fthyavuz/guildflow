@@ -4,8 +4,10 @@ import com.guildflow.backend.dto.*;
 import com.guildflow.backend.exception.ConflictException;
 import com.guildflow.backend.exception.EntityNotFoundException;
 import com.guildflow.backend.exception.ValidationException;
+import com.guildflow.backend.model.ParentStudent;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.model.enums.Role;
+import com.guildflow.backend.repository.ParentStudentRepository;
 import com.guildflow.backend.repository.UserRepository;
 import com.guildflow.backend.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ParentStudentRepository parentStudentRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
@@ -98,6 +103,20 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
+        // Every student must be linked to a parent
+        if (request.getRole() == Role.STUDENT) {
+            if (request.getParentId() == null) {
+                throw new ValidationException("A parent must be assigned when creating a student");
+            }
+            User parent = userRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new EntityNotFoundException("Parent not found: " + request.getParentId()));
+            if (parent.getRole() != Role.PARENT) {
+                throw new ValidationException("Selected user is not a parent");
+            }
+            parentStudentRepository.save(ParentStudent.builder().parent(parent).student(savedUser).build());
+        }
+
         return UserResponse.fromEntity(savedUser);
     }
 
@@ -183,5 +202,64 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    // ── Parent–Student linking ────────────────────────────────────────────────
+
+    @Transactional
+    public void linkParentToStudent(Long parentId, Long studentId) {
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + parentId));
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + studentId));
+
+        if (parent.getRole() != Role.PARENT) throw new ValidationException("User is not a parent");
+        if (student.getRole() != Role.STUDENT) throw new ValidationException("User is not a student");
+        if (parentStudentRepository.existsByParentAndStudent(parent, student))
+            throw new ConflictException("Link already exists");
+
+        parentStudentRepository.save(ParentStudent.builder().parent(parent).student(student).build());
+    }
+
+    @Transactional
+    public void unlinkParentFromStudent(Long parentId, Long studentId) {
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + parentId));
+        User student = userRepository.findById(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + studentId));
+        parentStudentRepository.findByParentAndStudent(parent, student)
+                .ifPresent(parentStudentRepository::delete);
+    }
+
+    public List<UserResponse> getStudentsForParent(Long parentId) {
+        User parent = userRepository.findById(parentId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + parentId));
+        return parentStudentRepository.findByParent(parent).stream()
+                .map(ps -> UserResponse.fromEntity(ps.getStudent()))
+                .collect(Collectors.toList());
+    }
+
+    /** Returns all active students enriched with their linked parent's info. */
+    public List<UserResponse> getAllStudentsWithParent() {
+        return userRepository.findByRoleAndActiveTrue(Role.STUDENT).stream().map(student -> {
+            List<ParentStudent> links = parentStudentRepository.findByStudent(student);
+            UserResponse r = UserResponse.fromEntity(student);
+            if (!links.isEmpty()) {
+                User parent = links.get(0).getParent();
+                r.setParentId(parent.getId());
+                r.setParentName(parent.getFirstName() + " " + parent.getLastName());
+            }
+            return r;
+        }).collect(Collectors.toList());
+    }
+
+    /** Returns all active parents enriched with how many students they have. */
+    public List<UserResponse> getAllParentsWithStudentCount() {
+        return userRepository.findByRoleAndActiveTrue(Role.PARENT).stream().map(parent -> {
+            int count = parentStudentRepository.findByParent(parent).size();
+            UserResponse r = UserResponse.fromEntity(parent);
+            r.setStudentCount(count);
+            return r;
+        }).collect(Collectors.toList());
     }
 }

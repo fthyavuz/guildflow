@@ -54,7 +54,7 @@ export const routes: Routes = [
     {
         path: 'students',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/users/student-list/student-list.component').then(m => m.StudentListComponent)
+        loadComponent: () => import('./features/users/parent-student-management/parent-student-management.component').then(m => m.ParentStudentManagementComponent)
     },
     {
         path: 'students/new',
@@ -63,6 +63,26 @@ export const routes: Routes = [
     },
     {
         path: 'students/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'parents/new',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'parents/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'admins/new',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
+    },
+    {
+        path: 'admins/edit/:id',
         canActivate: [authGuard],
         loadComponent: () => import('./features/users/user-form/user-form.component').then(m => m.UserFormComponent)
     },

@@ -12,14 +12,21 @@
 
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">{{ 'REPORT.TITLE' | translate }}</h1>
-            <p class="subtitle">{{ 'REPORT.SUBTITLE' | translate }}</p>
+            <h1 class="grad-text">
+                <ng-container *ngIf="isMentorOrAdmin">{{ 'REPORT.TITLE' | translate }}</ng-container>
+                <ng-container *ngIf="currentUser?.role === 'STUDENT'">{{ 'REPORT.TITLE_STUDENT' | translate }}</ng-container>
+                <ng-container *ngIf="currentUser?.role === 'PARENT'">{{ 'REPORT.TITLE_PARENT' | translate }}</ng-container>
+            </h1>
+            <p class="subtitle">
+                <ng-container *ngIf="isMentorOrAdmin">{{ 'REPORT.SUBTITLE' | translate }}</ng-container>
+                <ng-container *ngIf="isStudentOrParent">{{ 'REPORT.SUBTITLE_READONLY' | translate }}</ng-container>
+            </p>
         </div>
     </header>
 
-    <div class="report-layout">
-        <!-- Student list sidebar -->
-        <aside class="student-sidebar glass-card">
+    <div class="report-layout" [class.no-sidebar]="!showSidebar">
+        <!-- Student list sidebar (hidden for STUDENT role) -->
+        <aside class="student-sidebar glass-card" *ngIf="showSidebar">
             <h3 class="sidebar-title">{{ 'REPORT.STUDENTS' | translate }}</h3>
 
             <!-- Filters -->
@@ -60,8 +67,8 @@
         <!-- Report detail -->
         <main class="report-main">
 
-            <!-- Prompt to select -->
-            <div class="select-prompt glass-card" *ngIf="!selectedStudent && !isLoadingReport">
+            <!-- Prompt to select (only for roles with a sidebar) -->
+            <div class="select-prompt glass-card" *ngIf="showSidebar && !selectedStudent && !isLoadingReport">
                 <div class="prompt-icon">👈</div>
                 <p>{{ 'REPORT.SELECT_PROMPT' | translate }}</p>
             </div>
@@ -190,12 +197,27 @@
                                     </span>
                                 </div>
                                 <div class="task-action">
-                                    <ng-container *ngIf="!task.approved">
-                                        <button class="btn btn-sm btn-approve" (click)="approve(task)">
-                                            {{ 'REPORT.APPROVE' | translate }}
-                                        </button>
+                                    <!-- Approve/Revoke: ADMIN and MENTOR only -->
+                                    <ng-container *ngIf="isMentorOrAdmin">
+                                        <ng-container *ngIf="!task.approved">
+                                            <button class="btn btn-sm btn-approve" (click)="approve(task)">
+                                                {{ 'REPORT.APPROVE' | translate }}
+                                            </button>
+                                        </ng-container>
+                                        <ng-container *ngIf="task.approved">
+                                            <span class="approved-badge"
+                                                [title]="(task.approvedByName || '') + ' • ' + (task.approvedAt | date:'dd MMM yyyy')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                    <polyline points="20 6 9 17 4 12"/>
+                                                </svg>
+                                                {{ 'REPORT.APPROVED' | translate }}
+                                            </span>
+                                            <button class="btn-revoke" (click)="revoke(task)"
+                                                [title]="'REPORT.REVOKE' | translate">✕</button>
+                                        </ng-container>
                                     </ng-container>
-                                    <ng-container *ngIf="task.approved">
+                                    <!-- Read-only approved badge for STUDENT/PARENT -->
+                                    <ng-container *ngIf="isStudentOrParent && task.approved">
                                         <span class="approved-badge"
                                             [title]="(task.approvedByName || '') + ' • ' + (task.approvedAt | date:'dd MMM yyyy')">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -203,8 +225,6 @@
                                             </svg>
                                             {{ 'REPORT.APPROVED' | translate }}
                                         </span>
-                                        <button class="btn-revoke" (click)="revoke(task)"
-                                            [title]="'REPORT.REVOKE' | translate">✕</button>
                                     </ng-container>
                                 </div>
                             </div>

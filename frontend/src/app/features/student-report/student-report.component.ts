@@ -6,7 +6,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { GoalService } from '../../core/services/goal.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { AuthService } from '../../core/services/auth.service';
 import { StudentReport, StudentSummary, ReportTaskItem, DailyProgressEntry } from '../../core/models/student.model';
+import { User } from '../../core/models/auth.model';
 
 @Component({
     selector: 'app-student-report',
@@ -18,7 +20,10 @@ import { StudentReport, StudentSummary, ReportTaskItem, DailyProgressEntry } fro
 export class StudentReportComponent implements OnInit {
     private goalService = inject(GoalService);
     private notifications = inject(NotificationService);
+    private authService = inject(AuthService);
     private destroyRef = inject(DestroyRef);
+
+    currentUser: User | null = null;
 
     students: StudentSummary[] = [];
     filteredStudents: StudentSummary[] = [];
@@ -39,6 +44,18 @@ export class StudentReportComponent implements OnInit {
     chartTotal = 0;
 
     readonly CHART_BAR_PX = 160;
+
+    get isMentorOrAdmin(): boolean {
+        return this.currentUser?.role === 'ADMIN' || this.currentUser?.role === 'MENTOR';
+    }
+
+    get isStudentOrParent(): boolean {
+        return this.currentUser?.role === 'STUDENT' || this.currentUser?.role === 'PARENT';
+    }
+
+    get showSidebar(): boolean {
+        return this.currentUser?.role !== 'STUDENT';
+    }
 
     get chartableCategories(): string[] {
         if (!this.selectedStudent) return [];
@@ -61,6 +78,15 @@ export class StudentReportComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.currentUser = this.authService.getCurrentUser();
+
+        // STUDENT auto-loads their own report — no sidebar needed
+        if (this.currentUser?.role === 'STUDENT') {
+            this.isLoadingList = false;
+            this.loadOwnReport(this.currentUser.id);
+            return;
+        }
+
         this.goalService.getStudentList()
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
@@ -73,6 +99,26 @@ export class StudentReportComponent implements OnInit {
                 error: (err) => {
                     this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load students'));
                     this.isLoadingList = false;
+                }
+            });
+    }
+
+    private loadOwnReport(studentId: number): void {
+        this.isLoadingReport = true;
+        this.goalService.getStudentReport(studentId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (report) => {
+                    this.selectedStudent = {
+                        ...report,
+                        inProgress: report.inProgress ?? [],
+                        finished: report.finished ?? []
+                    };
+                    this.isLoadingReport = false;
+                },
+                error: (err) => {
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load report'));
+                    this.isLoadingReport = false;
                 }
             });
     }
@@ -116,7 +162,7 @@ export class StudentReportComponent implements OnInit {
     }
 
     approve(task: ReportTaskItem): void {
-        if (!this.selectedStudent) return;
+        if (!this.selectedStudent || !this.isMentorOrAdmin) return;
         this.goalService.approveTask(this.selectedStudent.studentId, task.assignmentId, task.taskId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
@@ -130,7 +176,7 @@ export class StudentReportComponent implements OnInit {
     }
 
     revoke(task: ReportTaskItem): void {
-        if (!this.selectedStudent) return;
+        if (!this.selectedStudent || !this.isMentorOrAdmin) return;
         this.goalService.revokeApproval(this.selectedStudent.studentId, task.assignmentId, task.taskId)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({

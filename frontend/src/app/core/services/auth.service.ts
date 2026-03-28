@@ -58,6 +58,10 @@ export class AuthService {
         }
     }
 
+    getCurrentUser(): User | null {
+        return this.currentUserSubject.value;
+    }
+
     getAccessToken(): string | null {
         return localStorage.getItem('access_token');
     }

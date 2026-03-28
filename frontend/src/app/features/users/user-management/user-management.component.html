@@ -18,7 +18,7 @@
             <p class="subtitle">{{ 'USERS.SUBTITLE' | translate }}</p>
         </div>
         <div class="header-actions">
-            <button class="btn btn-primary" routerLink="/mentors/new">{{ 'USERS.BTN_ADD' | translate }}</button>
+            <button class="btn btn-primary" (click)="showTypeModal = true">{{ 'USERS.BTN_ADD' | translate }}</button>
         </div>
     </header>
 
@@ -77,7 +77,7 @@
                         </span>
                     </td>
                     <td class="cell-actions">
-                        <button class="btn-icon" [routerLink]="['/mentors/edit', user.id]" title="{{ 'USERS.ACTION_EDIT' | translate }}">
+                        <button class="btn-icon" [routerLink]="editRoute(user)" title="{{ 'USERS.ACTION_EDIT' | translate }}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -120,6 +120,23 @@
             [class.current]="p === currentPage"
             (click)="goToPage(p)">{{ p + 1 }}</button>
         <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages - 1">›</button>
+    </div>
+</div>
+
+<!-- User Type Picker Modal -->
+<div class="modal-backdrop" *ngIf="showTypeModal" (click)="showTypeModal = false">
+    <div class="modal glass-card type-picker-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ 'USERS.BTN_ADD' | translate }}</h3>
+            <button class="btn-close" (click)="showTypeModal = false">✕</button>
+        </div>
+        <p class="modal-sub">Select the type of user to create:</p>
+        <div class="type-grid">
+            <button *ngFor="let t of userTypes" class="type-card glass" (click)="selectUserType(t.route)">
+                <span class="type-icon">{{ t.icon }}</span>
+                <span class="type-label">{{ t.label }}</span>
+            </button>
+        </div>
     </div>
 </div>
 

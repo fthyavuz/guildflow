@@ -6,6 +6,7 @@ import com.guildflow.backend.dto.StudentReportResponse;
 import com.guildflow.backend.dto.StudentReportResponse.CategorySection;
 import com.guildflow.backend.dto.StudentReportResponse.TaskItem;
 import com.guildflow.backend.exception.EntityNotFoundException;
+import com.guildflow.backend.exception.ForbiddenException;
 import com.guildflow.backend.model.*;
 import com.guildflow.backend.model.enums.Role;
 import com.guildflow.backend.model.enums.TaskType;
@@ -26,14 +27,17 @@ public class StudentReportService {
 
     private final UserRepository userRepository;
     private final ClassStudentRepository classStudentRepository;
+    private final MentorClassRepository mentorClassRepository;
+    private final ParentStudentRepository parentStudentRepository;
     private final ClassHomeworkAssignmentRepository assignmentRepository;
     private final GoalTaskRepository goalTaskRepository;
     private final TaskProgressRepository taskProgressRepository;
     private final TaskCompletionRepository taskCompletionRepository;
 
-    public List<StudentReportResponse> getStudentList() {
-        return userRepository.findByRole(Role.STUDENT).stream()
-                .filter(u -> Boolean.TRUE.equals(u.getActive()))
+    public List<StudentReportResponse> getStudentList(User currentUser) {
+        List<User> students = resolveStudentList(currentUser);
+        return students.stream()
+                .filter(s -> Boolean.TRUE.equals(s.getActive()))
                 .map(s -> {
                     ClassStudent enrollment = classStudentRepository.findByStudentAndActiveTrue(s).orElse(null);
                     String educationLevel = (enrollment != null && enrollment.getMentorClass() != null
@@ -53,8 +57,44 @@ public class StudentReportService {
                 .collect(Collectors.toList());
     }
 
+    private List<User> resolveStudentList(User currentUser) {
+        return switch (currentUser.getRole()) {
+            case ADMIN -> userRepository.findByRole(Role.STUDENT);
+            case MENTOR -> mentorClassRepository.findByMentorAndActiveTrue(currentUser).stream()
+                    .flatMap(c -> classStudentRepository.findByMentorClassAndActiveTrue(c).stream())
+                    .map(ClassStudent::getStudent)
+                    .distinct()
+                    .collect(Collectors.toList());
+            case STUDENT -> List.of(currentUser);
+            case PARENT -> parentStudentRepository.findByParent(currentUser).stream()
+                    .map(ParentStudent::getStudent)
+                    .collect(Collectors.toList());
+        };
+    }
+
+    private void validateReportAccess(Long studentId, User currentUser) {
+        switch (currentUser.getRole()) {
+            case ADMIN -> { /* always allowed */ }
+            case MENTOR -> {
+                List<User> allowed = resolveStudentList(currentUser);
+                boolean found = allowed.stream().anyMatch(s -> s.getId().equals(studentId));
+                if (!found) throw new ForbiddenException("Access denied to this student's report");
+            }
+            case STUDENT -> {
+                if (!currentUser.getId().equals(studentId))
+                    throw new ForbiddenException("Students can only view their own report");
+            }
+            case PARENT -> {
+                List<ParentStudent> links = parentStudentRepository.findByParent(currentUser);
+                boolean found = links.stream().anyMatch(ps -> ps.getStudent().getId().equals(studentId));
+                if (!found) throw new ForbiddenException("Access denied to this student's report");
+            }
+        }
+    }
+
     @Transactional(readOnly = true)
-    public StudentReportResponse getStudentReport(Long studentId) {
+    public StudentReportResponse getStudentReport(Long studentId, User currentUser) {
+        validateReportAccess(studentId, currentUser);
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found: " + studentId));
 
@@ -143,6 +183,9 @@ public class StudentReportService {
     @Transactional
     public void approveTask(Long assignmentId, Long taskId, Long studentId,
                             ApproveTaskRequest request, User approver) {
+        if (approver.getRole() == Role.MENTOR) {
+            validateReportAccess(studentId, approver);
+        }
         ClassHomeworkAssignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Assignment not found: " + assignmentId));
         GoalTask task = goalTaskRepository.findById(taskId)
@@ -162,7 +205,10 @@ public class StudentReportService {
     }
 
     @Transactional
-    public void revokeApproval(Long assignmentId, Long taskId, Long studentId) {
+    public void revokeApproval(Long assignmentId, Long taskId, Long studentId, User approver) {
+        if (approver.getRole() == Role.MENTOR) {
+            validateReportAccess(studentId, approver);
+        }
         ClassHomeworkAssignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Assignment not found: " + assignmentId));
         GoalTask task = goalTaskRepository.findById(taskId)
@@ -216,7 +262,8 @@ public class StudentReportService {
      * "General" covers tasks that have no linked source/category.
      */
     public List<DailyProgressEntry> getCategoryChart(Long studentId, String category,
-                                                      LocalDate startDate, LocalDate endDate) {
+                                                      LocalDate startDate, LocalDate endDate, User currentUser) {
+        validateReportAccess(studentId, currentUser);
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found: " + studentId));
 

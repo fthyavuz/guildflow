@@ -26,6 +26,13 @@ public class UserResponse {
     private boolean active;
     private LocalDateTime createdAt;
 
+    /** Populated for STUDENT responses — the linked parent's ID. */
+    private Long parentId;
+    /** Populated for STUDENT responses — the linked parent's full name. */
+    private String parentName;
+    /** Populated for PARENT responses — number of linked students. */
+    private Integer studentCount;
+
     public static UserResponse fromEntity(User user) {
         return UserResponse.builder()
                 .id(user.getId())

@@ -5,6 +5,10 @@
     align-items: start;
 }
 
+.report-layout.no-sidebar {
+    grid-template-columns: 1fr;
+}
+
 @media (max-width: 768px) {
     .report-layout { grid-template-columns: 1fr; }
 }

@@ -43,7 +43,10 @@
         "ROOMS": "Räume",
         "GOAL_LIBRARY": "Hausaufgaben-Bibliothek",
         "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung",
-        "STUDENT_REPORTS": "Schülerberichte"
+        "STUDENT_REPORTS": "Schülerberichte",
+        "MY_REPORT": "Mein Bericht",
+        "CHILD_REPORTS": "Berichte meiner Kinder",
+        "STUDENTS": "Eltern & Schüler"
     },
     "USERS": {
         "TITLE": "Benutzerverwaltung",
@@ -102,6 +105,42 @@
             "NO_QUESTS": "Keine aktiven Hausaufgaben gefunden. Später erneut nachsehen!",
             "NO_SESSIONS": "Keine bevorstehenden Sitzungen geplant."
         }
+    },
+    "FAMILY": {
+        "SUBTITLE": "Eltern und ihre Schüler verwalten",
+        "TAB_PARENTS": "Eltern",
+        "TAB_STUDENTS": "Schüler",
+        "SEARCH_PARENTS": "Eltern suchen...",
+        "SEARCH_STUDENTS": "Schüler suchen...",
+        "ADD_PARENT": "Elternteil hinzufügen",
+        "ADD_STUDENT": "Schüler hinzufügen",
+        "COL_NAME": "Name",
+        "COL_EMAIL": "E-Mail",
+        "COL_STUDENTS": "Schüler",
+        "COL_PARENT": "Elternteil",
+        "STUDENTS_LINKED": "Schüler",
+        "EDIT": "Bearbeiten",
+        "VIEW": "Profil anzeigen",
+        "NO_PARENTS_TITLE": "Keine Eltern registriert",
+        "NO_PARENTS_MSG": "Fügen Sie ein Elternteil hinzu, bevor Sie Schüler registrieren.",
+        "NO_STUDENTS_TITLE": "Keine Schüler registriert",
+        "NO_STUDENTS_MSG": "Registrieren Sie einen Schüler und verknüpfen Sie ihn mit einem Elternteil.",
+        "LABEL_PARENT": "Elternteil",
+        "SELECT_PARENT": "Elternteil auswählen",
+        "LOADING_PARENTS": "Eltern werden geladen...",
+        "NO_PARENTS_HINT": "Keine Eltern gefunden. ",
+        "CREATE_PARENT_FIRST": "Zuerst ein Elternteil erstellen",
+        "NEW_PARENT": "Neues Elternteil registrieren",
+        "NEW_STUDENT": "Neuen Schüler registrieren",
+        "EDIT_PARENT": "Elternteil bearbeiten",
+        "CREATE_PARENT": "Elternteil erstellen",
+        "CREATE_STUDENT": "Schüler erstellen",
+        "NO_PARENT": "Kein Elternteil",
+        "ASSIGN_PARENT": "Elternteil zuweisen",
+        "CHANGE_PARENT": "Elternteil ändern",
+        "UNLINK_PARENT": "Verknüpfung entfernen",
+        "LINKING": "Wird verknüpft...",
+        "CONFIRM_LINK": "Bestätigen"
     },
     "HOMEWORK": {
         "FORM": {
@@ -187,7 +226,10 @@
     },
     "REPORT": {
         "TITLE": "Schülerberichte",
+        "TITLE_STUDENT": "Meine Fortschrittsberichte",
+        "TITLE_PARENT": "Berichte meiner Kinder",
         "SUBTITLE": "Überprüfen und genehmigen Sie den Hausaufgabenfortschritt der Schüler",
+        "SUBTITLE_READONLY": "Zeigen Sie Ihren Hausaufgabenfortschritt nach Kategorie an",
         "STUDENTS": "Schüler",
         "NO_STUDENTS": "Keine Schüler gefunden.",
         "NO_MATCH": "Keine Schüler entsprechen dem Filter.",

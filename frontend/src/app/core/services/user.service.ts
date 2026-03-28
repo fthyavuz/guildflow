@@ -41,6 +41,14 @@ export class UserService {
             .pipe(map(res => res.content));
     }
 
+    getStudentsList(): Observable<UserResponse[]> {
+        return this.http.get<UserResponse[]>(`${this.apiUrl}/students-list`);
+    }
+
+    getParentsList(): Observable<UserResponse[]> {
+        return this.http.get<UserResponse[]>(`${this.apiUrl}/parents-list`);
+    }
+
     getUserById(id: number): Observable<UserResponse> {
         return this.http.get<UserResponse>(`${this.apiUrl}/${id}`);
     }
@@ -59,5 +67,13 @@ export class UserService {
 
     adminResetPassword(id: number, newPassword: string): Observable<void> {
         return this.http.put<void>(`${this.apiUrl}/${id}/admin-reset-password`, { newPassword });
+    }
+
+    linkParentToStudent(parentId: number, studentId: number): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/${parentId}/link-student/${studentId}`, {});
+    }
+
+    unlinkParentFromStudent(parentId: number, studentId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${parentId}/link-student/${studentId}`);
     }
 }

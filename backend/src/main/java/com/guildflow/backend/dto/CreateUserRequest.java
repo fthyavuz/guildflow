@@ -31,4 +31,7 @@ public class CreateUserRequest {
     private Role role;
 
     private LanguagePreference languagePref = LanguagePreference.TR;
+
+    /** Required when role = STUDENT — the ID of the parent to link. */
+    private Long parentId;
 }

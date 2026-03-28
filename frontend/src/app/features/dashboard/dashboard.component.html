@@ -100,6 +100,20 @@
                     </svg>
                     {{ 'NAV.MY_QUESTS' | translate }}
                 </a>
+                <a *ngIf="user.role === 'STUDENT'" routerLink="/student-report" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    {{ 'NAV.MY_REPORT' | translate }}
+                </a>
+                <a *ngIf="user.role === 'PARENT'" routerLink="/student-report" routerLinkActive="active" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    {{ 'NAV.CHILD_REPORTS' | translate }}
+                </a>
                 <a routerLink="/meetings" routerLinkActive="active" class="nav-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
                         <circle cx="12" cy="12" r="10"></circle>

@@ -16,4 +16,7 @@ export interface AuthResponse {
 export interface UserResponse extends User {
     active: boolean;
     createdAt: string;
+    parentId?: number;
+    parentName?: string;
+    studentCount?: number;
 }

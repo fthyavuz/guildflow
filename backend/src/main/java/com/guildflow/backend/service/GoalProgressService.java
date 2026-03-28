@@ -109,8 +109,11 @@ public class GoalProgressService {
         ClassHomeworkAssignment assignment = assignmentRepository(assignmentId);
         validateStudentAccess(assignment, student);
 
-        // Validate date is within assignment range
+        // Validate date is within assignment range and not in the future
         LocalDate date = request.getDate();
+        if (date.isAfter(LocalDate.now())) {
+            throw new ValidationException("Cannot submit entries for a future date");
+        }
         if (assignment.getStartDate() != null && date.isBefore(assignment.getStartDate())) {
             throw new ValidationException("Date is before assignment start date");
         }

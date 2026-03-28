@@ -22,15 +22,28 @@ public class StudentReportController {
     private final StudentReportService studentReportService;
 
     @GetMapping("/students")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
-    public ResponseEntity<List<StudentReportResponse>> getStudentList() {
-        return ResponseEntity.ok(studentReportService.getStudentList());
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<StudentReportResponse>> getStudentList(@AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(studentReportService.getStudentList(currentUser));
     }
 
     @GetMapping("/students/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
-    public ResponseEntity<StudentReportResponse> getStudentReport(@PathVariable Long studentId) {
-        return ResponseEntity.ok(studentReportService.getStudentReport(studentId));
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<StudentReportResponse> getStudentReport(
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(studentReportService.getStudentReport(studentId, currentUser));
+    }
+
+    @GetMapping("/students/{studentId}/chart")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<DailyProgressEntry>> getCategoryChart(
+            @PathVariable Long studentId,
+            @RequestParam String category,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @AuthenticationPrincipal User currentUser) {
+        return ResponseEntity.ok(studentReportService.getCategoryChart(studentId, category, startDate, endDate, currentUser));
     }
 
     @PostMapping("/students/{studentId}/assignments/{assignmentId}/tasks/{taskId}/approve")
@@ -45,23 +58,14 @@ public class StudentReportController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/students/{studentId}/chart")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
-    public ResponseEntity<List<DailyProgressEntry>> getCategoryChart(
-            @PathVariable Long studentId,
-            @RequestParam String category,
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate) {
-        return ResponseEntity.ok(studentReportService.getCategoryChart(studentId, category, startDate, endDate));
-    }
-
     @DeleteMapping("/students/{studentId}/assignments/{assignmentId}/tasks/{taskId}/approve")
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<Void> revokeApproval(
             @PathVariable Long studentId,
             @PathVariable Long assignmentId,
-            @PathVariable Long taskId) {
-        studentReportService.revokeApproval(assignmentId, taskId, studentId);
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal User approver) {
+        studentReportService.revokeApproval(assignmentId, taskId, studentId, approver);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -23,6 +23,7 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     private userService = inject(UserService);
     private notifications = inject(NotificationService);
     private fb = inject(FormBuilder);
+    private router = inject(Router);
     private destroy$ = new Subject<void>();
 
     users: UserResponse[] = [];
@@ -37,6 +38,20 @@ export class UserManagementComponent implements OnInit, OnDestroy {
     private searchSubject = new Subject<string>();
 
     roles: RoleFilter[] = ['', 'ADMIN', 'MENTOR', 'STUDENT', 'PARENT'];
+
+    // Type picker modal
+    showTypeModal = false;
+    userTypes = [
+        { type: 'ADMIN',   label: 'Administrator', icon: '🛡️', route: '/admins/new' },
+        { type: 'MENTOR',  label: 'Mentor',         icon: '🧙', route: '/mentors/new' },
+        { type: 'PARENT',  label: 'Parent',          icon: '👨‍👩‍👧', route: '/parents/new' },
+        { type: 'STUDENT', label: 'Student',         icon: '🎓', route: '/students/new' }
+    ];
+
+    selectUserType(route: string): void {
+        this.showTypeModal = false;
+        this.router.navigate([route]);
+    }
 
     // Reset password modal state
     resetModal = false;
@@ -142,6 +157,16 @@ export class UserManagementComponent implements OnInit, OnDestroy {
         const pw = group.get('newPassword')?.value;
         const confirm = group.get('confirmPassword')?.value;
         return pw === confirm ? null : { mismatch: true };
+    }
+
+    editRoute(user: UserResponse): string[] {
+        const map: Record<string, string> = {
+            ADMIN: '/admins/edit',
+            MENTOR: '/mentors/edit',
+            PARENT: '/parents/edit',
+            STUDENT: '/students/edit'
+        };
+        return [(map[user.role] ?? '/mentors/edit'), String(user.id)];
     }
 
     roleBadgeClass(role: string): string {

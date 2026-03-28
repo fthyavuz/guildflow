@@ -1,0 +1,220 @@
+<div class="page-container fade-in">
+    <div class="nav-header">
+        <a routerLink="/dashboard" class="btn-back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            {{ 'COMMON.BACK_TO_DASHBOARD' | translate }}
+        </a>
+    </div>
+
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="grad-text">{{ 'NAV.STUDENTS' | translate }}</h1>
+            <p class="subtitle">{{ 'FAMILY.SUBTITLE' | translate }}</p>
+        </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+        <button class="tab-btn" [class.active]="activeTab === 'parents'" (click)="activeTab = 'parents'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            {{ 'FAMILY.TAB_PARENTS' | translate }}
+            <span class="tab-count">{{ parents.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'students'" (click)="activeTab = 'students'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            {{ 'FAMILY.TAB_STUDENTS' | translate }}
+            <span class="tab-count">{{ students.length }}</span>
+        </button>
+    </div>
+
+    <!-- ── Parents Tab ── -->
+    <div *ngIf="activeTab === 'parents'">
+        <div class="list-toolbar">
+            <input type="text" class="glass-input search-input" [(ngModel)]="parentSearch"
+                [placeholder]="'FAMILY.SEARCH_PARENTS' | translate">
+            <button class="btn btn-primary" routerLink="/parents/new">+ {{ 'FAMILY.ADD_PARENT' | translate }}</button>
+        </div>
+
+        <div *ngIf="isLoadingParents" class="loader-container">
+            <div class="spinner large"></div>
+        </div>
+
+        <div *ngIf="!isLoadingParents">
+            <div class="user-table glass-card" *ngIf="filteredParents.length > 0; else noParents">
+                <div class="table-row table-header">
+                    <span>{{ 'FAMILY.COL_NAME' | translate }}</span>
+                    <span>{{ 'FAMILY.COL_EMAIL' | translate }}</span>
+                    <span>{{ 'FAMILY.COL_STUDENTS' | translate }}</span>
+                    <span></span>
+                </div>
+                <ng-container *ngFor="let parent of filteredParents">
+                    <div class="table-row">
+                        <div class="user-cell">
+                            <div class="avatar">{{ initials(parent) }}</div>
+                            <span class="user-name">{{ parent.firstName }} {{ parent.lastName }}</span>
+                        </div>
+                        <span class="email-cell">{{ parent.email }}</span>
+                        <span class="count-cell">
+                            <span class="student-badge">{{ parent.studentCount ?? 0 }}</span>
+                            {{ 'FAMILY.STUDENTS_LINKED' | translate }}
+                        </span>
+                        <div class="action-cell">
+                            <button class="btn-icon" [routerLink]="['/parents/edit', parent.id]"
+                                [title]="'FAMILY.EDIT' | translate">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Linked students sub-rows -->
+                    <div class="student-sub-row" *ngFor="let s of studentsOfParent(parent.id)">
+                        <div class="avatar student-avatar sub-avatar">{{ initials(s) }}</div>
+                        <span class="sub-name">{{ s.firstName }} {{ s.lastName }}</span>
+                        <span class="sub-email">{{ s.email }}</span>
+                    </div>
+                </ng-container>
+            </div>
+
+            <ng-template #noParents>
+                <div class="empty-state glass">
+                    <div class="icon">👨‍👩‍👧</div>
+                    <h3>{{ 'FAMILY.NO_PARENTS_TITLE' | translate }}</h3>
+                    <p>{{ 'FAMILY.NO_PARENTS_MSG' | translate }}</p>
+                    <button class="btn btn-primary" routerLink="/parents/new">
+                        + {{ 'FAMILY.ADD_PARENT' | translate }}
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+
+    <!-- ── Students Tab ── -->
+    <div *ngIf="activeTab === 'students'">
+        <div class="list-toolbar">
+            <input type="text" class="glass-input search-input" [(ngModel)]="studentSearch"
+                [placeholder]="'FAMILY.SEARCH_STUDENTS' | translate">
+            <button class="btn btn-primary" routerLink="/students/new">+ {{ 'FAMILY.ADD_STUDENT' | translate }}</button>
+        </div>
+
+        <div *ngIf="isLoadingStudents" class="loader-container">
+            <div class="spinner large"></div>
+        </div>
+
+        <div *ngIf="!isLoadingStudents">
+            <div class="user-table glass-card" *ngIf="filteredStudents.length > 0; else noStudents">
+                <div class="table-row table-header">
+                    <span>{{ 'FAMILY.COL_NAME' | translate }}</span>
+                    <span>{{ 'FAMILY.COL_EMAIL' | translate }}</span>
+                    <span>{{ 'FAMILY.COL_PARENT' | translate }}</span>
+                    <span></span>
+                </div>
+                <div class="table-row" *ngFor="let student of filteredStudents">
+                    <div class="user-cell">
+                        <div class="avatar student-avatar">{{ initials(student) }}</div>
+                        <span class="user-name">{{ student.firstName }} {{ student.lastName }}</span>
+                    </div>
+                    <span class="email-cell">{{ student.email }}</span>
+                    <span class="parent-cell">
+                        <span class="parent-badge" *ngIf="student.parentName">{{ student.parentName }}</span>
+                        <span class="no-parent" *ngIf="!student.parentName">{{ 'FAMILY.NO_PARENT' | translate }}</span>
+                    </span>
+                    <div class="action-cell">
+                        <button class="btn-link-parent"
+                            [class.has-parent]="!!student.parentName"
+                            (click)="openLinkModal(student)"
+                            [title]="student.parentName ? ('FAMILY.CHANGE_PARENT' | translate) : ('FAMILY.ASSIGN_PARENT' | translate)">
+                            {{ student.parentName ? ('FAMILY.CHANGE_PARENT' | translate) : ('FAMILY.ASSIGN_PARENT' | translate) }}
+                        </button>
+                        <button class="btn-icon unlink-btn" *ngIf="student.parentId"
+                            (click)="unlinkParent(student)"
+                            [title]="'FAMILY.UNLINK_PARENT' | translate">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon" [routerLink]="['/students', student.id]"
+                            [title]="'FAMILY.VIEW' | translate">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                <polyline points="12 5 19 12 12 19"/>
+                            </svg>
+                        </button>
+                        <button class="btn-icon" [routerLink]="['/students/edit', student.id]"
+                            [title]="'FAMILY.EDIT' | translate">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #noStudents>
+                <div class="empty-state glass">
+                    <div class="icon">🎓</div>
+                    <h3>{{ 'FAMILY.NO_STUDENTS_TITLE' | translate }}</h3>
+                    <p>{{ 'FAMILY.NO_STUDENTS_MSG' | translate }}</p>
+                    <button class="btn btn-primary" routerLink="/students/new">
+                        + {{ 'FAMILY.ADD_STUDENT' | translate }}
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>
+
+<!-- Link Parent Modal -->
+<div class="modal-backdrop" *ngIf="linkModal" (click)="closeLinkModal()">
+    <div class="modal-box glass-card" (click)="$event.stopPropagation()">
+        <div class="modal-head">
+            <h3>{{ (linkingStudent?.parentId ? ('FAMILY.CHANGE_PARENT' | translate) : ('FAMILY.ASSIGN_PARENT' | translate)) }}</h3>
+            <button class="btn-close" (click)="closeLinkModal()">✕</button>
+        </div>
+        <p class="modal-sub" *ngIf="linkingStudent">
+            Student: <strong>{{ linkingStudent.firstName }} {{ linkingStudent.lastName }}</strong>
+        </p>
+
+        <div class="form-group">
+            <label class="form-label">{{ 'FAMILY.LABEL_PARENT' | translate }}</label>
+            <select class="glass-input" [(ngModel)]="selectedParentId">
+                <option [ngValue]="null">{{ 'FAMILY.SELECT_PARENT' | translate }}</option>
+                <option *ngFor="let p of parents" [ngValue]="p.id">
+                    {{ p.firstName }} {{ p.lastName }} ({{ p.email }})
+                </option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-secondary" (click)="closeLinkModal()">{{ 'USERS.BTN_CANCEL' | translate }}</button>
+            <button class="btn btn-primary" [disabled]="!selectedParentId || isLinking" (click)="submitLink()">
+                {{ isLinking ? ('FAMILY.LINKING' | translate) : ('FAMILY.CONFIRM_LINK' | translate) }}
+            </button>
+        </div>
+    </div>
+</div>

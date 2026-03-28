@@ -88,4 +88,36 @@ public class UserController {
     public ResponseEntity<Page<UserResponse>> getParents(@PageableDefault(size = 50) Pageable pageable) {
         return ResponseEntity.ok(userService.getUsers(Role.PARENT, null, pageable));
     }
+
+    @GetMapping("/students-list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<java.util.List<UserResponse>> getStudentsList() {
+        return ResponseEntity.ok(userService.getAllStudentsWithParent());
+    }
+
+    @GetMapping("/parents-list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<java.util.List<UserResponse>> getParentsList() {
+        return ResponseEntity.ok(userService.getAllParentsWithStudentCount());
+    }
+
+    @PostMapping("/{parentId}/link-student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> linkParentToStudent(@PathVariable Long parentId, @PathVariable Long studentId) {
+        userService.linkParentToStudent(parentId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{parentId}/link-student/{studentId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> unlinkParentFromStudent(@PathVariable Long parentId, @PathVariable Long studentId) {
+        userService.unlinkParentFromStudent(parentId, studentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{parentId}/students")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<java.util.List<UserResponse>> getStudentsForParent(@PathVariable Long parentId) {
+        return ResponseEntity.ok(userService.getStudentsForParent(parentId));
+    }
 }
