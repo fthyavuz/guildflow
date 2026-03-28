@@ -9,6 +9,7 @@ import com.guildflow.backend.model.enums.ProgressEntryStatus;
 import com.guildflow.backend.model.enums.Role;
 import com.guildflow.backend.repository.*;
 import com.guildflow.backend.util.SecurityUtils;
+import com.guildflow.backend.repository.ClassHomeworkAssignmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ public class GoalProgressService {
     private final TaskProgressRepository taskProgressRepository;
     private final GoalStudentReviewRepository reviewRepository;
     private final ClassStudentRepository classStudentRepository;
+    private final ClassHomeworkAssignmentRepository classHomeworkAssignmentRepository;
     private final UserRepository userRepository;
     private final SecurityUtils securityUtils;
 
@@ -155,14 +157,28 @@ public class GoalProgressService {
         if (activeEnrollment == null || activeEnrollment.getMentorClass() == null)
             return Collections.emptyList();
 
-        List<Goal> classGoals = goalRepository
+        // Homework assigned via the Assignments tab is stored in class_homework_assignments.
+        // The linked goal is a template (mentorClass = null), so querying goals by mentorClass
+        // never finds them. We must resolve the goals through assignments instead.
+        List<Goal> assignedGoals = classHomeworkAssignmentRepository
+                .findByMentorClassOrderByCreatedAtDesc(activeEnrollment.getMentorClass())
+                .stream()
+                .filter(a -> Boolean.TRUE.equals(a.getApplyToAll())
+                          || a.getStudentIds().contains(student.getId()))
+                .map(ClassHomeworkAssignment::getGoal)
+                .collect(Collectors.toList());
+
+        // Legacy path: goals directly attached to the class (old assignment model)
+        List<Goal> legacyClassGoals = goalRepository
                 .findByMentorClassAndActiveTrueWithTasks(activeEnrollment.getMentorClass())
                 .stream().filter(Goal::getApplyToAll).collect(Collectors.toList());
 
+        // Private goals explicitly assigned to this student
         List<Goal> privateGoals = goalStudentRepository.findByStudentWithGoalTasks(student)
                 .stream().map(GoalStudent::getGoal).collect(Collectors.toList());
 
-        classGoals.addAll(privateGoals);
-        return classGoals.stream().distinct().collect(Collectors.toList());
+        assignedGoals.addAll(legacyClassGoals);
+        assignedGoals.addAll(privateGoals);
+        return assignedGoals.stream().distinct().collect(Collectors.toList());
     }
 }
