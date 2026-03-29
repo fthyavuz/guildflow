@@ -36,12 +36,22 @@ public class ClassService {
     private final SecurityUtils securityUtils;
 
     @Transactional
-    public ClassResponse createClass(User mentor, CreateClassRequest request) {
+    public ClassResponse createClass(User currentUser, CreateClassRequest request) {
+        User assignedMentor = currentUser;
+
+        if (currentUser.getRole() == Role.ADMIN && request.getMentorId() != null) {
+            assignedMentor = userRepository.findById(request.getMentorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Mentor not found with id: " + request.getMentorId()));
+            if (assignedMentor.getRole() != Role.MENTOR) {
+                throw new ValidationException("Assigned user is not a mentor");
+            }
+        }
+
         MentorClass mentorClass = MentorClass.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .educationLevel(request.getEducationLevel())
-                .mentor(mentor)
+                .mentor(assignedMentor)
                 .build();
 
         MentorClass savedClass = classRepository.save(mentorClass);
@@ -88,6 +98,15 @@ public class ClassService {
         mentorClass.setName(request.getName());
         mentorClass.setDescription(request.getDescription());
         mentorClass.setEducationLevel(request.getEducationLevel());
+
+        if (securityUtils.isAdmin(currentUser) && request.getMentorId() != null) {
+            User newMentor = userRepository.findById(request.getMentorId())
+                    .orElseThrow(() -> new EntityNotFoundException("Mentor not found with id: " + request.getMentorId()));
+            if (newMentor.getRole() != Role.MENTOR) {
+                throw new ValidationException("Assigned user is not a mentor");
+            }
+            mentorClass.setMentor(newMentor);
+        }
 
         MentorClass updatedClass = classRepository.save(mentorClass);
         return ClassResponse.fromEntity(updatedClass);

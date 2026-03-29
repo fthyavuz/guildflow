@@ -28,6 +28,9 @@ public class MeetingRequest {
 
     private boolean recurring = false;
 
+    /** Optional room to reserve for this meeting */
+    private Long roomId;
+
     /** Number of weekly occurrences to create when recurring is true. Defaults to 13 (~3 months). */
     @Min(value = 1, message = "Recurrence count must be at least 1")
     @Max(value = 52, message = "Recurrence count cannot exceed 52 weeks")

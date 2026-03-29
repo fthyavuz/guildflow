@@ -33,7 +33,7 @@
         "DASHBOARD": "Dashboard",
         "USERS": "Benutzer",
         "MENTORS": "Mentoren",
-        "STUDENTS": "Schüler",
+        "STUDENTS": "Schüler & Eltern",
         "MY_GUILDS": "Klassen",
         "MY_QUESTS": "Meine Hausaufgaben",
         "MEETINGS": "Sitzungen",
@@ -45,8 +45,7 @@
         "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung",
         "STUDENT_REPORTS": "Schülerberichte",
         "MY_REPORT": "Mein Bericht",
-        "CHILD_REPORTS": "Berichte meiner Kinder",
-        "STUDENTS": "Eltern & Schüler"
+        "CHILD_REPORTS": "Berichte meiner Kinder"
     },
     "USERS": {
         "TITLE": "Benutzerverwaltung",
@@ -76,7 +75,8 @@
         "RESET_PW_MISMATCH": "Passwörter stimmen nicht überein",
         "BTN_CANCEL": "Abbrechen",
         "BTN_RESET": "Passwort zurücksetzen",
-        "BTN_RESETTING": "Wird zurückgesetzt…"
+        "BTN_RESETTING": "Wird zurückgesetzt…",
+        "BTN_STUDENTS_PARENTS": "Schüler & Eltern"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Willkommen, Meister",

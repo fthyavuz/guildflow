@@ -102,6 +102,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/meetings/meeting-form/meeting-form.component').then(m => m.MeetingFormComponent)
     },
     {
+        path: 'meetings/edit/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/meetings/meeting-form/meeting-form.component').then(m => m.MeetingFormComponent)
+    },
+    {
+        path: 'meetings/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/meetings/meeting-detail/meeting-detail.component').then(m => m.MeetingDetailComponent)
+    },
+    {
         path: 'goals',
         canActivate: [authGuard],
         loadComponent: () => import('./features/goals/homework-list/homework-list.component').then(m => m.HomeworkListComponent)

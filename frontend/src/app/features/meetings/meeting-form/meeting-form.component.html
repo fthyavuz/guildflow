@@ -11,21 +11,40 @@
     </div>
 
     <div class="form-hero">
-        <h1 class="grad-text">Schedule Class Meeting</h1>
-        <p>Prepare the grounds for knowledge sharing</p>
+        <h1 class="grad-text">{{ isEditMode ? 'Edit Meeting' : 'Schedule Class Meeting' }}</h1>
+        <p>{{ isEditMode ? 'Update the session details' : 'Prepare the grounds for knowledge sharing' }}</p>
     </div>
 
-    <div class="form-container glass-card">
+    <div class="loader-container" *ngIf="isLoading">
+        <div class="spinner large"></div>
+    </div>
+
+    <div class="form-container glass-card" *ngIf="!isLoading">
         <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()">
+
+            <!-- Class & Mentor -->
             <div class="form-section">
-                <div class="input-group">
-                    <label for="classId">Select Class</label>
-                    <select id="classId" formControlName="classId" class="glass-input">
-                        <option value="" disabled>Select a Class</option>
-                        <option *ngFor="let cls of classes$ | async" [value]="cls.id">
-                            {{ cls.name }} ({{ cls.educationLevel }})
-                        </option>
-                    </select>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="classId">Class</label>
+                        <select id="classId" formControlName="classId" class="glass-input">
+                            <option value="" disabled>Select a Class</option>
+                            <option *ngFor="let cls of classes" [value]="cls.id">
+                                {{ cls.name }} ({{ cls.educationLevel }})
+                            </option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Instructor</label>
+                        <div class="mentor-display glass-input">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span *ngIf="selectedClassMentor; else noMentor">{{ selectedClassMentor }}</span>
+                            <ng-template #noMentor><span class="muted">Select a class first</span></ng-template>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="input-group">
@@ -41,6 +60,7 @@
                 </div>
             </div>
 
+            <!-- Time -->
             <div class="form-row">
                 <div class="input-group">
                     <label for="startTime">Start Time</label>
@@ -52,25 +72,54 @@
                 </div>
             </div>
 
+            <!-- Room & Location -->
             <div class="form-section">
-                <div class="input-group">
-                    <label for="location">Location</label>
-                    <input id="location" type="text" formControlName="location" placeholder="Zoom Link or Room Number"
-                        class="glass-input">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="roomId">Room (Optional)</label>
+                        <select id="roomId" formControlName="roomId" class="glass-input">
+                            <option [ngValue]="null">— Outside / No room needed —</option>
+                            <option *ngFor="let room of rooms" [ngValue]="room.id">
+                                {{ room.title }} (cap. {{ room.capacity }})
+                            </option>
+                        </select>
+                        <span class="field-hint" *ngIf="!meetingForm.get('roomId')?.value">
+                            Session will take place outside or at an external location.
+                        </span>
+                    </div>
+                    <div class="input-group">
+                        <label for="location">Location / Link (Optional)</label>
+                        <input id="location" type="text" formControlName="location"
+                            placeholder="Zoom link, address, room number..." class="glass-input">
+                    </div>
                 </div>
 
-                <div class="checkbox-group">
+                <!-- Room conflict hint -->
+                <div class="conflict-hint" *ngIf="meetingForm.get('roomId')?.value">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    Room availability is checked on save. If the slot is taken, you will be notified.
+                </div>
+
+                <div class="checkbox-group" *ngIf="!isEditMode">
                     <label class="toggle-container">
                         <input type="checkbox" formControlName="recurring">
                         <span class="checkmark"></span>
                         Weekly Recurrence (Auto-schedule for 13 weeks)
                     </label>
+                    <span class="field-hint" *ngIf="meetingForm.get('recurring')?.value && meetingForm.get('roomId')?.value">
+                        Room will be reserved for all 13 occurrences. Any conflict in the series will block the save.
+                    </span>
                 </div>
             </div>
 
             <div class="form-footer">
+                <a routerLink="/meetings" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary" [disabled]="meetingForm.invalid || isSubmitting">
-                    {{ isSubmitting ? 'Scheduling...' : 'Schedule Meeting' }}
+                    {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Meeting' : 'Schedule Meeting') }}
                 </button>
             </div>
         </form>

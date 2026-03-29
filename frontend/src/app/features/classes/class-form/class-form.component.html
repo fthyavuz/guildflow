@@ -34,10 +34,10 @@
                 </div>
 
                 <div class="input-group" *ngIf="currentUserRole === 'ADMIN'">
-                    <label for="mentorId">Assign Master (Mentor)</label>
+                    <label for="mentorId">Assign Instructor (Mentor)</label>
                     <select id="mentorId" formControlName="mentorId" class="glass-input">
-                        <option [value]="null" disabled>Select a Mentor</option>
-                        <option *ngFor="let mentor of mentors$ | async" [value]="mentor.id">
+                        <option [ngValue]="null">— No instructor assigned —</option>
+                        <option *ngFor="let mentor of mentors$ | async" [ngValue]="mentor.id">
                             {{ mentor.firstName }} {{ mentor.lastName }} ({{ mentor.email }})
                         </option>
                     </select>

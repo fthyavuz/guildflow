@@ -102,6 +102,72 @@
                     </div>
                 </div>
 
+                <!-- ── ATTENDANCE section ── -->
+                <div *ngIf="attendanceSummary" class="report-section attendance-section glass-card">
+                    <div class="section-heading attendance-heading">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="section-icon">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <polyline points="17 11 19 13 23 9"></polyline>
+                        </svg>
+                        Attendance
+                    </div>
+
+                    <div class="attendance-body">
+                        <!-- Donut chart -->
+                        <div class="donut-wrap">
+                            <svg viewBox="0 0 120 120" width="140" height="140">
+                                <!-- Background track -->
+                                <circle cx="60" cy="60" r="45" fill="none"
+                                    stroke="var(--glass-border)" stroke-width="12"/>
+                                <!-- Segments -->
+                                <circle *ngFor="let seg of donutSegments"
+                                    cx="60" cy="60" r="45" fill="none"
+                                    [attr.stroke]="seg.color"
+                                    stroke-width="12"
+                                    [attr.stroke-dasharray]="seg.arc + ' ' + DONUT_CIRCUMFERENCE"
+                                    [attr.stroke-dashoffset]="-seg.offset"
+                                    transform="rotate(-90 60 60)"
+                                    stroke-linecap="butt"/>
+                            </svg>
+                            <div class="donut-center">
+                                <span class="donut-pct">{{ attendanceSummary.attendanceRate | number:'1.0-1' }}%</span>
+                                <span class="donut-label">Present</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="attendance-stats">
+                            <div class="att-total">
+                                <span class="att-num">{{ attendanceSummary.total }}</span>
+                                <span class="att-desc">Total sessions</span>
+                            </div>
+                            <div class="att-legend">
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#4ade80"></span>
+                                    <span class="legend-label">Present</span>
+                                    <span class="legend-count">{{ attendanceSummary.present }}</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#f87171"></span>
+                                    <span class="legend-label">Absent</span>
+                                    <span class="legend-count">{{ attendanceSummary.absent }}</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#facc15"></span>
+                                    <span class="legend-label">Late</span>
+                                    <span class="legend-count">{{ attendanceSummary.late }}</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#60a5fa"></span>
+                                    <span class="legend-label">Excused</span>
+                                    <span class="legend-count">{{ attendanceSummary.excused }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Empty state -->
                 <div class="empty-report glass-card" *ngIf="!hasAnyData">
                     {{ 'REPORT.NO_ASSIGNMENTS' | translate }}

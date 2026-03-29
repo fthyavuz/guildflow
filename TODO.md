@@ -62,6 +62,7 @@ _(Mentors share the same class detail view as admins — all Classes improvement
 - [x] **Student report module** — mentor/admin selects a student from the sidebar to view all assigned homework; tasks grouped by resource category into In Progress / Finished sections; tasks can be individually Approved or Revoked
 - [x] **Sidebar filter** — filter student list by name (live search) and education level dropdown
 - [x] **Category progress chart** — bar chart showing daily aggregated totals by resource category (Book, Podcast, etc.); quick-select range buttons (1W / 1M / 6M / 1Y / All) plus manual date range inputs; defaults to showing all history
+- [x] **Attendance statistics** — SVG donut chart showing present/absent/late/excused breakdown with attendance percentage; total sessions planned vs recorded; visible in student report for all roles (admin, mentor, student, parent)
 
 ### Meetings
 

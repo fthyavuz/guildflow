@@ -33,7 +33,7 @@
         "DASHBOARD": "Dashboard",
         "USERS": "Users",
         "MENTORS": "Mentors",
-        "STUDENTS": "Students",
+        "STUDENTS": "Students & Parents",
         "MY_GUILDS": "Classes",
         "MY_QUESTS": "My Homework",
         "MEETINGS": "Meetings",
@@ -45,8 +45,7 @@
         "HOMEWORK_APPROVAL": "Homework Approval",
         "STUDENT_REPORTS": "Student Reports",
         "MY_REPORT": "My Report",
-        "CHILD_REPORTS": "My Children's Reports",
-        "STUDENTS": "Parent & Students"
+        "CHILD_REPORTS": "My Children's Reports"
     },
     "USERS": {
         "TITLE": "User Management",
@@ -76,7 +75,8 @@
         "RESET_PW_MISMATCH": "Passwords do not match",
         "BTN_CANCEL": "Cancel",
         "BTN_RESET": "Reset Password",
-        "BTN_RESETTING": "Resetting…"
+        "BTN_RESETTING": "Resetting…",
+        "BTN_STUDENTS_PARENTS": "Students & Parents"
     },
     "DASHBOARD": {
         "WELCOME_TITLE": "Welcome, Master",

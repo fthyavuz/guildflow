@@ -31,4 +31,6 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     Page<Meeting> findByMentorClassMentorOrderByStartTimeDesc(User mentor, Pageable pageable);
 
     Page<Meeting> findAllByOrderByStartTimeDesc(Pageable pageable);
+
+    long countByMentorClassAndStartTimeBefore(MentorClass mentorClass, java.time.LocalDateTime cutoff);
 }

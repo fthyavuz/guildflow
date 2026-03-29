@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule } from '@ngx-translate/core';
 import { GoalService } from '../../core/services/goal.service';
+import { MeetingService } from '../../core/services/meeting.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { AuthService } from '../../core/services/auth.service';
-import { StudentReport, StudentSummary, ReportTaskItem, DailyProgressEntry } from '../../core/models/student.model';
+import { StudentReport, StudentSummary, ReportTaskItem, DailyProgressEntry, AttendanceSummary } from '../../core/models/student.model';
 import { User } from '../../core/models/auth.model';
 
 @Component({
@@ -19,6 +20,7 @@ import { User } from '../../core/models/auth.model';
 })
 export class StudentReportComponent implements OnInit {
     private goalService = inject(GoalService);
+    private meetingService = inject(MeetingService);
     private notifications = inject(NotificationService);
     private authService = inject(AuthService);
     private destroyRef = inject(DestroyRef);
@@ -35,6 +37,9 @@ export class StudentReportComponent implements OnInit {
     levelFilter = '';
     educationLevels: string[] = [];
 
+    // Attendance summary
+    attendanceSummary: AttendanceSummary | null = null;
+
     // Chart state
     chartCategory: string | null = null;
     chartStartDate = '2000-01-01';
@@ -44,6 +49,8 @@ export class StudentReportComponent implements OnInit {
     chartTotal = 0;
 
     readonly CHART_BAR_PX = 160;
+    readonly DONUT_R = 45;
+    readonly DONUT_CIRCUMFERENCE = 2 * Math.PI * 45; // ≈ 282.74
 
     get isMentorOrAdmin(): boolean {
         return this.currentUser?.role === 'ADMIN' || this.currentUser?.role === 'MENTOR';
@@ -55,6 +62,28 @@ export class StudentReportComponent implements OnInit {
 
     get showSidebar(): boolean {
         return this.currentUser?.role !== 'STUDENT';
+    }
+
+    get donutSegments(): { arc: number; offset: number; color: string; label: string }[] {
+        const s = this.attendanceSummary;
+        if (!s || s.total === 0) return [];
+        const c = this.DONUT_CIRCUMFERENCE;
+        const items = [
+            { count: s.present, color: '#4ade80', label: 'Present' },
+            { count: s.absent,  color: '#f87171', label: 'Absent' },
+            { count: s.late,    color: '#facc15', label: 'Late' },
+            { count: s.excused, color: '#60a5fa', label: 'Excused' },
+        ];
+        const segments: { arc: number; offset: number; color: string; label: string }[] = [];
+        let offset = 0;
+        for (const item of items) {
+            if (item.count > 0) {
+                const arc = (item.count / s.total) * c;
+                segments.push({ arc, offset, color: item.color, label: item.label });
+                offset += arc;
+            }
+        }
+        return segments;
     }
 
     get chartableCategories(): string[] {
@@ -121,6 +150,12 @@ export class StudentReportComponent implements OnInit {
                     this.isLoadingReport = false;
                 }
             });
+        this.meetingService.getStudentAttendanceSummary(studentId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (summary) => { this.attendanceSummary = summary; },
+                error: () => { this.attendanceSummary = null; }
+            });
     }
 
     applyFilter(): void {
@@ -136,6 +171,7 @@ export class StudentReportComponent implements OnInit {
     selectStudent(student: StudentSummary): void {
         if (this.selectedStudent?.studentId === student.studentId) return;
         this.selectedStudent = null;
+        this.attendanceSummary = null;
         this.isLoadingReport = true;
         this.chartCategory = null;
         this.chartStartDate = '2000-01-01';
@@ -158,6 +194,13 @@ export class StudentReportComponent implements OnInit {
                     this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load report'));
                     this.isLoadingReport = false;
                 }
+            });
+
+        this.meetingService.getStudentAttendanceSummary(student.studentId)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (summary) => { this.attendanceSummary = summary; },
+                error: () => { this.attendanceSummary = null; }
             });
     }
 

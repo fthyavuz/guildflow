@@ -80,6 +80,15 @@ export interface StudentReport {
     finished: CategorySection[];
 }
 
+export interface AttendanceSummary {
+    total: number;
+    present: number;
+    absent: number;
+    late: number;
+    excused: number;
+    attendanceRate: number;
+}
+
 export interface StudentSummary {
     studentId: number;
     firstName: string;
