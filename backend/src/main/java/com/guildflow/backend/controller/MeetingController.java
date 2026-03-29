@@ -2,6 +2,7 @@ package com.guildflow.backend.controller;
 
 import com.guildflow.backend.dto.AttendanceRequest;
 import com.guildflow.backend.dto.AttendanceResponse;
+import com.guildflow.backend.dto.AttendanceSummaryResponse;
 import com.guildflow.backend.dto.MeetingRequest;
 import com.guildflow.backend.dto.MeetingResponse;
 import com.guildflow.backend.model.User;
@@ -70,11 +71,45 @@ public class MeetingController {
         return ResponseEntity.ok(meetingService.getMeetingAttendance(id, user));
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MeetingResponse> getMeetingById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(meetingService.getMeetingById(id, user));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<MeetingResponse> updateMeeting(
+            @PathVariable Long id,
+            @RequestBody MeetingRequest request,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(meetingService.updateMeeting(id, request, user));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<Void> deleteMeeting(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User user) {
+        meetingService.deleteMeeting(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/student/{studentId}/history")
     @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT', 'PARENT')")
     public ResponseEntity<List<AttendanceResponse>> getStudentAttendanceHistory(
             @PathVariable Long studentId,
             @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(meetingService.getStudentAttendanceHistory(studentId, user));
+    }
+
+    @GetMapping("/student/{studentId}/attendance-summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR', 'STUDENT', 'PARENT')")
+    public ResponseEntity<AttendanceSummaryResponse> getStudentAttendanceSummary(
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(meetingService.getStudentAttendanceSummary(studentId, user));
     }
 }

@@ -19,8 +19,44 @@
         </div>
     </header>
 
-    <div class="class-grid" *ngIf="classes$ | async as classes; else loading">
-        <div class="glass-card class-card" *ngFor="let cls of classes">
+    <!-- Filters -->
+    <div class="filters glass-card" *ngIf="!isLoading">
+        <div class="search-wrap">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+                class="glass-input search-input"
+                type="text"
+                placeholder="Search by class name..."
+                [(ngModel)]="searchName"
+                (ngModelChange)="applyFilters()" />
+        </div>
+
+        <select class="glass-input filter-select" [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()">
+            <option value="">All Levels</option>
+            <option *ngFor="let lvl of educationLevels" [value]="lvl">{{ lvl }}</option>
+        </select>
+
+        <select class="glass-input filter-select" [(ngModel)]="selectedInstructor" (ngModelChange)="applyFilters()">
+            <option value="">All Instructors</option>
+            <option *ngFor="let ins of instructors" [value]="ins">{{ ins }}</option>
+        </select>
+
+        <button class="btn-clear" *ngIf="hasActiveFilters" (click)="clearFilters()" title="Clear filters">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Clear
+        </button>
+
+        <span class="result-count">{{ filteredClasses.length }} / {{ allClasses.length }} classes</span>
+    </div>
+
+    <div class="class-grid" *ngIf="!isLoading; else loading">
+        <div class="glass-card class-card" *ngFor="let cls of filteredClasses">
             <div class="card-glow" [routerLink]="['/classes', cls.id]"></div>
 
             <div class="card-top">
@@ -75,10 +111,11 @@
         </div>
 
         <!-- Empty State -->
-        <div class="empty-state glass" *ngIf="classes.length === 0">
+        <div class="empty-state glass" *ngIf="filteredClasses.length === 0">
             <div class="icon">📜</div>
-            <h3>No Classes Found</h3>
-            <p>Ready to lead? Start by creating your first class!</p>
+            <h3>{{ hasActiveFilters ? 'No Matches Found' : 'No Classes Found' }}</h3>
+            <p>{{ hasActiveFilters ? 'Try adjusting your filters.' : 'Ready to lead? Start by creating your first class!' }}</p>
+            <button class="btn btn-outline" *ngIf="hasActiveFilters" (click)="clearFilters()">Clear Filters</button>
         </div>
     </div>
 

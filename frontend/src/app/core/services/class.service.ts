@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ClassResponse } from '../models/class.model';
-import { User } from '../models/auth.model';
+import { User, UserResponse } from '../models/auth.model';
 import { StudentProgressSummary } from '../models/student-progress.model';
 import { StudentProfile } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
@@ -29,8 +29,8 @@ export class ClassService {
         return this.http.get<ClassResponse>(`${this.apiUrl}/${id}`);
     }
 
-    getClassStudents(classId: number): Observable<User[]> {
-        return this.http.get<User[]>(`${this.apiUrl}/${classId}/students`);
+    getClassStudents(classId: number): Observable<UserResponse[]> {
+        return this.http.get<UserResponse[]>(`${this.apiUrl}/${classId}/students`);
     }
 
     getClassProgressSummary(classId: number): Observable<StudentProgressSummary[]> {

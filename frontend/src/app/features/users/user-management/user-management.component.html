@@ -18,6 +18,15 @@
             <p class="subtitle">{{ 'USERS.SUBTITLE' | translate }}</p>
         </div>
         <div class="header-actions">
+            <button class="btn btn-outline" routerLink="/students">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                    <line x1="10" y1="19" x2="14" y2="19"></line>
+                </svg>
+                {{ 'USERS.BTN_STUDENTS_PARENTS' | translate }}
+            </button>
             <button class="btn btn-primary" (click)="showTypeModal = true">{{ 'USERS.BTN_ADD' | translate }}</button>
         </div>
     </header>

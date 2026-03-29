@@ -52,6 +52,14 @@ public class Meeting {
     @Column(name = "recurrence_group_id")
     private String recurrenceGroupId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    private Room room;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_booking_id")
+    private RoomBooking roomBooking;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

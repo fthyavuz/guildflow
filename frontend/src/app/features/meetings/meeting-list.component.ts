@@ -1,10 +1,12 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MeetingService } from '../../core/services/meeting.service';
-import { MeetingResponse } from '../../core/models/meeting.model';
-import { Observable, map } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { MeetingResponse } from '../../core/models/meeting.model';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -14,42 +16,62 @@ import { TranslateModule } from '@ngx-translate/core';
     templateUrl: './meeting-list.component.html',
     styleUrl: './meeting-list.component.css'
 })
-export class MeetingListComponent implements OnInit {
+export class MeetingListComponent implements OnInit, OnDestroy {
     private meetingService = inject(MeetingService);
     private authService = inject(AuthService);
+    private notifications = inject(NotificationService);
+    private destroy$ = new Subject<void>();
 
     user$ = this.authService.currentUser$;
-    meetings$: Observable<MeetingResponse[]> | undefined;
-    upcomingMeetings$: Observable<MeetingResponse[]> | undefined;
-    pastMeetings$: Observable<MeetingResponse[]> | undefined;
+
+    isLoading = false;
+    upcomingMeetings: MeetingResponse[] = [];
+    pastMeetings: MeetingResponse[] = [];
+    deletingId: number | null = null;
 
     ngOnInit(): void {
-        const meetings$ = this.meetingService.getMyMeetings();
-
-        this.upcomingMeetings$ = meetings$.pipe(
-            map(meetings => meetings.filter(m => new Date(m.startTime) >= new Date())
-                .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()))
-        );
-
-        this.pastMeetings$ = meetings$.pipe(
-            map(meetings => meetings.filter(m => new Date(m.startTime) < new Date())
-                .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()))
-        );
+        this.loadMeetings();
     }
 
-    formatDate(dateStr: string): string {
-        return new Date(dateStr).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
-    formatTime(dateStr: string): string {
-        return new Date(dateStr).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    loadMeetings(): void {
+        this.isLoading = true;
+        this.meetingService.getMyMeetings()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (meetings) => {
+                    const now = new Date();
+                    this.upcomingMeetings = meetings
+                        .filter(m => new Date(m.startTime) >= now)
+                        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+                    this.pastMeetings = meetings
+                        .filter(m => new Date(m.startTime) < now)
+                        .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
+                    this.isLoading = false;
+                },
+                error: () => { this.isLoading = false; }
+            });
+    }
+
+    deleteMeeting(meeting: MeetingResponse): void {
+        if (!confirm(`Delete "${meeting.title}"? This cannot be undone.`)) return;
+        this.deletingId = meeting.id;
+        this.meetingService.deleteMeeting(meeting.id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.notifications.success('Meeting deleted');
+                    this.loadMeetings();
+                    this.deletingId = null;
+                },
+                error: (err) => {
+                    this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to delete meeting'));
+                    this.deletingId = null;
+                }
+            });
     }
 }

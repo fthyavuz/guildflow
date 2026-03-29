@@ -15,4 +15,7 @@ public class CreateClassRequest {
     private EducationLevel educationLevel;
 
     private String description;
+
+    /** Optional: admin can assign a specific mentor by ID */
+    private Long mentorId;
 }

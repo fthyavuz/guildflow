@@ -16,6 +16,7 @@ public class MeetingResponse {
     private Long id;
     private Long classId;
     private String className;
+    private String mentorName;
     private String title;
     private String description;
     private LocalDateTime startTime;
@@ -23,12 +24,21 @@ public class MeetingResponse {
     private String location;
     private boolean recurring;
     private String recurrenceGroupId;
+    private Long roomId;
+    private String roomTitle;
+    private Long roomBookingId;
 
     public static MeetingResponse fromEntity(Meeting meeting) {
+        String mentorName = null;
+        if (meeting.getMentorClass().getMentor() != null) {
+            mentorName = meeting.getMentorClass().getMentor().getFirstName()
+                    + " " + meeting.getMentorClass().getMentor().getLastName();
+        }
         return MeetingResponse.builder()
                 .id(meeting.getId())
                 .classId(meeting.getMentorClass().getId())
                 .className(meeting.getMentorClass().getName())
+                .mentorName(mentorName)
                 .title(meeting.getTitle())
                 .description(meeting.getDescription())
                 .startTime(meeting.getStartTime())
@@ -36,6 +46,9 @@ public class MeetingResponse {
                 .location(meeting.getLocation())
                 .recurring(meeting.getIsRecurring())
                 .recurrenceGroupId(meeting.getRecurrenceGroupId())
+                .roomId(meeting.getRoom() != null ? meeting.getRoom().getId() : null)
+                .roomTitle(meeting.getRoom() != null ? meeting.getRoom().getTitle() : null)
+                .roomBookingId(meeting.getRoomBooking() != null ? meeting.getRoomBooking().getId() : null)
                 .build();
     }
 }

@@ -49,10 +49,8 @@ export class ClassFormComponent implements OnInit {
             this.currentUserRole = user?.role;
             if (this.currentUserRole === 'ADMIN') {
                 this.mentors$ = this.userService.getMentors();
-                this.classForm.get('mentorId')?.setValidators(Validators.required);
-            } else {
-                this.classForm.get('mentorId')?.clearValidators();
             }
+            this.classForm.get('mentorId')?.clearValidators();
             this.classForm.get('mentorId')?.updateValueAndValidity();
         });
 
