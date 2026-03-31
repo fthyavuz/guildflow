@@ -62,7 +62,8 @@
                 <p class="description-text">{{ event.description || 'No description provided for this activity.' }}</p>
             </section>
 
-            <section class="rsvp-section glass-card">
+            <!-- RSVP — hidden for past events -->
+            <section class="rsvp-section glass-card" *ngIf="!isPast(event)">
                 <div class="rsvp-content">
                     <div class="rsvp-text">
                         <h3>Will you be joining us?</h3>
@@ -90,29 +91,73 @@
                 </div>
 
                 <div class="assignment-list" *ngIf="event.assignments.length > 0">
-                    <div class="assignment-item" *ngFor="let assignment of event.assignments">
-                        <div class="as-user">
-                            <span class="user-avatar">{{ assignment.userName.substring(0, 1) }}</span>
-                            <div class="user-details">
-                                <span class="as-name">{{ assignment.userName }}</span>
-                                <span class="as-date">assigned at {{ assignment.assignedAt | date:'shortDate' }}</span>
+                    <ng-container *ngFor="let assignment of event.assignments">
+                        <!-- Normal view -->
+                        <div class="assignment-item" *ngIf="editingAssignmentId !== assignment.id">
+                            <div class="as-user">
+                                <span class="user-avatar">{{ assignment.userName.substring(0, 1) }}</span>
+                                <div class="user-details">
+                                    <span class="as-name">{{ assignment.userName }}</span>
+                                    <span class="as-date">assigned at {{ assignment.assignedAt | date:'shortDate' }}</span>
+                                </div>
+                            </div>
+                            <div class="as-duty">
+                                <p>{{ assignment.dutyDescription }}</p>
+                            </div>
+                            <div class="as-actions" *ngIf="canManageEvent(event, user$ | async)">
+                                <button class="btn-icon btn-edit" (click)="startEditAssignment(assignment)" title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-icon btn-remove" (click)="removeAssignment(assignment.id)" title="Remove">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        <div class="as-duty">
-                            <p>{{ assignment.dutyDescription }}</p>
+
+                        <!-- Inline edit view -->
+                        <div class="assignment-edit-item" *ngIf="editingAssignmentId === assignment.id">
+                            <div class="edit-row">
+                                <div class="user-search-wrapper">
+                                    <input
+                                        type="text"
+                                        class="glass-input edit-input"
+                                        placeholder="Search user..."
+                                        [value]="editUserSearchText"
+                                        (input)="onEditUserSearch($event)"
+                                        (blur)="onEditUserBlur()"
+                                        (focus)="showEditUserDropdown = true"
+                                        autocomplete="off"
+                                    />
+                                    <div class="user-dropdown" *ngIf="showEditUserDropdown && editFilteredUsers.length > 0">
+                                        <div class="user-option" *ngFor="let u of editFilteredUsers" (mousedown)="selectEditUser(u)">
+                                            <span class="user-option-name">{{ u.firstName }} {{ u.lastName }}</span>
+                                            <span class="user-option-role">{{ u.role }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="text" class="glass-input edit-input" placeholder="Duty description..."
+                                    [(ngModel)]="editDutyDescription">
+                                <div class="edit-btns">
+                                    <button class="btn btn-sm btn-primary" (click)="saveEditAssignment()"
+                                        [disabled]="!editUserId || !editDutyDescription.trim() || isSavingEdit">
+                                        {{ isSavingEdit ? 'Saving...' : 'Save' }}
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" (click)="cancelEditAssignment()">Cancel</button>
+                                </div>
+                            </div>
                         </div>
-                        <button class="btn-remove" *ngIf="canManageEvent(event, user$ | async)"
-                            (click)="removeAssignment(assignment.id)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    </ng-container>
                 </div>
 
-                <!-- Admin: Add Assignment Form -->
+                <!-- Admin/Mentor: Add Assignment Form -->
                 <div class="assignment-form-wrapper" *ngIf="canManageEvent(event, user$ | async)">
                     <h4>Assign a Duty</h4>
                     <form [formGroup]="assignmentForm" (ngSubmit)="assignDuty()" class="assignment-form">
@@ -156,24 +201,99 @@
         <!-- Sidebar / Participants -->
         <div class="side-column">
             <section class="participants-section glass">
-                <div class="section-header">
-                    <h4>Participants</h4>
-                    <span class="badge">{{ (event.participants | filterGoing).length }} Going</span>
-                </div>
+                <ng-container *ngIf="canManageEvent(event, user$ | async); else publicParticipants">
+                    <!-- Admin/Mentor: full participant list with controls -->
+                    <div class="section-header">
+                        <h4>Participants</h4>
+                        <span class="badge">{{ (event.participants | filterGoing).length }} Going</span>
+                    </div>
 
-                <div class="participant-list" *ngIf="event.participants.length > 0">
-                    <div class="participant-item" *ngFor="let p of event.participants | filterGoing">
-                        <span class="p-avatar" [class.mentor]="p.role === 'MENTOR'">{{ p.userName.substring(0, 1) }}</span>
-                        <div class="p-info">
-                            <span class="p-name">{{ p.userName }}</span>
-                            <span class="p-role">{{ p.role }}</span>
+                    <div class="participant-list" *ngIf="event.participants.length > 0">
+                        <div class="participant-item" *ngFor="let p of event.participants">
+                            <span class="p-avatar"
+                                [class.mentor]="p.role === 'MENTOR'"
+                                [class.not-going]="!p.isGoing">{{ p.userName.substring(0, 1) }}</span>
+                            <div class="p-info">
+                                <span class="p-name">{{ p.userName }}</span>
+                                <span class="p-status" [class.going]="p.isGoing" [class.not-going]="!p.isGoing">
+                                    {{ p.isGoing ? '✓ Going' : '✗ Not going' }}
+                                </span>
+                            </div>
+                            <button class="btn-icon btn-remove-sm" (click)="removeParticipant(p.id)" title="Remove">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </div>
 
-                <div class="empty-participants" *ngIf="(event.participants | filterGoing).length === 0">
-                    <p>No participants yet. Be the first to join!</p>
-                </div>
+                    <div class="empty-participants" *ngIf="event.participants.length === 0">
+                        <p>No responses yet.</p>
+                    </div>
+
+                    <!-- Add participant panel -->
+                    <div class="add-participant-section">
+                        <button class="btn-add-participant" (click)="showAddParticipantPanel = !showAddParticipantPanel">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Participant
+                        </button>
+
+                        <div class="add-participant-form" *ngIf="showAddParticipantPanel">
+                            <div class="user-search-wrapper">
+                                <input
+                                    type="text"
+                                    class="glass-input add-p-input"
+                                    placeholder="Search student..."
+                                    [value]="addParticipantSearchText"
+                                    (input)="onEligibleSearch($event)"
+                                    (blur)="onEligibleBlur()"
+                                    (focus)="showEligibleDropdown = true"
+                                    autocomplete="off"
+                                />
+                                <div class="user-dropdown" *ngIf="showEligibleDropdown && filteredEligible.length > 0">
+                                    <div class="user-option" *ngFor="let u of filteredEligible" (mousedown)="selectEligible(u)">
+                                        <span class="user-option-name">{{ u.firstName }} {{ u.lastName }}</span>
+                                    </div>
+                                </div>
+                                <div class="user-dropdown" *ngIf="showEligibleDropdown && addParticipantSearchText && filteredEligible.length === 0">
+                                    <div class="user-option no-results">No eligible students found</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary" (click)="addParticipant()"
+                                [disabled]="!selectedAddUserId || isAddingParticipant">
+                                {{ isAddingParticipant ? 'Adding...' : 'Add' }}
+                            </button>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-template #publicParticipants>
+                    <!-- Regular view: going only -->
+                    <div class="section-header">
+                        <h4>Participants</h4>
+                        <span class="badge">{{ (event.participants | filterGoing).length }} Going</span>
+                    </div>
+
+                    <div class="participant-list" *ngIf="event.participants.length > 0">
+                        <div class="participant-item" *ngFor="let p of event.participants | filterGoing">
+                            <span class="p-avatar" [class.mentor]="p.role === 'MENTOR'">{{ p.userName.substring(0, 1) }}</span>
+                            <div class="p-info">
+                                <span class="p-name">{{ p.userName }}</span>
+                                <span class="p-role">{{ p.role }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="empty-participants" *ngIf="(event.participants | filterGoing).length === 0">
+                        <p>No participants yet. Be the first to join!</p>
+                    </div>
+                </ng-template>
             </section>
 
             <div class="info-card glass" *ngIf="(user$ | async)?.role === 'ADMIN'">

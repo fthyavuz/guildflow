@@ -1,12 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { EventService } from '../../../core/services/event.service';
 import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { EventDetailsResponse } from '../../../core/models/event.model';
+import { EventDetailsResponse, EventAssignmentResponse } from '../../../core/models/event.model';
 import { UserResponse } from '../../../core/models/auth.model';
 import { Observable, forkJoin, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ import { FilterGoingPipe, FilterNotGoingPipe } from '../../../core/pipes/event.p
 @Component({
     selector: 'app-event-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, ReactiveFormsModule, TranslateModule, FilterGoingPipe, FilterNotGoingPipe],
+    imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, TranslateModule, FilterGoingPipe, FilterNotGoingPipe],
     templateUrl: './event-detail.component.html',
     styleUrl: './event-detail.component.css'
 })
@@ -40,19 +40,39 @@ export class EventDetailComponent implements OnInit {
     isSubmittingRsvp = false;
     isSubmittingAssignment = false;
 
-    // User search state
+    // User search state (for assign duty form)
     private allUsersCache: UserResponse[] = [];
     filteredUsers: UserResponse[] = [];
     userSearchText = '';
     selectedUserName = '';
     showUserDropdown = false;
 
+    // Eligible students for manual add
+    eligibleStudents: UserResponse[] = [];
+    filteredEligible: UserResponse[] = [];
+    addParticipantSearchText = '';
+    selectedAddUserId: number | null = null;
+    selectedAddUserName = '';
+    showEligibleDropdown = false;
+    showAddParticipantPanel = false;
+    isAddingParticipant = false;
+
+    // Inline assignment edit state
+    editingAssignmentId: number | null = null;
+    editDutyDescription = '';
+    editUserId: number | null = null;
+    editUserSearchText = '';
+    editSelectedUserName = '';
+    editFilteredUsers: UserResponse[] = [];
+    showEditUserDropdown = false;
+    isSavingEdit = false;
+
     ngOnInit(): void {
         this.eventId = Number(this.route.snapshot.paramMap.get('id'));
         this.loadEventDetails();
 
         this.user$.subscribe(user => {
-            if (user?.role === 'ADMIN') {
+            if (user?.role === 'ADMIN' || user?.role === 'MENTOR') {
                 forkJoin({
                     mentors: this.userService.getMentors(),
                     students: this.userService.getStudents()
@@ -61,7 +81,9 @@ export class EventDetailComponent implements OnInit {
                 ).subscribe(users => {
                     this.allUsersCache = users;
                     this.filteredUsers = users;
+                    this.editFilteredUsers = users;
                 });
+                this.loadEligibleStudents();
             }
         });
     }
@@ -70,7 +92,6 @@ export class EventDetailComponent implements OnInit {
         const term = (event.target as HTMLInputElement).value.toLowerCase();
         this.userSearchText = (event.target as HTMLInputElement).value;
         this.showUserDropdown = true;
-        // Clear selection if user is typing something new
         this.assignmentForm.patchValue({ userId: '' });
         this.selectedUserName = '';
         this.filteredUsers = this.allUsersCache.filter(u =>
@@ -87,10 +108,8 @@ export class EventDetailComponent implements OnInit {
     }
 
     onUserSearchBlur(): void {
-        // Delay so click on dropdown item fires before the list disappears
         setTimeout(() => {
             this.showUserDropdown = false;
-            // If no valid selection was made, clear the input
             if (!this.selectedUserName) {
                 this.userSearchText = '';
                 this.assignmentForm.patchValue({ userId: '' });
@@ -100,6 +119,138 @@ export class EventDetailComponent implements OnInit {
 
     loadEventDetails(): void {
         this.event$ = this.eventService.getEventDetails(this.eventId);
+    }
+
+    loadEligibleStudents(): void {
+        this.eventService.getEligibleStudents(this.eventId).subscribe({
+            next: (students) => {
+                this.eligibleStudents = students;
+                this.filteredEligible = students;
+            },
+            error: () => {}
+        });
+    }
+
+    // --- Eligible student search for add participant ---
+    onEligibleSearch(event: Event): void {
+        const term = (event.target as HTMLInputElement).value.toLowerCase();
+        this.addParticipantSearchText = (event.target as HTMLInputElement).value;
+        this.showEligibleDropdown = true;
+        this.selectedAddUserId = null;
+        this.selectedAddUserName = '';
+        this.filteredEligible = this.eligibleStudents.filter(u =>
+            `${u.firstName} ${u.lastName}`.toLowerCase().includes(term)
+        );
+    }
+
+    selectEligible(user: UserResponse): void {
+        this.selectedAddUserId = user.id;
+        this.selectedAddUserName = `${user.firstName} ${user.lastName}`;
+        this.addParticipantSearchText = this.selectedAddUserName;
+        this.showEligibleDropdown = false;
+    }
+
+    onEligibleBlur(): void {
+        setTimeout(() => {
+            this.showEligibleDropdown = false;
+            if (!this.selectedAddUserId) {
+                this.addParticipantSearchText = '';
+            }
+        }, 200);
+    }
+
+    addParticipant(): void {
+        if (!this.selectedAddUserId) return;
+        this.isAddingParticipant = true;
+        this.eventService.addParticipantManually(this.eventId, this.selectedAddUserId).subscribe({
+            next: () => {
+                this.isAddingParticipant = false;
+                this.showAddParticipantPanel = false;
+                this.selectedAddUserId = null;
+                this.selectedAddUserName = '';
+                this.addParticipantSearchText = '';
+                this.loadEventDetails();
+                this.loadEligibleStudents();
+            },
+            error: (err) => {
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to add participant'));
+                this.isAddingParticipant = false;
+            }
+        });
+    }
+
+    removeParticipant(participantId: number): void {
+        if (confirm('Remove this participant from the event?')) {
+            this.eventService.removeParticipant(this.eventId, participantId).subscribe({
+                next: () => {
+                    this.loadEventDetails();
+                    this.loadEligibleStudents();
+                },
+                error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to remove participant'))
+            });
+        }
+    }
+
+    // --- Inline assignment edit ---
+    startEditAssignment(assignment: EventAssignmentResponse): void {
+        this.editingAssignmentId = assignment.id;
+        this.editDutyDescription = assignment.dutyDescription;
+        this.editUserId = assignment.userId;
+        this.editSelectedUserName = assignment.userName;
+        this.editUserSearchText = assignment.userName;
+        this.editFilteredUsers = this.allUsersCache;
+        this.showEditUserDropdown = false;
+    }
+
+    onEditUserSearch(event: Event): void {
+        const term = (event.target as HTMLInputElement).value.toLowerCase();
+        this.editUserSearchText = (event.target as HTMLInputElement).value;
+        this.showEditUserDropdown = true;
+        this.editUserId = null;
+        this.editSelectedUserName = '';
+        this.editFilteredUsers = this.allUsersCache.filter(u =>
+            `${u.firstName} ${u.lastName}`.toLowerCase().includes(term) ||
+            u.role.toLowerCase().includes(term)
+        );
+    }
+
+    selectEditUser(user: UserResponse): void {
+        this.editUserId = user.id;
+        this.editSelectedUserName = `${user.firstName} ${user.lastName}`;
+        this.editUserSearchText = this.editSelectedUserName;
+        this.showEditUserDropdown = false;
+    }
+
+    onEditUserBlur(): void {
+        setTimeout(() => {
+            this.showEditUserDropdown = false;
+            if (!this.editUserId) {
+                this.editUserSearchText = this.editSelectedUserName;
+            }
+        }, 200);
+    }
+
+    saveEditAssignment(): void {
+        if (!this.editingAssignmentId || !this.editUserId || !this.editDutyDescription.trim()) return;
+        this.isSavingEdit = true;
+        this.eventService.updateAssignment(this.editingAssignmentId, {
+            userId: this.editUserId,
+            dutyDescription: this.editDutyDescription
+        }).subscribe({
+            next: () => {
+                this.isSavingEdit = false;
+                this.editingAssignmentId = null;
+                this.loadEventDetails();
+            },
+            error: (err) => {
+                this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to update assignment'));
+                this.isSavingEdit = false;
+            }
+        });
+    }
+
+    cancelEditAssignment(): void {
+        this.editingAssignmentId = null;
     }
 
     rsvp(isGoing: boolean): void {
@@ -130,6 +281,8 @@ export class EventDetailComponent implements OnInit {
             next: () => {
                 this.loadEventDetails();
                 this.assignmentForm.reset();
+                this.userSearchText = '';
+                this.selectedUserName = '';
                 this.isSubmittingAssignment = false;
             },
             error: (err) => {

@@ -165,7 +165,7 @@
     border-radius: 16px;
     padding: 1.5rem;
     display: grid;
-    grid-template-columns: 240px 1fr 40px;
+    grid-template-columns: 240px 1fr auto;
     gap: 1.5rem;
     align-items: center;
 }
@@ -216,6 +216,66 @@
 
 .btn-remove:hover {
     color: #ef4444;
+}
+
+/* Icon buttons (edit / remove) in assignment row */
+.as-actions {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    color: var(--text-muted);
+}
+
+.btn-icon.btn-edit:hover {
+    background: rgba(139,92,246,0.12);
+    color: #8b5cf6;
+}
+
+.btn-icon.btn-remove:hover {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+
+/* Inline assignment edit */
+.assignment-edit-item {
+    background: rgba(139,92,246,0.06);
+    border: 1px solid rgba(139,92,246,0.25);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.edit-row {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 0.75rem;
+    align-items: start;
+}
+
+.edit-btns {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    padding-top: 0.1rem;
+}
+
+.edit-input {
+    height: 40px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.875rem;
 }
 
 .assignment-form-wrapper {
@@ -358,6 +418,86 @@
     padding: 2rem 0;
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* Participant status */
+.p-status {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.p-status.going { color: #10b981; }
+.p-status.not-going { color: #ef4444; }
+
+.p-avatar.not-going {
+    color: #ef4444;
+    border-color: rgba(239,68,68,0.4);
+    opacity: 0.7;
+}
+
+/* Remove participant (sidebar) */
+.btn-remove-sm {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s, background 0.15s;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.btn-remove-sm:hover {
+    color: #ef4444;
+    background: rgba(239,68,68,0.08);
+}
+
+/* Add participant */
+.add-participant-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-add-participant {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: 1px dashed rgba(139,92,246,0.4);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0.45rem 0.85rem;
+    width: 100%;
+    justify-content: center;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn-add-participant:hover {
+    border-color: rgba(139,92,246,0.7);
+    color: #8b5cf6;
+    background: rgba(139,92,246,0.05);
+}
+
+.add-participant-form {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.add-p-input {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.7rem;
+    height: 36px;
+    flex: 1;
 }
 
 .info-card {

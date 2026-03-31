@@ -12,6 +12,7 @@ import {
     EventParticipantResponse,
     RsvpRequest
 } from '../models/event.model';
+import { UserResponse } from '../models/auth.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -56,5 +57,24 @@ export class EventService {
 
     removeAssignment(assignmentId: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/assignments/${assignmentId}`);
+    }
+
+    updateAssignment(assignmentId: number, request: EventAssignmentRequest): Observable<EventAssignmentResponse> {
+        return this.http.put<EventAssignmentResponse>(`${this.apiUrl}/assignments/${assignmentId}`, request);
+    }
+
+    getEligibleStudents(eventId: number): Observable<UserResponse[]> {
+        return this.http.get<UserResponse[]>(`${this.apiUrl}/${eventId}/eligible-students`);
+    }
+
+    addParticipantManually(eventId: number, userId: number): Observable<EventParticipantResponse> {
+        return this.http.post<EventParticipantResponse>(
+            `${this.apiUrl}/${eventId}/participants/manual`, null,
+            { params: new HttpParams().set('userId', userId) }
+        );
+    }
+
+    removeParticipant(eventId: number, participantId: number): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${eventId}/participants/${participantId}`);
     }
 }

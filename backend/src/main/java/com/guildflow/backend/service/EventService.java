@@ -320,6 +320,86 @@ public class EventService {
         assignmentRepository.delete(assignment);
     }
 
+    /**
+     * Update a duty assignment. Admin or Mentor.
+     */
+    @Transactional
+    public EventAssignmentResponse updateAssignment(Long assignmentId, EventAssignmentRequest request) {
+        EventAssignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Assignment not found"));
+
+        User responsibleUser = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        assignment.setResponsibleUser(responsibleUser);
+        assignment.setDutyDescription(request.getDutyDescription());
+        return EventAssignmentResponse.fromEntity(assignmentRepository.save(assignment));
+    }
+
+    /**
+     * Get students eligible to be manually added as participants.
+     * For targeted events: students from the invited classes.
+     * For open events: all active students.
+     */
+    public List<UserResponse> getEligibleStudents(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+        java.util.Set<Long> participatingIds = participantRepository.findByEvent(event)
+                .stream().map(p -> p.getUser().getId()).collect(Collectors.toSet());
+
+        List<User> candidates;
+        if (event.getTargetClasses().isEmpty()) {
+            candidates = userRepository.findByRoleAndActiveTrue(Role.STUDENT);
+        } else {
+            candidates = event.getTargetClasses().stream()
+                    .flatMap(mc -> classStudentRepository.findByMentorClassAndActiveTrue(mc).stream())
+                    .map(cs -> cs.getStudent())
+                    .distinct()
+                    .collect(Collectors.toList());
+        }
+
+        return candidates.stream()
+                .filter(s -> !participatingIds.contains(s.getId()))
+                .map(UserResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Manually add a participant to an event. Admin or Mentor.
+     */
+    @Transactional
+    public EventParticipantResponse addParticipantManually(Long eventId, Long userId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Optional<EventParticipant> existing = participantRepository.findByEventAndUser(event, user);
+        if (existing.isPresent()) {
+            EventParticipant p = existing.get();
+            p.setIsGoing(true);
+            return EventParticipantResponse.fromEntity(participantRepository.save(p));
+        }
+
+        EventParticipant participant = EventParticipant.builder()
+                .event(event)
+                .user(user)
+                .isGoing(true)
+                .build();
+        return EventParticipantResponse.fromEntity(participantRepository.save(participant));
+    }
+
+    /**
+     * Remove a participant from an event. Admin or Mentor.
+     */
+    @Transactional
+    public void removeParticipant(Long participantId) {
+        EventParticipant participant = participantRepository.findById(participantId)
+                .orElseThrow(() -> new EntityNotFoundException("Participant not found"));
+        participantRepository.delete(participant);
+    }
+
     private RoomBooking bookRoomForEvent(Room room, LocalDateTime start, LocalDateTime end, User bookedBy, String eventTitle, Long excludeBookingId) {
         List<RoomBooking> overlapping = roomBookingRepository.findOverlappingBookings(room.getId(), start, end)
                 .stream()

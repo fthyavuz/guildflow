@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/events")
 @RequiredArgsConstructor
@@ -86,6 +88,38 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<Void> removeAssignment(@PathVariable Long assignmentId) {
         eventService.removeAssignment(assignmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/assignments/{assignmentId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<EventAssignmentResponse> updateAssignment(
+            @PathVariable Long assignmentId,
+            @Valid @RequestBody EventAssignmentRequest request) {
+        return ResponseEntity.ok(eventService.updateAssignment(assignmentId, request));
+    }
+
+    @GetMapping("/{id}/eligible-students")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<List<UserResponse>> getEligibleStudents(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.getEligibleStudents(id));
+    }
+
+    @PostMapping("/{id}/participants/manual")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<EventParticipantResponse> addParticipantManually(
+            @PathVariable Long id,
+            @RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(eventService.addParticipantManually(id, userId));
+    }
+
+    @DeleteMapping("/{id}/participants/{participantId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<Void> removeParticipant(
+            @PathVariable Long id,
+            @PathVariable Long participantId) {
+        eventService.removeParticipant(participantId);
         return ResponseEntity.noContent().build();
     }
 }
