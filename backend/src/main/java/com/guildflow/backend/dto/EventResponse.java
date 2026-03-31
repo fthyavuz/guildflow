@@ -26,6 +26,8 @@ public class EventResponse {
     private String educationLevel;
     private List<Long> targetClassIds;
     private List<String> targetClassNames;
+    private Long roomId;
+    private String roomName;
 
     public static EventResponse fromEntity(Event event) {
         return EventResponse.builder()
@@ -39,6 +41,8 @@ public class EventResponse {
                 .educationLevel(event.getEducationLevel() != null ? event.getEducationLevel().name() : null)
                 .targetClassIds(event.getTargetClasses().stream().map(MentorClass::getId).collect(Collectors.toList()))
                 .targetClassNames(event.getTargetClasses().stream().map(MentorClass::getName).collect(Collectors.toList()))
+                .roomId(event.getRoom() != null ? event.getRoom().getId() : null)
+                .roomName(event.getRoom() != null ? event.getRoom().getTitle() : null)
                 .build();
     }
 }

@@ -75,6 +75,15 @@
     color: var(--text-primary);
 }
 
+.room-block {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: var(--accent-cyan);
+    margin-top: 0.5rem;
+}
+
 .description-section, .rsvp-section, .assignments-section {
     padding: 2.5rem;
     border-radius: 24px;

@@ -30,4 +30,6 @@ public class EventRequest {
     private String educationLevel;
 
     private List<Long> targetClassIds;
+
+    private Long roomId;
 }

@@ -25,19 +25,72 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="startTime">Start Time</label>
-                    <input type="datetime-local" id="startTime" formControlName="startTime" class="glass-input" step="900">
+                    <label for="startTime">Start Date &amp; Time</label>
+                    <input type="datetime-local" id="startTime" formControlName="startTime"
+                        class="glass-input" step="900"
+                        [min]="isEditMode ? '' : todayMin"
+                        (change)="checkRoomAvailability()">
                 </div>
 
                 <div class="form-group">
-                    <label for="endTime">End Time</label>
-                    <input type="datetime-local" id="endTime" formControlName="endTime" class="glass-input" step="900">
+                    <label for="endTime">End Date &amp; Time</label>
+                    <input type="datetime-local" id="endTime" formControlName="endTime"
+                        class="glass-input" step="900"
+                        [min]="isEditMode ? '' : todayMin"
+                        (change)="checkRoomAvailability()">
                 </div>
 
                 <div class="form-group full-width">
                     <label for="description">Event Description</label>
                     <textarea id="description" formControlName="description" class="glass-input" rows="4"
                         placeholder="Describe the plan, what to bring, etc."></textarea>
+                </div>
+            </div>
+
+            <!-- Room Selection -->
+            <div class="room-section">
+                <div class="section-title-row">
+                    <h3 class="picker-title">Venue / Room</h3>
+                    <span class="picker-subtitle">Optional — leave empty for outdoor or off-site events</span>
+                </div>
+
+                <div class="room-selector-row">
+                    <select class="glass-input room-select"
+                        [ngModel]="selectedRoomId"
+                        [ngModelOptions]="{standalone: true}"
+                        (ngModelChange)="selectedRoomId = $event ? +$event : null; onRoomChange()">
+                        <option [value]="null">No room (outdoor / external venue)</option>
+                        <option *ngFor="let r of rooms" [value]="r.id">
+                            {{ r.title }} (capacity: {{ r.capacity }})
+                        </option>
+                    </select>
+
+                    <div class="availability-status" *ngIf="selectedRoomId">
+                        <span class="status-checking" *ngIf="checkingAvailability">
+                            <span class="spinner-sm"></span> Checking...
+                        </span>
+                        <span class="status-ok" *ngIf="!checkingAvailability && !roomConflict">
+                            ✓ Available
+                        </span>
+                        <span class="status-conflict" *ngIf="!checkingAvailability && roomConflict">
+                            ✗ Already booked
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Conflict warning -->
+                <div class="conflict-banner" *ngIf="roomConflict && conflictingBooking">
+                    <div class="conflict-icon">⚠️</div>
+                    <div class="conflict-details">
+                        <strong>{{ selectedRoom?.title }}</strong> is already booked during this time:
+                        <em>{{ conflictingBooking.reason }}</em>
+                        ({{ conflictingBooking.startTime | date:'HH:mm' }} – {{ conflictingBooking.endTime | date:'HH:mm' }})
+                        by {{ conflictingBooking.bookedByName }}.
+                        <br>
+                        You can still save with a different room, or
+                        <a routerLink="/rooms" class="rooms-link">view the room calendar</a>
+                        to find an available slot.
+                    </div>
                 </div>
             </div>
 

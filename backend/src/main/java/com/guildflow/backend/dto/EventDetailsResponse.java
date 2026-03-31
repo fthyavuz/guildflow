@@ -31,6 +31,8 @@ public class EventDetailsResponse extends EventResponse {
         response.setEducationLevel(event.getEducationLevel() != null ? event.getEducationLevel().name() : null);
         response.setTargetClassIds(event.getTargetClasses().stream().map(MentorClass::getId).collect(Collectors.toList()));
         response.setTargetClassNames(event.getTargetClasses().stream().map(MentorClass::getName).collect(Collectors.toList()));
+        response.setRoomId(event.getRoom() != null ? event.getRoom().getId() : null);
+        response.setRoomName(event.getRoom() != null ? event.getRoom().getTitle() : null);
 
         response.setParticipants(participants.stream()
                 .map(EventParticipantResponse::fromEntity)

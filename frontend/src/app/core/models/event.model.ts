@@ -9,6 +9,8 @@ export interface EventResponse {
     educationLevel: string | null;
     targetClassIds: number[];
     targetClassNames: string[];
+    roomId: number | null;
+    roomName: string | null;
 }
 
 export interface EventParticipantResponse {
@@ -40,6 +42,7 @@ export interface EventRequest {
     startTime: string;
     endTime: string;
     targetClassIds?: number[];
+    roomId?: number | null;
 }
 
 export interface EventFilterParams {

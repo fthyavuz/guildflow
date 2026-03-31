@@ -1,14 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EventService } from '../../../core/services/event.service';
 import { ClassService } from '../../../core/services/class.service';
+import { RoomService } from '../../../core/services/room.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
+import { Room, RoomBooking } from '../../../core/models/room.model';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-event-form',
@@ -17,25 +20,41 @@ import { TranslateModule } from '@ngx-translate/core';
     templateUrl: './event-form.component.html',
     styleUrl: './event-form.component.css'
 })
-export class EventFormComponent implements OnInit {
+export class EventFormComponent implements OnInit, OnDestroy {
     private fb = inject(FormBuilder);
     private eventService = inject(EventService);
     private classService = inject(ClassService);
+    private roomService = inject(RoomService);
     private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private notifications = inject(NotificationService);
+    private destroy$ = new Subject<void>();
 
     eventForm: FormGroup;
     isEditMode = false;
     eventId: number | null = null;
     isSubmitting = false;
 
+    // Date constraints
+    readonly todayMin: string = (() => {
+        const d = new Date();
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T00:00`;
+    })();
+
     // Class picker
     allClasses: ClassResponse[] = [];
     levelFilter = '';
     nameFilter = '';
     selectedClassIds: Set<number> = new Set();
+
+    // Room picker
+    rooms: Room[] = [];
+    selectedRoomId: number | null = null;
+    roomConflict = false;
+    conflictingBooking: RoomBooking | null = null;
+    checkingAvailability = false;
 
     readonly educationLevels = [
         { value: '', label: 'All Levels' },
@@ -46,21 +65,23 @@ export class EventFormComponent implements OnInit {
     ];
 
     constructor() {
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
         this.eventForm = this.fb.group({
             title: ['', [Validators.required]],
             description: [''],
-            startTime: ['', [Validators.required]],
-            endTime: ['', [Validators.required]]
+            startTime: [`${dateStr}T09:00`, [Validators.required]],
+            endTime: [`${dateStr}T17:00`, [Validators.required]]
         });
     }
 
     ngOnInit(): void {
         this.classService.getAllClassesForEvents().subscribe(classes => {
             this.allClasses = classes;
-
-            // Auto-select mentor's own class on new event creation
             if (!this.isEditMode) {
-                this.authService.currentUser$.subscribe(user => {
+                this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe(user => {
                     if (user?.role === 'MENTOR') {
                         classes.filter(c => c.mentorId === user.id)
                             .forEach(c => this.selectedClassIds.add(c.id));
@@ -69,11 +90,18 @@ export class EventFormComponent implements OnInit {
             }
         });
 
+        this.roomService.getAllRooms().subscribe(rooms => this.rooms = rooms);
+
         this.eventId = Number(this.route.snapshot.paramMap.get('id')) || null;
         if (this.eventId) {
             this.isEditMode = true;
             this.loadEvent(this.eventId);
         }
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     private snapTo15(dateStr: string): string {
@@ -93,6 +121,7 @@ export class EventFormComponent implements OnInit {
                     endTime: this.snapTo15(event.endTime)
                 });
                 this.selectedClassIds = new Set(event.targetClassIds);
+                this.selectedRoomId = event.roomId ?? null;
             },
             error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load event'))
         });
@@ -142,13 +171,59 @@ export class EventFormComponent implements OnInit {
             .forEach(c => this.selectedClassIds.add(c.id));
     }
 
+    // Room methods
+    get selectedRoom(): Room | null {
+        return this.rooms.find(r => r.id === this.selectedRoomId) ?? null;
+    }
+
+    onRoomChange(): void {
+        this.roomConflict = false;
+        this.conflictingBooking = null;
+        if (this.selectedRoomId) {
+            this.checkRoomAvailability();
+        }
+    }
+
+    checkRoomAvailability(): void {
+        const { startTime, endTime } = this.eventForm.value;
+        if (!this.selectedRoomId || !startTime || !endTime) return;
+
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        this.checkingAvailability = true;
+
+        this.roomService.getBookingsForDate(start).subscribe({
+            next: (bookings) => {
+                const conflicts = bookings.filter(b => {
+                    if (b.roomId !== this.selectedRoomId) return false;
+                    const bStart = new Date(b.startTime);
+                    const bEnd = new Date(b.endTime);
+                    return bStart < end && bEnd > start;
+                });
+                this.roomConflict = conflicts.length > 0;
+                this.conflictingBooking = conflicts[0] ?? null;
+                this.checkingAvailability = false;
+            },
+            error: () => { this.checkingAvailability = false; }
+        });
+    }
+
+    private toLocalISO(dateStr: string): string {
+        const d = new Date(dateStr);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+    }
+
     onSubmit(): void {
         if (this.eventForm.valid) {
             this.isSubmitting = true;
             const raw = this.eventForm.value;
             const request = {
                 ...raw,
-                targetClassIds: [...this.selectedClassIds]
+                startTime: this.toLocalISO(raw.startTime),
+                endTime: this.toLocalISO(raw.endTime),
+                targetClassIds: [...this.selectedClassIds],
+                roomId: this.selectedRoomId ?? null
             };
 
             const obs$ = this.isEditMode

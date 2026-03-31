@@ -44,6 +44,7 @@ _(Meeting management is functional — no pending improvements)_
 ### Events
 
 - [x] **Class-based event invitations** — events can now invite multiple specific classes; replaced single targetClassId with a multi-class picker; mentors can create/edit/delete their own events; students and parents only see events where their class is invited (or open events with no target classes)
+- [x] **Event datetime UX + room booking** — start/end default to today 09:00–17:00; past dates blocked for new events; optional room selection with real-time availability check; conflict warning shows who booked it with a link to the room calendar; booking is created/updated/deleted automatically with the event
 - [ ] **Participant list** — view the RSVP list for a specific event (currently no way to see who has joined)
 
 ### Rooms
@@ -154,7 +155,7 @@ _(No features implemented yet — planned for a future phase)_
 
 | Section              | Total  | Done   |
 | -------------------- | ------ | ------ |
-| 🛡️ Admin Dashboard   | 19     | 17     |
+| 🛡️ Admin Dashboard   | 20     | 19     |
 | 👨‍🏫 Mentor Dashboard  | 3      | 3      |
 | 🎓 Student Dashboard | 7      | 7      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |

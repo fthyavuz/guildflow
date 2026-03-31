@@ -1,6 +1,8 @@
 package com.guildflow.backend.model;
 
 import com.guildflow.backend.model.enums.EducationLevel;
+import com.guildflow.backend.model.Room;
+import com.guildflow.backend.model.RoomBooking;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -57,6 +59,14 @@ public class Event {
     )
     @Builder.Default
     private List<MentorClass> targetClasses = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
+    private Room room;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_booking_id")
+    private RoomBooking roomBooking;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

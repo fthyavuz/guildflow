@@ -1,6 +1,7 @@
 package com.guildflow.backend.service;
 
 import com.guildflow.backend.dto.*;
+import com.guildflow.backend.exception.ConflictException;
 import com.guildflow.backend.exception.EntityNotFoundException;
 import com.guildflow.backend.exception.ForbiddenException;
 import com.guildflow.backend.model.Event;
@@ -10,12 +11,16 @@ import com.guildflow.backend.model.MentorClass;
 import com.guildflow.backend.model.User;
 import com.guildflow.backend.model.enums.EducationLevel;
 import com.guildflow.backend.model.enums.Role;
+import com.guildflow.backend.model.Room;
+import com.guildflow.backend.model.RoomBooking;
 import com.guildflow.backend.repository.ClassStudentRepository;
 import com.guildflow.backend.repository.EventAssignmentRepository;
 import com.guildflow.backend.repository.EventParticipantRepository;
 import com.guildflow.backend.repository.EventRepository;
 import com.guildflow.backend.repository.MentorClassRepository;
 import com.guildflow.backend.repository.ParentStudentRepository;
+import com.guildflow.backend.repository.RoomBookingRepository;
+import com.guildflow.backend.repository.RoomRepository;
 import com.guildflow.backend.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Subquery;
@@ -46,6 +51,8 @@ public class EventService {
     private final MentorClassRepository classRepository;
     private final ClassStudentRepository classStudentRepository;
     private final ParentStudentRepository parentStudentRepository;
+    private final RoomRepository roomRepository;
+    private final RoomBookingRepository roomBookingRepository;
 
     /**
      * Get events. Visibility:
@@ -159,6 +166,14 @@ public class EventService {
     @Transactional
     public EventResponse createEvent(EventRequest request, User user) {
         List<MentorClass> targetClasses = resolveTargetClasses(request);
+        Room room = null;
+        RoomBooking roomBooking = null;
+
+        if (request.getRoomId() != null) {
+            room = roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+            roomBooking = bookRoomForEvent(room, request.getStartTime(), request.getEndTime(), user, request.getTitle(), null);
+        }
 
         Event event = Event.builder()
                 .title(request.getTitle())
@@ -167,6 +182,8 @@ public class EventService {
                 .endTime(request.getEndTime())
                 .createdBy(user)
                 .targetClasses(targetClasses)
+                .room(room)
+                .roomBooking(roomBooking)
                 .build();
 
         return EventResponse.fromEntity(eventRepository.save(event));
@@ -191,6 +208,35 @@ public class EventService {
         event.getTargetClasses().clear();
         event.getTargetClasses().addAll(resolveTargetClasses(request));
 
+        // Handle room booking changes
+        RoomBooking oldBooking = event.getRoomBooking();
+        if (request.getRoomId() != null) {
+            Room newRoom = roomRepository.findById(request.getRoomId())
+                    .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+            boolean roomChanged = oldBooking == null || event.getRoom() == null
+                    || !event.getRoom().getId().equals(request.getRoomId());
+            boolean timeChanged = oldBooking != null
+                    && (!oldBooking.getStartTime().equals(request.getStartTime())
+                        || !oldBooking.getEndTime().equals(request.getEndTime()));
+
+            if (roomChanged || timeChanged) {
+                if (oldBooking != null) {
+                    event.setRoomBooking(null);
+                    roomBookingRepository.delete(oldBooking);
+                }
+                RoomBooking newBooking = bookRoomForEvent(newRoom, request.getStartTime(), request.getEndTime(), event.getCreatedBy(), request.getTitle(), null);
+                event.setRoomBooking(newBooking);
+            }
+            event.setRoom(newRoom);
+        } else {
+            // Room cleared
+            if (oldBooking != null) {
+                event.setRoomBooking(null);
+                roomBookingRepository.delete(oldBooking);
+            }
+            event.setRoom(null);
+        }
+
         return EventResponse.fromEntity(eventRepository.save(event));
     }
 
@@ -204,6 +250,14 @@ public class EventService {
 
         if (user.getRole() == Role.MENTOR && !event.getCreatedBy().getId().equals(user.getId())) {
             throw new ForbiddenException("You can only delete events you created");
+        }
+
+        // Release the room booking before deleting the event
+        if (event.getRoomBooking() != null) {
+            RoomBooking booking = event.getRoomBooking();
+            event.setRoomBooking(null);
+            eventRepository.save(event);
+            roomBookingRepository.delete(booking);
         }
 
         eventRepository.delete(event);
@@ -262,6 +316,27 @@ public class EventService {
         EventAssignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Assignment not found"));
         assignmentRepository.delete(assignment);
+    }
+
+    private RoomBooking bookRoomForEvent(Room room, LocalDateTime start, LocalDateTime end, User bookedBy, String eventTitle, Long excludeBookingId) {
+        List<RoomBooking> overlapping = roomBookingRepository.findOverlappingBookings(room.getId(), start, end)
+                .stream()
+                .filter(b -> excludeBookingId == null || !b.getId().equals(excludeBookingId))
+                .collect(Collectors.toList());
+
+        if (!overlapping.isEmpty()) {
+            throw new ConflictException("Room \"" + room.getTitle() + "\" is already booked for this time period");
+        }
+
+        RoomBooking booking = RoomBooking.builder()
+                .room(room)
+                .bookedBy(bookedBy)
+                .reason("Event: " + eventTitle)
+                .startTime(start)
+                .endTime(end)
+                .build();
+
+        return roomBookingRepository.save(booking);
     }
 
     private List<MentorClass> resolveTargetClasses(EventRequest request) {
