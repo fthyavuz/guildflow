@@ -35,6 +35,7 @@ export class EventFormComponent implements OnInit, OnDestroy {
     isEditMode = false;
     eventId: number | null = null;
     isSubmitting = false;
+    isPastEvent = false;
 
     // Date constraints
     readonly todayMin: string = (() => {
@@ -114,6 +115,8 @@ export class EventFormComponent implements OnInit, OnDestroy {
     loadEvent(id: number): void {
         this.eventService.getEventDetails(id).subscribe({
             next: (event) => {
+                this.isPastEvent = new Date(event.endTime) < new Date();
+
                 this.eventForm.patchValue({
                     title: event.title,
                     description: event.description,
@@ -122,6 +125,10 @@ export class EventFormComponent implements OnInit, OnDestroy {
                 });
                 this.selectedClassIds = new Set(event.targetClassIds);
                 this.selectedRoomId = event.roomId ?? null;
+
+                if (this.isPastEvent) {
+                    this.eventForm.disable();
+                }
             },
             error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load event'))
         });

@@ -16,6 +16,15 @@
             <p class="subtitle">{{ isEditMode ? 'Update the event details and invited classes' : 'Plan a new activity and invite the classes that should participate' }}</p>
         </header>
 
+        <!-- Past event notice -->
+        <div class="past-event-banner glass" *ngIf="isPastEvent">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            This event has already taken place. All fields are read-only.
+        </div>
+
         <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="glass-card form-card">
             <div class="form-grid">
                 <div class="form-group full-width">
@@ -58,6 +67,7 @@
                     <select class="glass-input room-select"
                         [ngModel]="selectedRoomId"
                         [ngModelOptions]="{standalone: true}"
+                        [disabled]="isPastEvent"
                         (ngModelChange)="selectedRoomId = $event ? +$event : null; onRoomChange()">
                         <option [value]="null">No room (outdoor / external venue)</option>
                         <option *ngFor="let r of rooms" [value]="r.id">
@@ -122,6 +132,7 @@
                         [(ngModel)]="nameFilter" [ngModelOptions]="{standalone: true}">
                     <button type="button" class="btn-select-all"
                         [class.deselect]="allFilteredSelected()"
+                        [disabled]="isPastEvent"
                         (click)="allFilteredSelected() ? deselectAllFiltered() : selectAllFiltered()">
                         {{ allFilteredSelected() ? 'Deselect All' : 'Select All' }}
                     </button>
@@ -134,7 +145,8 @@
                     </div>
                     <label class="class-pick-item" *ngFor="let cls of filteredClasses"
                         [class.selected]="isSelected(cls.id)"
-                        (click)="toggleClass(cls.id)">
+                        [class.readonly]="isPastEvent"
+                        (click)="!isPastEvent && toggleClass(cls.id)">
                         <div class="pick-check">
                             <svg *ngIf="isSelected(cls.id)" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
@@ -151,8 +163,10 @@
             </div>
 
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" routerLink="/events">Cancel</button>
-                <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || isSubmitting">
+                <button type="button" class="btn btn-secondary" routerLink="/events">
+                    {{ isPastEvent ? 'Back to Events' : 'Cancel' }}
+                </button>
+                <button *ngIf="!isPastEvent" type="submit" class="btn btn-primary" [disabled]="eventForm.invalid || isSubmitting">
                     {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Event' : 'Schedule Event') }}
                 </button>
             </div>

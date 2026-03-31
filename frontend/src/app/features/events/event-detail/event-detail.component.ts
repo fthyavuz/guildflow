@@ -150,7 +150,12 @@ export class EventDetailComponent implements OnInit {
 
     canManageEvent(event: any, user: any): boolean {
         if (!user || !event) return false;
+        if (this.isPast(event)) return false;
         return user.role === 'ADMIN' || (user.role === 'MENTOR' && event.createdById === user.id);
+    }
+
+    isPast(event: any): boolean {
+        return new Date(event.endTime) < new Date();
     }
 
     deleteEvent(): void {

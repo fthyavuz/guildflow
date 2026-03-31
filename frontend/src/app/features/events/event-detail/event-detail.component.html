@@ -21,6 +21,7 @@
             <header class="event-header glass">
                 <div class="event-meta">
                     <span class="event-badge">Organization Activity</span>
+                    <span class="event-badge past-badge" *ngIf="isPast(event)">Past Event</span>
                     <ng-container *ngIf="event.targetClassNames.length > 0">
                         <span class="event-badge audience-badge" *ngFor="let name of event.targetClassNames">
                             🎓 {{ name }}

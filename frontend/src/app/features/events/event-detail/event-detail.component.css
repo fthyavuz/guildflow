@@ -75,6 +75,12 @@
     color: var(--text-primary);
 }
 
+.past-badge {
+    background: rgba(251,191,36,0.1) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(251,191,36,0.3) !important;
+}
+
 .room-block {
     display: flex;
     align-items: center;

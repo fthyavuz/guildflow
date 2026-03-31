@@ -252,12 +252,14 @@ public class EventService {
             throw new ForbiddenException("You can only delete events you created");
         }
 
-        // Release the room booking before deleting the event
+        // Release the room booking — flush the FK clear first so the booking has no referencing rows
         if (event.getRoomBooking() != null) {
             RoomBooking booking = event.getRoomBooking();
             event.setRoomBooking(null);
-            eventRepository.save(event);
+            event.setRoom(null);
+            eventRepository.saveAndFlush(event);
             roomBookingRepository.delete(booking);
+            roomBookingRepository.flush();
         }
 
         eventRepository.delete(event);

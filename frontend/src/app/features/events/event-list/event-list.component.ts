@@ -52,8 +52,12 @@ export class EventListComponent implements OnInit {
         this.filters$.next({ ...this.filters$.value, educationLevel: educationLevel || undefined });
     }
 
+    isPast(event: any): boolean {
+        return new Date(event.endTime) < new Date();
+    }
+
     canManageEvent(event: any, user: any): boolean {
-        if (!user) return false;
+        if (!user || this.isPast(event)) return false;
         return user.role === 'ADMIN' || (user.role === 'MENTOR' && event.createdById === user.id);
     }
 }
