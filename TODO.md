@@ -47,7 +47,7 @@ _(Meeting management is functional — no pending improvements)_
 
 ### Rooms
 
-_(Room management and booking is functional — no pending improvements)_
+- [x] **Mentor room booking fix** — mentors were unable to book rooms due to `toISOString()` sending UTC with `Z` suffix that Jackson could not deserialize into `LocalDateTime`; fixed by sending local datetime string
 
 ---
 
@@ -153,7 +153,7 @@ _(No features implemented yet — planned for a future phase)_
 
 | Section              | Total  | Done   |
 | -------------------- | ------ | ------ |
-| 🛡️ Admin Dashboard   | 17     | 15     |
+| 🛡️ Admin Dashboard   | 18     | 16     |
 | 👨‍🏫 Mentor Dashboard  | 3      | 3      |
 | 🎓 Student Dashboard | 7      | 7      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |

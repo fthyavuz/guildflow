@@ -137,11 +137,15 @@ export class RoomManagementComponent implements OnInit {
         const end = new Date(start);
         end.setHours(start.getHours() + this.bookingForm.value.durationHours);
 
+        const pad = (n: number) => String(n).padStart(2, '0');
+        const toLocalISO = (d: Date) =>
+            `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`;
+
         const request: RoomBookingRequest = {
             roomId: this.selectedSlot.roomId,
             reason: this.bookingForm.value.reason,
-            startTime: start.toISOString(),
-            endTime: end.toISOString()
+            startTime: toLocalISO(start),
+            endTime: toLocalISO(end)
         };
 
         this.roomService.bookRoom(request).subscribe({
