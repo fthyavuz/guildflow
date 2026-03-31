@@ -8,7 +8,7 @@
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            Back to Meetings
+            {{ 'NAV.MEETINGS' | translate }}
         </a>
     </div>
 
@@ -58,22 +58,22 @@
                             </svg>
                             {{ meeting.location || 'Outside / External' }}
                         </span>
-                        <span class="status-pill past-pill" *ngIf="isPast">Past</span>
-                        <span class="status-pill upcoming-pill" *ngIf="!isPast">Upcoming</span>
+                        <span class="status-pill past-pill" *ngIf="isPast">{{ 'MEETINGS.DETAIL.PAST' | translate }}</span>
+                        <span class="status-pill upcoming-pill" *ngIf="!isPast">{{ 'MEETINGS.DETAIL.UPCOMING' | translate }}</span>
                     </div>
                     <p class="description" *ngIf="meeting.description">{{ meeting.description }}</p>
                 </div>
             </div>
 
             <div class="hero-actions" *ngIf="currentUser?.role === 'ADMIN' || currentUser?.role === 'MENTOR'">
-                <a class="btn btn-outline btn-sm" [routerLink]="['/meetings/edit', meeting.id]">Edit Meeting</a>
+                <a class="btn btn-outline btn-sm" [routerLink]="['/meetings/edit', meeting.id]">{{ 'MEETINGS.DETAIL.BTN_EDIT' | translate }}</a>
             </div>
         </div>
 
         <!-- ── Attendance Section ── -->
         <section class="attendance-section">
             <div class="section-header">
-                <h2>Attendance</h2>
+                <h2>{{ 'MEETINGS.DETAIL.ATTENDANCE' | translate }}</h2>
 
                 <!-- Stats bar (only when there are rows) -->
                 <div class="stats-bar" *ngIf="rows.length > 0">
@@ -104,7 +104,7 @@
                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
                 <div>
-                    <strong>Editing period expired</strong>
+                    <strong>{{ 'MEETINGS.DETAIL.EDITING_EXPIRED' | translate }}</strong>
                     <p>Mentors can only edit attendance for meetings within the last month.</p>
                 </div>
             </div>
@@ -124,10 +124,10 @@
                 <!-- Quick-mark toolbar (edit mode only) -->
                 <div class="toolbar" *ngIf="canEdit">
                     <span class="toolbar-label">Mark all as:</span>
-                    <button class="quick-btn present" (click)="markAll('PRESENT')">Present</button>
-                    <button class="quick-btn absent" (click)="markAll('ABSENT')">Absent</button>
-                    <button class="quick-btn late" (click)="markAll('LATE')">Late</button>
-                    <button class="quick-btn excused" (click)="markAll('EXCUSED')">Excused</button>
+                    <button class="quick-btn present" (click)="markAll('PRESENT')">{{ 'MEETINGS.DETAIL.MARK_ALL_PRESENT' | translate }}</button>
+                    <button class="quick-btn absent" (click)="markAll('ABSENT')">{{ 'MEETINGS.DETAIL.MARK_ALL_ABSENT' | translate }}</button>
+                    <button class="quick-btn late" (click)="markAll('LATE')">{{ 'MEETINGS.DETAIL.MARK_ALL_LATE' | translate }}</button>
+                    <button class="quick-btn excused" (click)="markAll('EXCUSED')">{{ 'MEETINGS.DETAIL.MARK_ALL_EXCUSED' | translate }}</button>
                 </div>
 
                 <!-- Student rows -->

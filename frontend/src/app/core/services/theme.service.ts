@@ -6,22 +6,28 @@ export type Theme = 'light' | 'dark';
     providedIn: 'root'
 })
 export class ThemeService {
-    readonly currentTheme = signal<Theme>('dark');
+    readonly currentTheme = signal<Theme>(this.getInitialTheme());
 
     constructor() {
-        const savedTheme = localStorage.getItem('guildflow_theme') as Theme | null;
-        if (savedTheme) {
-            this.currentTheme.set(savedTheme);
-        } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-            this.currentTheme.set('light');
-        }
+        // Apply immediately to avoid any Angular bootstrap delay or flash
+        this.applyTheme(this.currentTheme());
 
-        // Apply theme whenever it changes
+        // Keep attribute and storage in sync with signal
         effect(() => {
             const theme = this.currentTheme();
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('guildflow_theme', theme);
+            this.applyTheme(theme);
         });
+    }
+
+    private getInitialTheme(): Theme {
+        const saved = localStorage.getItem('guildflow_theme') as Theme | null;
+        if (saved) return saved;
+        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    private applyTheme(theme: Theme): void {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('guildflow_theme', theme);
     }
 
     toggleTheme(): void {

@@ -2,6 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MeetingService } from '../../../core/services/meeting.service';
@@ -22,7 +23,7 @@ interface AttendanceRow {
 @Component({
     selector: 'app-meeting-detail',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
     templateUrl: './meeting-detail.component.html',
     styleUrl: './meeting-detail.component.css'
 })

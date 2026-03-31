@@ -177,6 +177,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/sources/source-list/source-list.component').then(m => m.SourceListComponent)
     },
     {
+        path: 'settings',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent)
+    },
+    {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

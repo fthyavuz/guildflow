@@ -77,6 +77,10 @@ export class AuthService {
         );
     }
 
+    changePassword(data: { currentPassword: string; newPassword: string }): Observable<void> {
+        return this.http.put<void>(`${this.apiUrl}/password`, data);
+    }
+
     /**
      * Returns an Observable of the new access token, ensuring only one refresh
      * HTTP call is in flight at a time. Concurrent callers share the same observable

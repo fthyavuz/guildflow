@@ -108,7 +108,7 @@
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12"/>
                                 </svg>
-                                {{ entry.checked ? 'Done' : 'Mark done' }}
+                                {{ entry.checked ? ('GOAL_TRACKING.DONE' | translate) : ('GOAL_TRACKING.MARK_DONE' | translate) }}
                             </label>
                             <button class="btn-submit-entry"
                                 [disabled]="entry.submitting || !entry.checked"
@@ -125,7 +125,7 @@
                             fill="none" stroke="currentColor" stroke-width="2.5">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        Pending review
+                        {{ 'GOAL_TRACKING.PENDING_REVIEW' | translate }}
                     </div>
                 </div>
             </div>

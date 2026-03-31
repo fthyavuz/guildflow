@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { HomeworkSummary, DayEntry, StudentReport, StudentSummary, DailyProgressEntry } from '../models/student.model';
+import { HomeworkSummary, DayEntry, StudentReport, StudentSummary, DailyProgressEntry, GoalProgress, TaskProgress } from '../models/student.model';
 import { PagedResponse } from '../models/page.model';
 import { environment } from '../../../environments/environment';
 
@@ -16,8 +16,12 @@ export class GoalService {
 
     // ── Student homework ────────────────────────────────────────────────────
 
-    getMyGoals(): Observable<HomeworkSummary[]> {
-        return this.http.get<HomeworkSummary[]>(`${this.goalsApiUrl}/my-goals`);
+    getMyGoals(): Observable<GoalProgress[]> {
+        return this.http.get<GoalProgress[]>(`${this.goalsApiUrl}/my-goals`);
+    }
+
+    submitProgress(taskId: number, date: string, numericValue?: number, booleanValue?: boolean): Observable<void> {
+        return this.http.post<void>(`${this.goalsApiUrl}/entries`, { taskId, date, numericValue, booleanValue });
     }
 
     getDayEntries(assignmentId: number, date: string): Observable<DayEntry[]> {

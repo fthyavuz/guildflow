@@ -45,7 +45,8 @@
         "HOMEWORK_APPROVAL": "Ödev Onayı",
         "STUDENT_REPORTS": "Öğrenci Raporları",
         "MY_REPORT": "Raporlarım",
-        "CHILD_REPORTS": "Çocuklarımın Raporları"
+        "CHILD_REPORTS": "Çocuklarımın Raporları",
+        "SETTINGS": "Ayarlar"
     },
     "USERS": {
         "TITLE": "Kullanıcı Yönetimi",
@@ -79,7 +80,7 @@
         "BTN_STUDENTS_PARENTS": "Öğrenci & Veliler"
     },
     "DASHBOARD": {
-        "WELCOME_TITLE": "Hoş Geldin, Usta",
+        "WELCOME_TITLE": "Hoş Geldin",
         "CREATE_GUILD": "+ Sınıf Oluştur",
         "GOAL_LIBRARY_BTN": "Ödev Kütüphanesi",
         "STATS": {
@@ -94,7 +95,8 @@
             "ALL_GUILDS": "Tüm Sınıflar",
             "MY_GUILDS": "Sınıflar",
             "RECENT_SESSIONS": "Son Oturumlar",
-            "UPCOMING_EVENTS": "Lonca Etkinlikleri"
+            "UPCOMING_EVENTS": "Dernek Etkinlikleri",
+            "NEXT_MEETINGS": "Yaklaşan Toplantılar"
         },
         "QUEST": {
             "TAG": "Ödev",
@@ -103,7 +105,15 @@
         },
         "EMPTY": {
             "NO_QUESTS": "Aktif ödev bulunamadı. Daha sonra tekrar kontrol edin!",
-            "NO_SESSIONS": "Planlanmış oturum yok."
+            "NO_SESSIONS": "Planlanmış oturum yok.",
+            "NO_EVENTS": "Yaklaşan organizasyon etkinliği bulunmuyor."
+        },
+        "HERO": {
+            "NEXT_MEETING_LABEL": "SONRAKI PLANLI TOPLANTI",
+            "VIEW_SCHEDULE": "Programı Gör"
+        },
+        "CLASS": {
+            "MENTOR_LABEL": "Mentor"
         }
     },
     "FAMILY": {
@@ -272,5 +282,180 @@
         "CHART_6M": "6A",
         "CHART_1Y": "1Y",
         "CHART_ALL": "Tümü"
+    },
+    "MEETINGS": {
+        "LIST": {
+            "TITLE": "Sınıf Toplantıları",
+            "SUBTITLE": "Sınıf üyelerinizle uyum sağlayın",
+            "BTN_NEW": "+ Yeni Oturum Planla",
+            "LOADING": "Toplantı kayıtları inceleniyor...",
+            "UPCOMING": "Yaklaşan Oturumlar",
+            "ARCHIVE": "Arşiv",
+            "EMPTY_UPCOMING": "Planlanan Oturum Yok",
+            "EMPTY_UPCOMING_MSG": "Şu anda planlanmış toplantı bulunmuyor.",
+            "EMPTY_PAST": "Henüz geçmiş oturum yok.",
+            "LOCATION_EXTERNAL": "Dışarı / Harici"
+        },
+        "FORM": {
+            "TITLE_NEW": "Sınıf Toplantısı Planla",
+            "TITLE_EDIT": "Toplantıyı Düzenle",
+            "SUBTITLE_NEW": "Bilgi paylaşımı için zemini hazırlayın",
+            "SUBTITLE_EDIT": "Oturum detaylarını güncelleyin",
+            "LABEL_CLASS": "Sınıf",
+            "SELECT_CLASS": "Bir Sınıf Seçin",
+            "LABEL_INSTRUCTOR": "Eğitmen",
+            "SELECT_CLASS_FIRST": "Önce bir sınıf seçin",
+            "LABEL_TITLE": "Oturum Başlığı",
+            "LABEL_DESC": "Açıklama (İsteğe Bağlı)",
+            "LABEL_START": "Başlangıç Zamanı",
+            "LABEL_END": "Bitiş Zamanı",
+            "LABEL_ROOM": "Oda (İsteğe Bağlı)",
+            "ROOM_NONE": "— Dışarı / Oda gerekmiyor —",
+            "ROOM_HINT": "Oturum dışarıda veya harici bir konumda gerçekleşecek.",
+            "LABEL_LOCATION": "Konum / Bağlantı (İsteğe Bağlı)",
+            "ROOM_CONFLICT_HINT": "Oda uygunluğu kayıt sırasında kontrol edilir. Slot doluysa bildirim alırsınız.",
+            "RECURRING": "Haftalık Tekrar (13 hafta otomatik planla)",
+            "RECURRING_HINT": "Oda, 13 tekrarın tamamı için rezerve edilecektir. Serideki herhangi bir çakışma kaydı engelleyecektir.",
+            "BTN_CANCEL": "İptal",
+            "BTN_SAVE": "Toplantı Planla",
+            "BTN_UPDATE": "Toplantıyı Güncelle",
+            "BTN_SAVING": "Kaydediliyor..."
+        },
+        "DETAIL": {
+            "PAST": "Geçmiş",
+            "UPCOMING": "Yaklaşan",
+            "BTN_EDIT": "Toplantıyı Düzenle",
+            "ATTENDANCE": "Devam Durumu",
+            "EDITING_EXPIRED": "Düzenleme süresi doldu",
+            "MARK_ALL_PRESENT": "Katıldı",
+            "MARK_ALL_ABSENT": "Katılmadı",
+            "MARK_ALL_LATE": "Geç Geldi",
+            "MARK_ALL_EXCUSED": "Mazeretli"
+        }
+    },
+    "CLASSES": {
+        "LIST": {
+            "TITLE": "Sınıflarım",
+            "SUBTITLE": "Öğrencilerinizi ustalığa yönlendirin",
+            "ALL_LEVELS": "Tüm Seviyeler",
+            "ALL_INSTRUCTORS": "Tüm Eğitmenler",
+            "NO_INSTRUCTOR": "Eğitmen atanmamış",
+            "BTN_CLEAR_FILTERS": "Filtreleri Temizle"
+        },
+        "FORM": {
+            "LABEL_NAME": "Dernek Adı",
+            "LABEL_LEVEL": "Eğitim Seviyesi",
+            "SELECT_LEVEL": "Seviye Seçin"
+        },
+        "DETAIL": {
+            "BTN_SCHEDULE": "Oturum Planla",
+            "TOTAL_STUDENTS": "Toplam Öğrenci",
+            "STATUS": "Durum",
+            "STATUS_ACTIVE": "AKTİF",
+            "ROSTER_TITLE": "Sınıf Listesi",
+            "MASTERY": "Ustalık",
+            "NO_STUDENTS_TITLE": "Kayıtlı Öğrenci Yok",
+            "HOMEWORK_TITLE": "Ödev Atamaları",
+            "HOMEWORK_SUBTITLE": "Bu sınıfa atanmış şablonlar",
+            "ASSIGN_HW_TITLE": "Sınıfa Ödev Ata",
+            "LABEL_FREQUENCY": "Sıklık",
+            "FREQ_NONE": "Sıklık yok",
+            "FREQ_DAILY": "Günlük",
+            "FREQ_WEEKLY": "Haftalık",
+            "LABEL_START_DATE": "Başlangıç Tarihi",
+            "LABEL_END_DATE": "Bitiş Tarihi",
+            "APPLY_ALL": "Tüm öğrencilere uygula",
+            "BTN_CANCEL": "İptal",
+            "NO_ASSIGNMENTS": "Henüz Atama Yok",
+            "PREVIEW_LABEL": "Öğrenci Önizlemesi",
+            "PREVIEW_SUBMIT": "Gönder",
+            "ENTRY_SUMMARY": "Giriş Özeti",
+            "TOTAL_ENTERED": "Toplam girilen",
+            "TASKS_COMPLETED": "Tamamlanan görevler",
+            "ALL_TASKS": "Tüm görevler",
+            "DONE": "Yapıldı",
+            "MARK_DONE": "Yapıldı olarak işaretle"
+        }
+    },
+    "STUDENT_PROFILE": {
+        "BTN_DOWNLOAD": "Raporu İndir",
+        "BTN_EVALUATE": "Değerlendirme Gönder",
+        "GOALS_ASSIGNED": "Atanan Ödevler",
+        "EVALUATIONS": "Değerlendirmeler",
+        "PATH_TO_MASTERY": "Ustalık Yolu",
+        "CURRENT_GOALS": "Mevcut Ödevler"
+    },
+    "EVENTS": {
+        "LIST": {
+            "TITLE": "Organizasyon Etkinlikleri",
+            "OPEN_EVENT": "Açık Etkinlik",
+            "NO_EVENTS": "Etkinlik Bulunamadı"
+        },
+        "FORM": {
+            "LABEL_TITLE": "Etkinlik Başlığı",
+            "LABEL_DESC": "Etkinlik Açıklaması",
+            "INVITE_CLASSES": "Sınıfları Davet Et"
+        },
+        "DETAIL": {
+            "BTN_EDIT": "Etkinliği Düzenle",
+            "BTN_DELETE": "Sil",
+            "ORG_ACTIVITY": "Organizasyon Etkinliği",
+            "PAST_EVENT": "Geçmiş Etkinlik",
+            "ABOUT": "Bu etkinlik hakkında",
+            "BTN_CANCEL": "İptal",
+            "ASSIGN_DUTY": "Görev Ata",
+            "NO_USERS": "Kullanıcı bulunamadı",
+            "PARTICIPANTS": "Katılımcılar",
+            "NO_STUDENTS": "Uygun öğrenci bulunamadı",
+            "ADMIN_SNAPSHOT": "Yönetici Özeti",
+            "GOING": "Katılıyor",
+            "DECLINE": "Katılmıyor"
+        }
+    },
+    "ROOMS": {
+        "SUBTITLE": "Konum kaynaklarını yönetin ve müsaitliği kontrol edin",
+        "TIME_COL": "Zaman",
+        "CLICK_TO_BOOK": "Rezerve etmek için tıkla",
+        "NO_ROOMS": "Oda bulunamadı",
+        "BOOK_TITLE": "Oda Rezervasyonu",
+        "BOOKING_FOR": "Rezervasyon tarihi",
+        "STARTING_AT": "Başlangıç saati",
+        "LABEL_REASON": "Rezervasyon Nedeni",
+        "BTN_CANCEL": "İptal",
+        "BTN_CONFIRM": "Rezervasyonu Onayla",
+        "LABEL_TITLE": "Başlık",
+        "LABEL_DESC": "Açıklama",
+        "LABEL_CAPACITY": "Kapasite",
+        "OVERNIGHT": "Gecelik konaklamaya izin ver"
+    },
+    "GOAL_TRACKING": {
+        "PENDING_REVIEW": "İnceleme bekliyor",
+        "MARK_DONE": "Yapıldı olarak işaretle",
+        "DONE": "Yapıldı"
+    },
+    "SETTINGS": {
+        "TITLE": "Ayarlar",
+        "SUBTITLE": "Tercihlerinizi ve hesap güvenliğinizi yönetin",
+        "LANGUAGE": {
+            "TITLE": "Dil Tercihi",
+            "DESC": "Uygulama dilini seçin",
+            "LABEL": "Dil"
+        },
+        "THEME": {
+            "TITLE": "Görünüm",
+            "DESC": "Aydınlık veya karanlık tema seçin",
+            "DARK": "Karanlık Mod",
+            "LIGHT": "Aydınlık Mod"
+        },
+        "PASSWORD": {
+            "TITLE": "Şifre Güncelle",
+            "DESC": "Hesap güvenliği için şifrenizi değiştirin",
+            "CURRENT": "Mevcut Şifre",
+            "NEW": "Yeni Şifre",
+            "CONFIRM": "Yeni Şifre (Tekrar)",
+            "BTN_UPDATE": "Şifreyi Güncelle",
+            "SUCCESS": "Şifreniz başarıyla güncellendi",
+            "MATCH_ERROR": "Şifreler eşleşmiyor"
+        }
     }
 }

@@ -11,23 +11,23 @@
     </div>
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">Class Meetings</h1>
-            <p class="subtitle">Synchronize with your class members</p>
+            <h1 class="grad-text">{{ 'MEETINGS.LIST.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'MEETINGS.LIST.SUBTITLE' | translate }}</p>
         </div>
         <div class="header-actions" *ngIf="(user$ | async)?.role === 'MENTOR' || (user$ | async)?.role === 'ADMIN'">
-            <button class="btn btn-primary" routerLink="/meetings/new">+ Schedule New Session</button>
+            <button class="btn btn-primary" routerLink="/meetings/new">{{ 'MEETINGS.LIST.BTN_NEW' | translate }}</button>
         </div>
     </header>
 
     <div class="loader-container" *ngIf="isLoading">
         <div class="spinner large"></div>
-        <p>Gathering the scrolls of meetings...</p>
+        <p>{{ 'MEETINGS.LIST.LOADING' | translate }}</p>
     </div>
 
     <div class="meeting-layout" *ngIf="!isLoading">
         <!-- Upcoming -->
         <section class="meeting-section">
-            <h2 class="section-title">Upcoming Sessions</h2>
+            <h2 class="section-title">{{ 'MEETINGS.LIST.UPCOMING' | translate }}</h2>
             <div class="meeting-grid">
                 <div class="glass-card meeting-card upcoming" *ngFor="let meeting of upcomingMeetings">
                     <div class="card-glow"></div>
@@ -65,7 +65,7 @@
                                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                     <circle cx="12" cy="10" r="3"></circle>
                                 </svg>
-                                {{ meeting.location || 'Outside / External' }}
+                                {{ meeting.location || ('MEETINGS.LIST.LOCATION_EXTERNAL' | translate) }}
                             </div>
                         </div>
                     </div>
@@ -99,15 +99,15 @@
 
                 <div class="empty-state glass" *ngIf="upcomingMeetings.length === 0">
                     <div class="icon">📅</div>
-                    <h3>No Sessions Scheduled</h3>
-                    <p>No upcoming meetings are currently scheduled.</p>
+                    <h3>{{ 'MEETINGS.LIST.EMPTY_UPCOMING' | translate }}</h3>
+                    <p>{{ 'MEETINGS.LIST.EMPTY_UPCOMING_MSG' | translate }}</p>
                 </div>
             </div>
         </section>
 
         <!-- Past (Archive) -->
         <section class="meeting-section past-sessions">
-            <h2 class="section-title">Archive</h2>
+            <h2 class="section-title">{{ 'MEETINGS.LIST.ARCHIVE' | translate }}</h2>
             <div class="meeting-list">
                 <div class="glass-card past-card" *ngFor="let meeting of pastMeetings">
                     <div class="past-info">
@@ -139,7 +139,7 @@
                 </div>
 
                 <div class="empty-state-small" *ngIf="pastMeetings.length === 0">
-                    <p>No past sessions yet.</p>
+                <p>{{ 'MEETINGS.LIST.EMPTY_PAST' | translate }}</p>
                 </div>
             </div>
         </section>

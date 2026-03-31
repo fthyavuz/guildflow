@@ -25,6 +25,19 @@ export interface HomeworkSummary {
     overallProgress: number;
 }
 
+export interface TaskProgress {
+    taskId: number;
+    title: string;
+    taskType: 'NUMBER' | 'CHECKBOX';
+    currentValue: number;
+    targetValue: number;
+    progressPercentage: number;
+}
+
+export interface GoalProgress extends HomeworkSummary {
+    tasks: TaskProgress[];
+}
+
 // ── Day entry (student data entry) ────────────────────────────────────────
 
 export interface DayEntry {

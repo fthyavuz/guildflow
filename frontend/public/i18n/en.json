@@ -45,7 +45,8 @@
         "HOMEWORK_APPROVAL": "Homework Approval",
         "STUDENT_REPORTS": "Student Reports",
         "MY_REPORT": "My Report",
-        "CHILD_REPORTS": "My Children's Reports"
+        "CHILD_REPORTS": "My Children's Reports",
+        "SETTINGS": "Settings"
     },
     "USERS": {
         "TITLE": "User Management",
@@ -79,7 +80,7 @@
         "BTN_STUDENTS_PARENTS": "Students & Parents"
     },
     "DASHBOARD": {
-        "WELCOME_TITLE": "Welcome, Master",
+        "WELCOME_TITLE": "Welcome",
         "CREATE_GUILD": "+ Create Class",
         "GOAL_LIBRARY_BTN": "Homework Library",
         "STATS": {
@@ -94,7 +95,8 @@
             "ALL_GUILDS": "All Classes",
             "MY_GUILDS": "Classes",
             "RECENT_SESSIONS": "Recent Sessions",
-            "UPCOMING_EVENTS": "Guild Activities"
+            "UPCOMING_EVENTS": "Guild Activities",
+            "NEXT_MEETINGS": "Next Meetings"
         },
         "QUEST": {
             "TAG": "Homework",
@@ -103,7 +105,15 @@
         },
         "EMPTY": {
             "NO_QUESTS": "No active homework found. Check back later!",
-            "NO_SESSIONS": "No upcoming sessions scheduled."
+            "NO_SESSIONS": "No upcoming sessions scheduled.",
+            "NO_EVENTS": "No upcoming organization events."
+        },
+        "HERO": {
+            "NEXT_MEETING_LABEL": "NEXT PLANNED MEETING",
+            "VIEW_SCHEDULE": "View Schedule"
+        },
+        "CLASS": {
+            "MENTOR_LABEL": "Mentor"
         }
     },
     "FAMILY": {
@@ -272,5 +282,180 @@
         "CHART_6M": "6M",
         "CHART_1Y": "1Y",
         "CHART_ALL": "All"
+    },
+    "MEETINGS": {
+        "LIST": {
+            "TITLE": "Class Meetings",
+            "SUBTITLE": "Synchronize with your class members",
+            "BTN_NEW": "+ Schedule New Session",
+            "LOADING": "Gathering the scrolls of meetings...",
+            "UPCOMING": "Upcoming Sessions",
+            "ARCHIVE": "Archive",
+            "EMPTY_UPCOMING": "No Sessions Scheduled",
+            "EMPTY_UPCOMING_MSG": "No upcoming meetings are currently scheduled.",
+            "EMPTY_PAST": "No past sessions yet.",
+            "LOCATION_EXTERNAL": "Outside / External"
+        },
+        "FORM": {
+            "TITLE_NEW": "Schedule Class Meeting",
+            "TITLE_EDIT": "Edit Meeting",
+            "SUBTITLE_NEW": "Prepare the grounds for knowledge sharing",
+            "SUBTITLE_EDIT": "Update the session details",
+            "LABEL_CLASS": "Class",
+            "SELECT_CLASS": "Select a Class",
+            "LABEL_INSTRUCTOR": "Instructor",
+            "SELECT_CLASS_FIRST": "Select a class first",
+            "LABEL_TITLE": "Session Title",
+            "LABEL_DESC": "Description (Optional)",
+            "LABEL_START": "Start Time",
+            "LABEL_END": "End Time",
+            "LABEL_ROOM": "Room (Optional)",
+            "ROOM_NONE": "— Outside / No room needed —",
+            "ROOM_HINT": "Session will take place outside or at an external location.",
+            "LABEL_LOCATION": "Location / Link (Optional)",
+            "ROOM_CONFLICT_HINT": "Room availability is checked on save. If the slot is taken, you will be notified.",
+            "RECURRING": "Weekly Recurrence (Auto-schedule for 13 weeks)",
+            "RECURRING_HINT": "Room will be reserved for all 13 occurrences. Any conflict in the series will block the save.",
+            "BTN_CANCEL": "Cancel",
+            "BTN_SAVE": "Schedule Meeting",
+            "BTN_UPDATE": "Update Meeting",
+            "BTN_SAVING": "Saving..."
+        },
+        "DETAIL": {
+            "PAST": "Past",
+            "UPCOMING": "Upcoming",
+            "BTN_EDIT": "Edit Meeting",
+            "ATTENDANCE": "Attendance",
+            "EDITING_EXPIRED": "Editing period expired",
+            "MARK_ALL_PRESENT": "Present",
+            "MARK_ALL_ABSENT": "Absent",
+            "MARK_ALL_LATE": "Late",
+            "MARK_ALL_EXCUSED": "Excused"
+        }
+    },
+    "CLASSES": {
+        "LIST": {
+            "TITLE": "My Classes",
+            "SUBTITLE": "Direct your students toward mastery",
+            "ALL_LEVELS": "All Levels",
+            "ALL_INSTRUCTORS": "All Instructors",
+            "NO_INSTRUCTOR": "No instructor assigned",
+            "BTN_CLEAR_FILTERS": "Clear Filters"
+        },
+        "FORM": {
+            "LABEL_NAME": "Guild Name",
+            "LABEL_LEVEL": "Education Level",
+            "SELECT_LEVEL": "Select Level"
+        },
+        "DETAIL": {
+            "BTN_SCHEDULE": "Schedule Session",
+            "TOTAL_STUDENTS": "Total Students",
+            "STATUS": "Status",
+            "STATUS_ACTIVE": "ACTIVE",
+            "ROSTER_TITLE": "Class Roster",
+            "MASTERY": "Mastery",
+            "NO_STUDENTS_TITLE": "No Students Enrolled",
+            "HOMEWORK_TITLE": "Homework Assignments",
+            "HOMEWORK_SUBTITLE": "Templates assigned to this class",
+            "ASSIGN_HW_TITLE": "Assign Homework to Class",
+            "LABEL_FREQUENCY": "Frequency",
+            "FREQ_NONE": "No frequency",
+            "FREQ_DAILY": "Daily",
+            "FREQ_WEEKLY": "Weekly",
+            "LABEL_START_DATE": "Start Date",
+            "LABEL_END_DATE": "End Date",
+            "APPLY_ALL": "Apply to all students",
+            "BTN_CANCEL": "Cancel",
+            "NO_ASSIGNMENTS": "No Assignments Yet",
+            "PREVIEW_LABEL": "Student Preview",
+            "PREVIEW_SUBMIT": "Submit",
+            "ENTRY_SUMMARY": "Entry Summary",
+            "TOTAL_ENTERED": "Total entered",
+            "TASKS_COMPLETED": "Tasks completed",
+            "ALL_TASKS": "All tasks",
+            "DONE": "Done",
+            "MARK_DONE": "Mark done"
+        }
+    },
+    "STUDENT_PROFILE": {
+        "BTN_DOWNLOAD": "Download Report",
+        "BTN_EVALUATE": "Submit Evaluation",
+        "GOALS_ASSIGNED": "Goals Assigned",
+        "EVALUATIONS": "Evaluations",
+        "PATH_TO_MASTERY": "Path to Mastery",
+        "CURRENT_GOALS": "Current Goals"
+    },
+    "EVENTS": {
+        "LIST": {
+            "TITLE": "Organization Events",
+            "OPEN_EVENT": "Open Event",
+            "NO_EVENTS": "No Events Found"
+        },
+        "FORM": {
+            "LABEL_TITLE": "Event Title",
+            "LABEL_DESC": "Event Description",
+            "INVITE_CLASSES": "Invite Classes"
+        },
+        "DETAIL": {
+            "BTN_EDIT": "Edit Event",
+            "BTN_DELETE": "Delete",
+            "ORG_ACTIVITY": "Organization Activity",
+            "PAST_EVENT": "Past Event",
+            "ABOUT": "About this event",
+            "BTN_CANCEL": "Cancel",
+            "ASSIGN_DUTY": "Assign a Duty",
+            "NO_USERS": "No users found",
+            "PARTICIPANTS": "Participants",
+            "NO_STUDENTS": "No eligible students found",
+            "ADMIN_SNAPSHOT": "Admin Snapshot",
+            "GOING": "Going",
+            "DECLINE": "Decline"
+        }
+    },
+    "ROOMS": {
+        "SUBTITLE": "Manage location resources and check availability",
+        "TIME_COL": "Time",
+        "CLICK_TO_BOOK": "Click to book",
+        "NO_ROOMS": "No rooms found",
+        "BOOK_TITLE": "Book Room",
+        "BOOKING_FOR": "Booking for",
+        "STARTING_AT": "Starting at",
+        "LABEL_REASON": "Reason for Booking",
+        "BTN_CANCEL": "Cancel",
+        "BTN_CONFIRM": "Confirm Booking",
+        "LABEL_TITLE": "Title",
+        "LABEL_DESC": "Description",
+        "LABEL_CAPACITY": "Capacity",
+        "OVERNIGHT": "Allow overnight stays"
+    },
+    "GOAL_TRACKING": {
+        "PENDING_REVIEW": "Pending review",
+        "MARK_DONE": "Mark done",
+        "DONE": "Done"
+    },
+    "SETTINGS": {
+        "TITLE": "Settings",
+        "SUBTITLE": "Manage your preferences and account security",
+        "LANGUAGE": {
+            "TITLE": "Language Preference",
+            "DESC": "Choose your preferred application language",
+            "LABEL": "Language"
+        },
+        "THEME": {
+            "TITLE": "Appearance",
+            "DESC": "Choose between light and dark theme",
+            "DARK": "Dark Mode",
+            "LIGHT": "Light Mode"
+        },
+        "PASSWORD": {
+            "TITLE": "Update Password",
+            "DESC": "Change your password for better security",
+            "CURRENT": "Current Password",
+            "NEW": "New Password",
+            "CONFIRM": "Confirm New Password",
+            "BTN_UPDATE": "Update Password",
+            "SUCCESS": "Your password has been updated successfully",
+            "MATCH_ERROR": "Passwords do not match"
+        }
     }
 }

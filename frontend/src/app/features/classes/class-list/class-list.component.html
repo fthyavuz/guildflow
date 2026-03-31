@@ -11,8 +11,8 @@
     </div>
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">My Classes</h1>
-            <p class="subtitle">Direct your students toward mastery</p>
+            <h1 class="grad-text">{{ 'CLASSES.LIST.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'CLASSES.LIST.SUBTITLE' | translate }}</p>
         </div>
         <div class="header-actions" *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
             <button class="btn btn-primary" routerLink="/classes/new">+ Create New Class</button>
@@ -35,12 +35,12 @@
         </div>
 
         <select class="glass-input filter-select" [(ngModel)]="selectedLevel" (ngModelChange)="applyFilters()">
-            <option value="">All Levels</option>
+            <option value="">{{ 'CLASSES.LIST.ALL_LEVELS' | translate }}</option>
             <option *ngFor="let lvl of educationLevels" [value]="lvl">{{ lvl }}</option>
         </select>
 
         <select class="glass-input filter-select" [(ngModel)]="selectedInstructor" (ngModelChange)="applyFilters()">
-            <option value="">All Instructors</option>
+            <option value="">{{ 'CLASSES.LIST.ALL_INSTRUCTORS' | translate }}</option>
             <option *ngFor="let ins of instructors" [value]="ins">{{ ins }}</option>
         </select>
 
@@ -84,7 +84,7 @@
                         Instructor: {{ cls.mentorName }}
                     </span>
                     <ng-template #noInstructor>
-                        <span class="instructor unassigned">No instructor assigned</span>
+                        <span class="instructor unassigned">{{ 'CLASSES.LIST.NO_INSTRUCTOR' | translate }}</span>
                     </ng-template>
                 </div>
                 <div class="footer-actions">
@@ -115,7 +115,7 @@
             <div class="icon">📜</div>
             <h3>{{ hasActiveFilters ? 'No Matches Found' : 'No Classes Found' }}</h3>
             <p>{{ hasActiveFilters ? 'Try adjusting your filters.' : 'Ready to lead? Start by creating your first class!' }}</p>
-            <button class="btn btn-outline" *ngIf="hasActiveFilters" (click)="clearFilters()">Clear Filters</button>
+            <button class="btn btn-outline" *ngIf="hasActiveFilters" (click)="clearFilters()">{{ 'CLASSES.LIST.BTN_CLEAR_FILTERS' | translate }}</button>
         </div>
     </div>
 

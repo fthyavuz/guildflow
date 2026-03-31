@@ -90,7 +90,7 @@ export class GoalTrackingComponent implements OnInit {
                 entry.submitting = false;
                 this.notifications.success('Progress submitted — awaiting mentor approval');
             },
-            error: (err) => {
+            error: (err: any) => {
                 entry.submitting = false;
                 this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to submit'));
             }

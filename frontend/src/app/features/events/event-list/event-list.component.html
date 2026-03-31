@@ -12,7 +12,7 @@
 
     <header class="page-header">
         <div class="header-content">
-            <h1 class="grad-text">Organization Events</h1>
+            <h1 class="grad-text">{{ 'EVENTS.LIST.TITLE' | translate }}</h1>
             <p class="subtitle">Join upcoming guild activities, from chess tournaments to boat tours</p>
         </div>
         <div class="header-actions" *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
@@ -51,7 +51,7 @@
                 <div class="card-top">
                     <!-- Class badges -->
                     <div class="class-badges">
-                        <span class="level-badge" *ngIf="event.targetClassNames.length === 0">Open Event</span>
+                        <span class="level-badge" *ngIf="event.targetClassNames.length === 0">{{ 'EVENTS.LIST.OPEN_EVENT' | translate }}</span>
                         <span class="level-badge class-badge" *ngFor="let name of event.targetClassNames">{{ name }}</span>
                     </div>
                     <div class="student-count">
@@ -103,7 +103,7 @@
             <!-- Empty State -->
             <div class="empty-state glass" *ngIf="events.length === 0">
                 <div class="icon">📅</div>
-                <h3>No Events Found</h3>
+                <h3>{{ 'EVENTS.LIST.NO_EVENTS' | translate }}</h3>
                 <p>Try adjusting the filters or check back later.</p>
             </div>
         </div>

@@ -11,8 +11,8 @@
     </div>
 
     <div class="form-hero">
-        <h1 class="grad-text">{{ isEditMode ? 'Edit Meeting' : 'Schedule Class Meeting' }}</h1>
-        <p>{{ isEditMode ? 'Update the session details' : 'Prepare the grounds for knowledge sharing' }}</p>
+        <h1 class="grad-text">{{ isEditMode ? ('MEETINGS.FORM.TITLE_EDIT' | translate) : ('MEETINGS.FORM.TITLE_NEW' | translate) }}</h1>
+        <p>{{ isEditMode ? ('MEETINGS.FORM.SUBTITLE_EDIT' | translate) : ('MEETINGS.FORM.SUBTITLE_NEW' | translate) }}</p>
     </div>
 
     <div class="loader-container" *ngIf="isLoading">
@@ -26,35 +26,35 @@
             <div class="form-section">
                 <div class="form-row">
                     <div class="input-group">
-                        <label for="classId">Class</label>
+                        <label for="classId">{{ 'MEETINGS.FORM.LABEL_CLASS' | translate }}</label>
                         <select id="classId" formControlName="classId" class="glass-input">
-                            <option value="" disabled>Select a Class</option>
+                            <option value="" disabled>{{ 'MEETINGS.FORM.SELECT_CLASS' | translate }}</option>
                             <option *ngFor="let cls of classes" [value]="cls.id">
                                 {{ cls.name }} ({{ cls.educationLevel }})
                             </option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Instructor</label>
+                        <label>{{ 'MEETINGS.FORM.LABEL_INSTRUCTOR' | translate }}</label>
                         <div class="mentor-display glass-input">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                             <span *ngIf="selectedClassMentor; else noMentor">{{ selectedClassMentor }}</span>
-                            <ng-template #noMentor><span class="muted">Select a class first</span></ng-template>
+                            <ng-template #noMentor><span class="muted">{{ 'MEETINGS.FORM.SELECT_CLASS_FIRST' | translate }}</span></ng-template>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-group">
-                    <label for="title">Session Title</label>
+                    <label for="title">{{ 'MEETINGS.FORM.LABEL_TITLE' | translate }}</label>
                     <input id="title" type="text" formControlName="title" placeholder="e.g. Advanced Algebra Workshop"
                         class="glass-input">
                 </div>
 
                 <div class="input-group">
-                    <label for="description">Description (Optional)</label>
+                    <label for="description">{{ 'MEETINGS.FORM.LABEL_DESC' | translate }}</label>
                     <textarea id="description" formControlName="description" rows="3"
                         placeholder="What will be discussed?" class="glass-input"></textarea>
                 </div>
@@ -63,11 +63,11 @@
             <!-- Time -->
             <div class="form-row">
                 <div class="input-group">
-                    <label for="startTime">Start Time</label>
+                    <label for="startTime">{{ 'MEETINGS.FORM.LABEL_START' | translate }}</label>
                     <input id="startTime" type="datetime-local" formControlName="startTime" class="glass-input">
                 </div>
                 <div class="input-group">
-                    <label for="endTime">End Time</label>
+                    <label for="endTime">{{ 'MEETINGS.FORM.LABEL_END' | translate }}</label>
                     <input id="endTime" type="datetime-local" formControlName="endTime" class="glass-input">
                 </div>
             </div>
@@ -76,19 +76,19 @@
             <div class="form-section">
                 <div class="form-row">
                     <div class="input-group">
-                        <label for="roomId">Room (Optional)</label>
+                        <label for="roomId">{{ 'MEETINGS.FORM.LABEL_ROOM' | translate }}</label>
                         <select id="roomId" formControlName="roomId" class="glass-input">
-                            <option [ngValue]="null">— Outside / No room needed —</option>
+                            <option [ngValue]="null">{{ 'MEETINGS.FORM.ROOM_NONE' | translate }}</option>
                             <option *ngFor="let room of rooms" [ngValue]="room.id">
                                 {{ room.title }} (cap. {{ room.capacity }})
                             </option>
                         </select>
                         <span class="field-hint" *ngIf="!meetingForm.get('roomId')?.value">
-                            Session will take place outside or at an external location.
+                            {{ 'MEETINGS.FORM.ROOM_HINT' | translate }}
                         </span>
                     </div>
                     <div class="input-group">
-                        <label for="location">Location / Link (Optional)</label>
+                        <label for="location">{{ 'MEETINGS.FORM.LABEL_LOCATION' | translate }}</label>
                         <input id="location" type="text" formControlName="location"
                             placeholder="Zoom link, address, room number..." class="glass-input">
                     </div>
@@ -101,25 +101,25 @@
                         <line x1="12" y1="8" x2="12" y2="12"></line>
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
-                    Room availability is checked on save. If the slot is taken, you will be notified.
+                    {{ 'MEETINGS.FORM.ROOM_CONFLICT_HINT' | translate }}
                 </div>
 
                 <div class="checkbox-group" *ngIf="!isEditMode">
                     <label class="toggle-container">
                         <input type="checkbox" formControlName="recurring">
                         <span class="checkmark"></span>
-                        Weekly Recurrence (Auto-schedule for 13 weeks)
+                        {{ 'MEETINGS.FORM.RECURRING' | translate }}
                     </label>
                     <span class="field-hint" *ngIf="meetingForm.get('recurring')?.value && meetingForm.get('roomId')?.value">
-                        Room will be reserved for all 13 occurrences. Any conflict in the series will block the save.
+                        {{ 'MEETINGS.FORM.RECURRING_HINT' | translate }}
                     </span>
                 </div>
             </div>
 
             <div class="form-footer">
-                <a routerLink="/meetings" class="btn btn-secondary">Cancel</a>
+                <a routerLink="/meetings" class="btn btn-secondary">{{ 'MEETINGS.FORM.BTN_CANCEL' | translate }}</a>
                 <button type="submit" class="btn btn-primary" [disabled]="meetingForm.invalid || isSubmitting">
-                    {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Meeting' : 'Schedule Meeting') }}
+                    {{ isSubmitting ? ('MEETINGS.FORM.BTN_SAVING' | translate) : (isEditMode ? ('MEETINGS.FORM.BTN_UPDATE' | translate) : ('MEETINGS.FORM.BTN_SAVE' | translate)) }}
                 </button>
             </div>
         </form>

@@ -45,7 +45,8 @@
         "HOMEWORK_APPROVAL": "Hausaufgaben-Genehmigung",
         "STUDENT_REPORTS": "Schülerberichte",
         "MY_REPORT": "Mein Bericht",
-        "CHILD_REPORTS": "Berichte meiner Kinder"
+        "CHILD_REPORTS": "Berichte meiner Kinder",
+        "SETTINGS": "Einstellungen"
     },
     "USERS": {
         "TITLE": "Benutzerverwaltung",
@@ -79,7 +80,7 @@
         "BTN_STUDENTS_PARENTS": "Schüler & Eltern"
     },
     "DASHBOARD": {
-        "WELCOME_TITLE": "Willkommen, Meister",
+        "WELCOME_TITLE": "Willkommen",
         "CREATE_GUILD": "+ Klasse erstellen",
         "GOAL_LIBRARY_BTN": "Hausaufgaben-Bibliothek",
         "STATS": {
@@ -94,7 +95,8 @@
             "ALL_GUILDS": "Alle Klassen",
             "MY_GUILDS": "Klassen",
             "RECENT_SESSIONS": "Letzte Sitzungen",
-            "UPCOMING_EVENTS": "Gildenaktivitäten"
+            "UPCOMING_EVENTS": "Gildenaktivitäten",
+            "NEXT_MEETINGS": "Nächste Besprechungen"
         },
         "QUEST": {
             "TAG": "Hausaufgabe",
@@ -103,7 +105,15 @@
         },
         "EMPTY": {
             "NO_QUESTS": "Keine aktiven Hausaufgaben gefunden. Später erneut nachsehen!",
-            "NO_SESSIONS": "Keine bevorstehenden Sitzungen geplant."
+            "NO_SESSIONS": "Keine bevorstehenden Sitzungen geplant.",
+            "NO_EVENTS": "Keine bevorstehenden Organisationsveranstaltungen."
+        },
+        "HERO": {
+            "NEXT_MEETING_LABEL": "NÄCHSTE GEPLANTE BESPRECHUNG",
+            "VIEW_SCHEDULE": "Zeitplan anzeigen"
+        },
+        "CLASS": {
+            "MENTOR_LABEL": "Mentor"
         }
     },
     "FAMILY": {
@@ -263,5 +273,180 @@
         "CHART_6M": "6M",
         "CHART_1Y": "1J",
         "CHART_ALL": "Alle"
+    },
+    "MEETINGS": {
+        "LIST": {
+            "TITLE": "Klassensitzungen",
+            "SUBTITLE": "Synchronisieren Sie sich mit Ihren Klassenmitgliedern",
+            "BTN_NEW": "+ Neue Sitzung planen",
+            "LOADING": "Besprechungsunterlagen werden abgerufen...",
+            "UPCOMING": "Bevorstehende Sitzungen",
+            "ARCHIVE": "Archiv",
+            "EMPTY_UPCOMING": "Keine geplante Sitzungen",
+            "EMPTY_UPCOMING_MSG": "Derzeit sind keine bevorstehenden Besprechungen geplant.",
+            "EMPTY_PAST": "Noch keine vergangenen Sitzungen.",
+            "LOCATION_EXTERNAL": "Außen / Extern"
+        },
+        "FORM": {
+            "TITLE_NEW": "Klassensitzung planen",
+            "TITLE_EDIT": "Besprechung bearbeiten",
+            "SUBTITLE_NEW": "Bereiten Sie den Boden für den Wissensaustausch vor",
+            "SUBTITLE_EDIT": "Sitzungsdetails aktualisieren",
+            "LABEL_CLASS": "Klasse",
+            "SELECT_CLASS": "Eine Klasse auswählen",
+            "LABEL_INSTRUCTOR": "Kursleiter",
+            "SELECT_CLASS_FIRST": "Zuerst eine Klasse auswählen",
+            "LABEL_TITLE": "Sitzungstitel",
+            "LABEL_DESC": "Beschreibung (Optional)",
+            "LABEL_START": "Startzeit",
+            "LABEL_END": "Endzeit",
+            "LABEL_ROOM": "Raum (Optional)",
+            "ROOM_NONE": "— Außen / Kein Raum erforderlich —",
+            "ROOM_HINT": "Die Sitzung findet draußen oder an einem externen Ort statt.",
+            "LABEL_LOCATION": "Ort / Link (Optional)",
+            "ROOM_CONFLICT_HINT": "Die Verfügbarkeit des Raumes wird beim Speichern überprüft. Bei Belegung werden Sie benachrichtigt.",
+            "RECURRING": "Wöchentliche Wiederholung (13 Wochen automatisch planen)",
+            "RECURRING_HINT": "Der Raum wird für alle 13 Termine reserviert. Jeder Konflikt in der Serie blockiert das Speichern.",
+            "BTN_CANCEL": "Abbrechen",
+            "BTN_SAVE": "Sitzung planen",
+            "BTN_UPDATE": "Besprechung aktualisieren",
+            "BTN_SAVING": "Wird gespeichert..."
+        },
+        "DETAIL": {
+            "PAST": "Vergangen",
+            "UPCOMING": "Bevorstehend",
+            "BTN_EDIT": "Besprechung bearbeiten",
+            "ATTENDANCE": "Anwesenheit",
+            "EDITING_EXPIRED": "Bearbeitungszeitraum abgelaufen",
+            "MARK_ALL_PRESENT": "Anwesend",
+            "MARK_ALL_ABSENT": "Abwesend",
+            "MARK_ALL_LATE": "Zu spät",
+            "MARK_ALL_EXCUSED": "Entschuldigt"
+        }
+    },
+    "CLASSES": {
+        "LIST": {
+            "TITLE": "Meine Klassen",
+            "SUBTITLE": "Führen Sie Ihre Schüler zur Meisterschaft",
+            "ALL_LEVELS": "Alle Niveaus",
+            "ALL_INSTRUCTORS": "Alle Kursleiter",
+            "NO_INSTRUCTOR": "Kein Kursleiter zugewiesen",
+            "BTN_CLEAR_FILTERS": "Filter löschen"
+        },
+        "FORM": {
+            "LABEL_NAME": "Gildenname",
+            "LABEL_LEVEL": "Bildungsniveau",
+            "SELECT_LEVEL": "Niveau auswählen"
+        },
+        "DETAIL": {
+            "BTN_SCHEDULE": "Sitzung planen",
+            "TOTAL_STUDENTS": "Gesamte Schüler",
+            "STATUS": "Status",
+            "STATUS_ACTIVE": "AKTIV",
+            "ROSTER_TITLE": "Klassenliste",
+            "MASTERY": "Meisterschaft",
+            "NO_STUDENTS_TITLE": "Keine eingeschriebenen Schüler",
+            "HOMEWORK_TITLE": "Hausaufgabenzuweisungen",
+            "HOMEWORK_SUBTITLE": "Dieser Klasse zugewiesene Vorlagen",
+            "ASSIGN_HW_TITLE": "Hausaufgabe der Klasse zuweisen",
+            "LABEL_FREQUENCY": "Häufigkeit",
+            "FREQ_NONE": "Keine Häufigkeit",
+            "FREQ_DAILY": "Täglich",
+            "FREQ_WEEKLY": "Wöchentlich",
+            "LABEL_START_DATE": "Startdatum",
+            "LABEL_END_DATE": "Enddatum",
+            "APPLY_ALL": "Auf alle Schüler anwenden",
+            "BTN_CANCEL": "Abbrechen",
+            "NO_ASSIGNMENTS": "Noch keine Zuweisungen",
+            "PREVIEW_LABEL": "Schülervorschau",
+            "PREVIEW_SUBMIT": "Einreichen",
+            "ENTRY_SUMMARY": "Eingabeübersicht",
+            "TOTAL_ENTERED": "Insgesamt eingegeben",
+            "TASKS_COMPLETED": "Aufgaben abgeschlossen",
+            "ALL_TASKS": "Alle Aufgaben",
+            "DONE": "Erledigt",
+            "MARK_DONE": "Als erledigt markieren"
+        }
+    },
+    "STUDENT_PROFILE": {
+        "BTN_DOWNLOAD": "Bericht herunterladen",
+        "BTN_EVALUATE": "Bewertung einreichen",
+        "GOALS_ASSIGNED": "Zugewiesene Ziele",
+        "EVALUATIONS": "Bewertungen",
+        "PATH_TO_MASTERY": "Weg zur Meisterschaft",
+        "CURRENT_GOALS": "Aktuelle Ziele"
+    },
+    "EVENTS": {
+        "LIST": {
+            "TITLE": "Organisationsveranstaltungen",
+            "OPEN_EVENT": "Offene Veranstaltung",
+            "NO_EVENTS": "Keine Veranstaltungen gefunden"
+        },
+        "FORM": {
+            "LABEL_TITLE": "Veranstaltungstitel",
+            "LABEL_DESC": "Veranstaltungsbeschreibung",
+            "INVITE_CLASSES": "Klassen einladen"
+        },
+        "DETAIL": {
+            "BTN_EDIT": "Veranstaltung bearbeiten",
+            "BTN_DELETE": "Löschen",
+            "ORG_ACTIVITY": "Organisationsaktivität",
+            "PAST_EVENT": "Vergangene Veranstaltung",
+            "ABOUT": "Über diese Veranstaltung",
+            "BTN_CANCEL": "Abbrechen",
+            "ASSIGN_DUTY": "Aufgabe zuweisen",
+            "NO_USERS": "Keine Benutzer gefunden",
+            "PARTICIPANTS": "Teilnehmer",
+            "NO_STUDENTS": "Keine berechtigten Schüler gefunden",
+            "ADMIN_SNAPSHOT": "Admin-Übersicht",
+            "GOING": "Kommt",
+            "DECLINE": "Kommt nicht"
+        }
+    },
+    "ROOMS": {
+        "SUBTITLE": "Verwalten Sie Raumressourcen und überprüfen Sie die Verfügbarkeit",
+        "TIME_COL": "Zeit",
+        "CLICK_TO_BOOK": "Zum Buchen klicken",
+        "NO_ROOMS": "Keine Räume gefunden",
+        "BOOK_TITLE": "Raum buchen",
+        "BOOKING_FOR": "Buchung für",
+        "STARTING_AT": "Beginn um",
+        "LABEL_REASON": "Buchungsgrund",
+        "BTN_CANCEL": "Abbrechen",
+        "BTN_CONFIRM": "Buchung bestätigen",
+        "LABEL_TITLE": "Titel",
+        "LABEL_DESC": "Beschreibung",
+        "LABEL_CAPACITY": "Kapazität",
+        "OVERNIGHT": "Übernachtungen erlauben"
+    },
+    "GOAL_TRACKING": {
+        "PENDING_REVIEW": "Warten auf Überprüfung",
+        "MARK_DONE": "Als erledigt markieren",
+        "DONE": "Erledigt"
+    },
+    "SETTINGS": {
+        "TITLE": "Einstellungen",
+        "SUBTITLE": "Verwalten Sie Ihre Einstellungen und Kontosicherheit",
+        "LANGUAGE": {
+            "TITLE": "Spracheinstellung",
+            "DESC": "Wählen Sie Ihre bevorzugte Anwendungssprache",
+            "LABEL": "Sprache"
+        },
+        "THEME": {
+            "TITLE": "Erscheinungsbild",
+            "DESC": "Wählen Sie zwischen hellem und dunklem Thema",
+            "DARK": "Dunkelmodus",
+            "LIGHT": "Heller Modus"
+        },
+        "PASSWORD": {
+            "TITLE": "Passwort aktualisieren",
+            "DESC": "Ändern Sie Ihr Passwort für mehr Sicherheit",
+            "CURRENT": "Aktuelles Passwort",
+            "NEW": "Neues Passwort",
+            "CONFIRM": "Neues Passwort bestätigen",
+            "BTN_UPDATE": "Passwort aktualisieren",
+            "SUCCESS": "Ihr Passwort wurde erfolgreich aktualisiert",
+            "MATCH_ERROR": "Passwörter stimmen nicht überein"
+        }
     }
 }

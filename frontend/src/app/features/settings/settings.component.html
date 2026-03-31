@@ -1,0 +1,95 @@
+<div class="page-container fade-in">
+    <header class="page-header">
+        <div class="header-content">
+            <h1 class="grad-text">{{ 'SETTINGS.TITLE' | translate }}</h1>
+            <p class="subtitle">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
+        </div>
+    </header>
+
+    <div class="settings-grid">
+        <!-- Language Preferences -->
+        <div class="glass-card settings-card">
+            <div class="card-top">
+                <h3>{{ 'SETTINGS.LANGUAGE.TITLE' | translate }}</h3>
+            </div>
+            <div class="card-content">
+                <p class="setting-desc">{{ 'SETTINGS.LANGUAGE.DESC' | translate }}</p>
+                <div class="lang-options">
+                    <button *ngFor="let lang of languageService.supportedLanguages" class="lang-option-btn"
+                        [class.active]="languageService.currentLanguage() === lang.code"
+                        (click)="setLanguage(lang.code)">
+                        <span class="flag">{{ lang.flag }}</span>
+                        <span class="name">{{ lang.label }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Preferences -->
+        <div class="glass-card settings-card">
+            <div class="card-top">
+                <h3>{{ 'SETTINGS.THEME.TITLE' | translate }}</h3>
+            </div>
+            <div class="card-content">
+                <p class="setting-desc">{{ 'SETTINGS.THEME.DESC' | translate }}</p>
+                <div class="theme-options">
+                    <button class="theme-option-btn" [class.active]="themeService.currentTheme() === 'light'"
+                        (click)="setTheme('light')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <span>{{ 'SETTINGS.THEME.LIGHT' | translate }}</span>
+                    </button>
+                    <button class="theme-option-btn" [class.active]="themeService.currentTheme() === 'dark'"
+                        (click)="setTheme('dark')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <span>{{ 'SETTINGS.THEME.DARK' | translate }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Update -->
+        <div class="glass-card settings-card password-card">
+            <div class="card-top">
+                <h3>{{ 'SETTINGS.PASSWORD.TITLE' | translate }}</h3>
+            </div>
+            <div class="card-content">
+                <p class="setting-desc">{{ 'SETTINGS.PASSWORD.DESC' | translate }}</p>
+                <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()" class="password-form">
+                    <div class="form-group">
+                        <label>{{ 'SETTINGS.PASSWORD.CURRENT' | translate }}</label>
+                        <input type="password" formControlName="currentPassword" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ 'SETTINGS.PASSWORD.NEW' | translate }}</label>
+                        <input type="password" formControlName="newPassword" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ 'SETTINGS.PASSWORD.CONFIRM' | translate }}</label>
+                        <input type="password" formControlName="confirmPassword" class="form-input">
+                        <div class="form-hint" *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('confirmPassword')?.touched || passwordForm.get('newPassword')?.touched)">
+                            {{ 'SETTINGS.PASSWORD.MATCH_ERROR' | translate }}
+                        </div>
+                    </div>
+                    <div class="form-actions" style="margin-top: 1rem; border: none; padding-top: 0">
+                        <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || isSubmitting">
+                            <span *ngIf="!isSubmitting">{{ 'SETTINGS.PASSWORD.BTN_UPDATE' | translate }}</span>
+                            <span *ngIf="isSubmitting" class="spinner"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

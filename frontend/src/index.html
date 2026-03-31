@@ -8,13 +8,28 @@
   <meta name="description" content="GuildFlow is a premium mentoring platform designed to accelerate student learning and goal tracking.">
   <meta name="keywords" content="mentoring, education, growth, tracking, students, goals">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!-- Early Dynamic Theme Selection (No Flash) -->
+  <script>
+    (function() {
+      let savedTheme = localStorage.getItem('guildflow_theme');
+      if (!savedTheme) {
+        savedTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      }
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      // Also apply to body to ensure full coverage if CSS relies on it
+      document.addEventListener('DOMContentLoaded', () => {
+         document.body.setAttribute('data-theme', savedTheme);
+      });
+    })();
+  </script>
   
   <!-- Premium Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
-<body class="theme-dark">
+<body>
   <app-root></app-root>
 </body>
 </html>

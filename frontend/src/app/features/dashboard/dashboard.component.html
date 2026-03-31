@@ -168,8 +168,16 @@
                     </svg>
                     {{ 'NAV.STUDENT_REPORTS' | translate }}
                 </a>
+                <a routerLink="/settings" routerLinkActive="active" class="nav-item" style="margin-top: auto;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    {{ 'NAV.SETTINGS' | translate }}
+                </a>
             </ng-container>
         </nav>
+
 
         <!-- Theme & Language Switchers -->
         <div class="sidebar-controls">
@@ -240,7 +248,7 @@
                     </svg>
                     {{ 'DASHBOARD.GOAL_LIBRARY_BTN' | translate }}
                 </button>
-                <button class="btn btn-primary" routerLink="/classes/new" *ngIf="user.role === 'ADMIN'">Create Class</button>
+                <button class="btn btn-primary" routerLink="/classes/new" *ngIf="user.role === 'ADMIN'">{{ 'DASHBOARD.CREATE_GUILD' | translate }}</button>
             </div>
         </header>
 
@@ -360,7 +368,7 @@
                     <!-- ADMIN: Next Planned Meeting Hero -->
                     <div class="next-meeting-hero glass-card"
                         *ngIf="user.role === 'ADMIN' && data.meetings && data.meetings.length > 0">
-                        <div class="hero-label">NEXT PLANNED MEETING</div>
+                        <div class="hero-label">{{ 'DASHBOARD.HERO.NEXT_MEETING_LABEL' | translate }}</div>
                         <div class="hero-content">
                             <div class="meeting-big-time">
                                 <span class="time">{{ data.meetings[0].startTime | date:'HH:mm' }}</span>
@@ -368,10 +376,9 @@
                             </div>
                             <div class="meeting-big-info">
                                 <h2>{{ data.meetings[0].title }}</h2>
-                                <p>{{ data.meetings[0].className }} • {{ data.meetings[0].location || 'Virtual Session'
-                                    }}</p>
+                                <p>{{ data.meetings[0].className }} • {{ data.meetings[0].location || ('COMMON.VIRTUAL' | translate) }}</p>
                             </div>
-                            <button class="btn btn-primary" routerLink="/meetings">View Schedule</button>
+                            <button class="btn btn-primary" routerLink="/meetings">{{ 'DASHBOARD.HERO.VIEW_SCHEDULE' | translate }}</button>
                         </div>
                     </div>
 
@@ -389,7 +396,7 @@
                                 <div class="cls-info">
                                     <span class="level">{{ cls.educationLevel }}</span>
                                     <h4>{{ cls.name }}</h4>
-                                    <p class="mentor-name">Mentor: {{ cls.mentorName }}</p>
+                                    <p class="mentor-name">{{ 'DASHBOARD.CLASS.MENTOR_LABEL' | translate }}: {{ cls.mentorName }}</p>
                                 </div>
                                 <div class="cls-action">
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
@@ -416,7 +423,7 @@
                                     <div class="quest-meta">
                                         <span>{{ goal.taskCount }} {{ 'DASHBOARD.QUEST.TASKS' | translate }}</span>
                                         <span class="sep">•</span>
-                                        <span class="perc">{{ goal.overallProgress | number:'1.0-0' }}% Mastery</span>
+                                        <span class="perc">{{ goal.overallProgress | number:'1.0-0' }}% {{ 'DASHBOARD.QUEST.MASTERY' | translate }}</span>
                                     </div>
                                 </div>
                                 <div class="quest-pb">
@@ -452,8 +459,7 @@
                     </div>
 
                     <div class="glass-card session-section">
-                        <h3>{{ (user.role === 'ADMIN' ? 'Next Meetings' : 'DASHBOARD.SECTIONS.RECENT_SESSIONS') |
-                            translate }}</h3>
+                        <h3>{{ (user.role === 'ADMIN' ? 'DASHBOARD.SECTIONS.NEXT_MEETINGS' : 'DASHBOARD.SECTIONS.RECENT_SESSIONS') | translate }}</h3>
                         <div class="meeting-list" *ngIf="data.meetings && data.meetings.length > 0; else noMeetings">
                             <div class="meeting-card" *ngFor="let m of data.meetings.slice(0, 5)">
                                 <div class="m-time">
@@ -489,7 +495,7 @@
 
     <ng-template #noEvents>
         <div class="empty-placeholder">
-            <p>No upcoming organization events.</p>
+            <p>{{ 'DASHBOARD.EMPTY.NO_EVENTS' | translate }}</p>
         </div>
     </ng-template>
 

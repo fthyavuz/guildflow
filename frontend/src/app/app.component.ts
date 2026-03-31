@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from './core/services/notification.service';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import { NotificationService } from './core/services/notification.service';
 export class AppComponent {
   title = 'frontend';
   notificationService = inject(NotificationService);
+  themeService = inject(ThemeService);
   notifications$ = this.notificationService.notifications$;
 
   constructor(private translate: TranslateService) {
