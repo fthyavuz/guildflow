@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -48,9 +49,14 @@ public class Event {
     @Column(name = "education_level", length = 20)
     private EducationLevel educationLevel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_class_id")
-    private MentorClass targetClass;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "event_target_classes",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "class_id")
+    )
+    @Builder.Default
+    private List<MentorClass> targetClasses = new ArrayList<>();
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

@@ -15,7 +15,7 @@
             <h1 class="grad-text">Organization Events</h1>
             <p class="subtitle">Join upcoming guild activities, from chess tournaments to boat tours</p>
         </div>
-        <div class="header-actions" *ngIf="(user$ | async)?.role === 'ADMIN'">
+        <div class="header-actions" *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
             <button class="btn btn-primary" routerLink="/events/new">+ Schedule Event</button>
         </div>
     </header>
@@ -35,79 +35,71 @@
 
         <div class="filter-divider"></div>
 
-        <!-- Level filter -->
-        <div class="filter-group">
+        <!-- Level filter (admin/mentor only — students see only their invited events) -->
+        <div class="filter-group" *ngIf="(user$ | async)?.role === 'ADMIN' || (user$ | async)?.role === 'MENTOR'">
             <select class="filter-select" [ngModel]="activeFilter.educationLevel ?? ''" (ngModelChange)="setLevelFilter($event)">
                 <option *ngFor="let l of educationLevels" [value]="l.value">{{ l.label }}</option>
             </select>
         </div>
-
-        <!-- Class filter -->
-        <div class="filter-group" *ngIf="classes.length > 0">
-            <select class="filter-select" [ngModel]="activeFilter.classId ?? ''" (ngModelChange)="setClassFilter($event)">
-                <option value="">All Classes</option>
-                <option *ngFor="let c of classes" [value]="c.id">{{ c.name }}</option>
-            </select>
-        </div>
     </div>
 
-    <div class="class-grid" *ngIf="events$ | async as events; else loading">
-        <div class="glass-card class-card" *ngFor="let event of events">
-            <div class="card-glow" [routerLink]="['/events', event.id]"></div>
+    <ng-container *ngIf="user$ | async as user">
+        <div class="class-grid" *ngIf="events$ | async as events; else loading">
+            <div class="glass-card class-card" *ngFor="let event of events">
+                <div class="card-glow" [routerLink]="['/events', event.id]"></div>
 
-            <div class="card-top">
-                <span class="level-badge" [class.level-primary]="event.educationLevel === 'PRIMARY'"
-                      [class.level-secondary]="event.educationLevel === 'SECONDARY'"
-                      [class.level-highschool]="event.educationLevel === 'HIGH_SCHOOL'"
-                      [class.level-university]="event.educationLevel === 'UNIVERSITY'">
-                    <ng-container *ngIf="event.targetClassName">{{ event.targetClassName }}</ng-container>
-                    <ng-container *ngIf="!event.targetClassName && event.educationLevel">{{ levelLabel(event.educationLevel) }}</ng-container>
-                    <ng-container *ngIf="!event.targetClassName && !event.educationLevel">Event</ng-container>
-                </span>
-                <div class="student-count">
-                    {{ event.startTime | date:'MMM d, y' }}
+                <div class="card-top">
+                    <!-- Class badges -->
+                    <div class="class-badges">
+                        <span class="level-badge" *ngIf="event.targetClassNames.length === 0">Open Event</span>
+                        <span class="level-badge class-badge" *ngFor="let name of event.targetClassNames">{{ name }}</span>
+                    </div>
+                    <div class="student-count">
+                        {{ event.startTime | date:'MMM d, y' }}
+                    </div>
+                </div>
+
+                <div class="card-content" [routerLink]="['/events', event.id]">
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.description }}</p>
+                </div>
+
+                <div class="card-footer">
+                    <div class="footer-left">
+                        <span class="instructor">
+                            {{ event.startTime | date:'shortTime' }} - {{ event.endTime | date:'shortTime' }}
+                        </span>
+                        <span class="creator-name">by {{ event.createdByName }}</span>
+                    </div>
+                    <div class="footer-actions">
+                        <button class="icon-btn edit-btn" *ngIf="canManageEvent(event, user)"
+                            [routerLink]="['/events/edit', event.id]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                        </button>
+                        <button class="view-btn" [routerLink]="['/events', event.id]">
+                            Details
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="card-content" [routerLink]="['/events', event.id]">
-                <h3>{{ event.title }}</h3>
-                <p>{{ event.description }}</p>
-            </div>
-
-            <div class="card-footer">
-                <div class="footer-left">
-                    <span class="instructor">
-                        {{ event.startTime | date:'shortTime' }} - {{ event.endTime | date:'shortTime' }}
-                    </span>
-                </div>
-                <div class="footer-actions">
-                    <button class="icon-btn edit-btn" *ngIf="(user$ | async)?.role === 'ADMIN'"
-                        [routerLink]="['/events/edit', event.id]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                        </svg>
-                    </button>
-                    <button class="view-btn" [routerLink]="['/events', event.id]">
-                        Details
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                            <polyline points="12 5 19 12 12 19" />
-                        </svg>
-                    </button>
-                </div>
+            <!-- Empty State -->
+            <div class="empty-state glass" *ngIf="events.length === 0">
+                <div class="icon">📅</div>
+                <h3>No Events Found</h3>
+                <p>Try adjusting the filters or check back later.</p>
             </div>
         </div>
-
-        <!-- Empty State -->
-        <div class="empty-state glass" *ngIf="events.length === 0">
-            <div class="icon">📅</div>
-            <h3>No Events Found</h3>
-            <p>Try adjusting the filters or check back later.</p>
-        </div>
-    </div>
+    </ng-container>
 
     <ng-template #loading>
         <div class="loader-container">

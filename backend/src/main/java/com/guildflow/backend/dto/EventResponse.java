@@ -1,12 +1,15 @@
 package com.guildflow.backend.dto;
 
 import com.guildflow.backend.model.Event;
+import com.guildflow.backend.model.MentorClass;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -21,8 +24,8 @@ public class EventResponse {
     private Long createdById;
     private String createdByName;
     private String educationLevel;
-    private Long targetClassId;
-    private String targetClassName;
+    private List<Long> targetClassIds;
+    private List<String> targetClassNames;
 
     public static EventResponse fromEntity(Event event) {
         return EventResponse.builder()
@@ -34,8 +37,8 @@ public class EventResponse {
                 .createdById(event.getCreatedBy().getId())
                 .createdByName(event.getCreatedBy().getFirstName() + " " + event.getCreatedBy().getLastName())
                 .educationLevel(event.getEducationLevel() != null ? event.getEducationLevel().name() : null)
-                .targetClassId(event.getTargetClass() != null ? event.getTargetClass().getId() : null)
-                .targetClassName(event.getTargetClass() != null ? event.getTargetClass().getName() : null)
+                .targetClassIds(event.getTargetClasses().stream().map(MentorClass::getId).collect(Collectors.toList()))
+                .targetClassNames(event.getTargetClasses().stream().map(MentorClass::getName).collect(Collectors.toList()))
                 .build();
     }
 }

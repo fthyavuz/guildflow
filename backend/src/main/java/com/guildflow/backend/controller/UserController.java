@@ -78,7 +78,7 @@ public class UserController {
     }
 
     @GetMapping("/students")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<Page<UserResponse>> getStudents(@PageableDefault(size = 50) Pageable pageable) {
         return ResponseEntity.ok(userService.getUsers(Role.STUDENT, null, pageable));
     }

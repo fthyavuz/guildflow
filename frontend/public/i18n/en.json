@@ -213,7 +213,13 @@
             "EMPTY_MSG": "Your mentor hasn't assigned any homework yet.",
             "TASKS": "tasks",
             "PROGRESS": "Progress",
-            "OPEN_HINT": "Click to enter daily progress"
+            "OPEN_HINT": "Click to enter daily progress",
+            "NO_ACTIVE_TITLE": "No Active Homework",
+            "NO_ACTIVE_MSG": "All your homework assignments are completed.",
+            "PAST_TITLE": "Past Assignments",
+            "PAST_BADGE": "Completed",
+            "FINAL_PROGRESS": "Final Progress",
+            "VIEW_HINT": "Click to view details"
         },
         "DETAIL": {
             "BACK": "Back to Homework",
@@ -230,7 +236,9 @@
             "SAVE_DAY": "Save Day",
             "SAVING": "Saving...",
             "DAILY_LIMIT": "Daily limit",
-            "EXCEEDS_LIMIT": "Value exceeds daily limit"
+            "EXCEEDS_LIMIT": "Value exceeds daily limit",
+            "PREV_DAY": "Previous day",
+            "NEXT_DAY": "Next day"
         }
     },
     "REPORT": {

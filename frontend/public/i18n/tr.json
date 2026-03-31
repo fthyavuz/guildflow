@@ -213,7 +213,13 @@
             "EMPTY_MSG": "Mentörünüz henüz ödev atamamış.",
             "TASKS": "görev",
             "PROGRESS": "İlerleme",
-            "OPEN_HINT": "Günlük ilerleme girmek için tıklayın"
+            "OPEN_HINT": "Günlük ilerleme girmek için tıklayın",
+            "NO_ACTIVE_TITLE": "Aktif Ödev Yok",
+            "NO_ACTIVE_MSG": "Tüm ödev görevleriniz tamamlandı.",
+            "PAST_TITLE": "Geçmiş Ödevler",
+            "PAST_BADGE": "Tamamlandı",
+            "FINAL_PROGRESS": "Son İlerleme",
+            "VIEW_HINT": "Detayları görüntülemek için tıklayın"
         },
         "DETAIL": {
             "BACK": "Ödevlere Dön",
@@ -230,7 +236,9 @@
             "SAVE_DAY": "Günü Kaydet",
             "SAVING": "Kaydediliyor...",
             "DAILY_LIMIT": "Günlük limit",
-            "EXCEEDS_LIMIT": "Değer günlük limiti aşıyor"
+            "EXCEEDS_LIMIT": "Değer günlük limiti aşıyor",
+            "PREV_DAY": "Önceki gün",
+            "NEXT_DAY": "Sonraki gün"
         }
     },
     "REPORT": {

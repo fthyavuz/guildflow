@@ -121,15 +121,16 @@ public class GoalProgressService {
             throw new ValidationException("Date is after assignment end date");
         }
 
-        // Check if already locked
-        boolean alreadyLocked = !taskProgressRepository
-                .findByStudentAndEntryDateAndLockedTrue(student, date).isEmpty();
+        List<Long> taskIds = assignment.getGoal().getTasks()
+                .stream().map(GoalTask::getId).collect(Collectors.toList());
+
+        // Check if already locked — scoped to this assignment's tasks only
+        boolean alreadyLocked = !taskIds.isEmpty() && taskProgressRepository
+                .findByTaskIdsAndStudentAndDate(taskIds, student, date)
+                .stream().anyMatch(tp -> Boolean.TRUE.equals(tp.getLocked()));
         if (alreadyLocked) {
             throw new ValidationException("This day's entries are already saved and locked");
         }
-
-        List<Long> taskIds = assignment.getGoal().getTasks()
-                .stream().map(GoalTask::getId).collect(Collectors.toList());
 
         for (SaveDayRequest.TaskEntry e : request.getEntries()) {
             if (!taskIds.contains(e.getTaskId())) continue;
@@ -169,7 +170,7 @@ public class GoalProgressService {
                 progress.setDonePermanently(true);
             }
 
-            taskProgressRepository.save(progress);
+            taskProgressRepository.saveAndFlush(progress);
         }
 
         return getDayEntries(assignmentId, date, student);

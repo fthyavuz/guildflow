@@ -58,6 +58,13 @@ public class ClassService {
         return ClassResponse.fromEntity(savedClass);
     }
 
+    public List<ClassResponse> getAllActiveClasses() {
+        return classRepository.findByActiveTrue()
+                .stream()
+                .map(ClassResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     public Page<ClassResponse> getClasses(User user, Pageable pageable) {
         if (user == null || user.getRole() == null) {
             return Page.empty(pageable);

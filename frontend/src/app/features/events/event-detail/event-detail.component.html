@@ -9,7 +9,7 @@
             Back to Events
         </a>
 
-        <div class="admin-actions" *ngIf="(user$ | async)?.role === 'ADMIN'">
+        <div class="admin-actions" *ngIf="canManageEvent(event, user$ | async)">
             <button class="btn btn-secondary btn-sm" [routerLink]="['/events/edit', event.id]">Edit Event</button>
             <button class="btn btn-ghost btn-danger btn-sm" (click)="deleteEvent()">Delete</button>
         </div>
@@ -21,12 +21,11 @@
             <header class="event-header glass">
                 <div class="event-meta">
                     <span class="event-badge">Organization Activity</span>
-                    <span class="event-badge audience-badge" *ngIf="event.targetClassName">
-                        🎓 {{ event.targetClassName }}
-                    </span>
-                    <span class="event-badge audience-badge" *ngIf="!event.targetClassName && event.educationLevel">
-                        🎓 {{ event.educationLevel | titlecase }}
-                    </span>
+                    <ng-container *ngIf="event.targetClassNames.length > 0">
+                        <span class="event-badge audience-badge" *ngFor="let name of event.targetClassNames">
+                            🎓 {{ name }}
+                        </span>
+                    </ng-container>
                     <span class="event-date">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -75,7 +74,7 @@
             </section>
 
             <!-- Assignments Section (For Responsible Persons) -->
-            <section class="assignments-section glass-card" *ngIf="event.assignments.length > 0 || (user$ | async)?.role === 'ADMIN'">
+            <section class="assignments-section glass-card" *ngIf="event.assignments.length > 0 || canManageEvent(event, user$ | async)">
                 <div class="section-header">
                     <h3>Responsible Persons & Duties</h3>
                     <span class="badge secondary">{{ event.assignments.length }} Assigned</span>
@@ -93,7 +92,7 @@
                         <div class="as-duty">
                             <p>{{ assignment.dutyDescription }}</p>
                         </div>
-                        <button class="btn-remove" *ngIf="(user$ | async)?.role === 'ADMIN'"
+                        <button class="btn-remove" *ngIf="canManageEvent(event, user$ | async)"
                             (click)="removeAssignment(assignment.id)">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -105,7 +104,7 @@
                 </div>
 
                 <!-- Admin: Add Assignment Form -->
-                <div class="assignment-form-wrapper" *ngIf="(user$ | async)?.role === 'ADMIN'">
+                <div class="assignment-form-wrapper" *ngIf="canManageEvent(event, user$ | async)">
                     <h4>Assign a Duty</h4>
                     <form [formGroup]="assignmentForm" (ngSubmit)="assignDuty()" class="assignment-form">
                         <div class="form-row">

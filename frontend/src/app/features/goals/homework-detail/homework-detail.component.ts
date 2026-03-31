@@ -46,8 +46,10 @@ export class HomeworkDetailComponent implements OnInit {
                 next: (list) => {
                     this.homework = list.find(h => h.assignmentId === this.assignmentId) ?? null;
                     if (this.homework) {
-                        const today = new Date().toISOString().split('T')[0];
-                        this.minDate = this.homework.startDate ?? '';
+                        const today = this.localDateStr(new Date());
+                        const sevenDaysAgo = this.shiftDate(today, -6);
+                        const startDate = this.homework.startDate ?? '';
+                        this.minDate = startDate > sevenDaysAgo ? startDate : sevenDaysAgo;
                         const endDate = this.homework.endDate ?? '';
                         this.maxDate = endDate && endDate < today ? endDate : today;
                         this.selectedDate = this.clampDate(today);
@@ -82,6 +84,39 @@ export class HomeworkDetailComponent implements OnInit {
         this.loadEntries();
     }
 
+    get canGoPrev(): boolean {
+        return !!this.minDate && this.selectedDate > this.minDate;
+    }
+
+    get canGoNext(): boolean {
+        return !!this.maxDate && this.selectedDate < this.maxDate;
+    }
+
+    prevDay(): void {
+        if (!this.canGoPrev) return;
+        this.selectedDate = this.shiftDate(this.selectedDate, -1);
+        this.loadEntries();
+    }
+
+    nextDay(): void {
+        if (!this.canGoNext) return;
+        this.selectedDate = this.shiftDate(this.selectedDate, 1);
+        this.loadEntries();
+    }
+
+    private shiftDate(dateStr: string, days: number): string {
+        const d = new Date(dateStr + 'T00:00:00');
+        d.setDate(d.getDate() + days);
+        return this.localDateStr(d);
+    }
+
+    private localDateStr(d: Date): string {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
     get isDayLocked(): boolean {
         return this.entries.some(e => e.dayLocked);
     }
@@ -107,14 +142,10 @@ export class HomeworkDetailComponent implements OnInit {
         this.goalService.saveDayEntries(this.assignmentId, this.selectedDate, payload)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
-                next: (saved) => {
-                    this.entries = saved.map(e => ({
-                        ...e,
-                        inputNumeric: null,
-                        inputBoolean: e.donePermanently || (e.booleanEntry ?? false)
-                    }));
+                next: () => {
                     this.notifications.success('Day saved successfully');
                     this.isSaving = false;
+                    this.loadEntries();
                 },
                 error: (err) => {
                     this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to save'));

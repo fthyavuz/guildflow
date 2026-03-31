@@ -14,7 +14,25 @@
       "Bash(git merge:*)",
       "Bash(git branch:*)",
       "Bash(mvn spring-boot:run)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(dir:*)",
+      "Bash(cmd /c \"dir C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets\\\\i18n\")",
+      "Bash(cmd /c \"dir /s C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets\")",
+      "Bash(cmd /c \"dir C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\")",
+      "Bash(cmd /c \"tree C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets /f\")",
+      "Bash(cmd /c \"tree /f C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets' -Recurse | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets\\\\i18n' -Recurse | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend' -Recurse -Filter '*.json' | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\src\\\\assets\\\\i18n' | Select-Object Name\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\src' -Filter 'tr.json' -Recurse | Select-Object FullName\")",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\public' -Recurse -ErrorAction SilentlyContinue | Select-Object FullName\")",
+      "Bash(powershell -Command \"Select-String -Path 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\public\\\\i18n\\\\en.json' -Pattern 'NAV\\\\.' | Select-Object -First 20 Line\")",
+      "Bash(powershell -Command \"Get-Content 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\public\\\\i18n\\\\en.json' | Select-String 'NAV'\")",
+      "Bash(powershell -Command \"\\(Get-Content 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\public\\\\i18n\\\\en.json' | ConvertFrom-Json\\).NAV\")",
+      "Bash(powershell -Command \"\\(Get-Content 'C:\\\\Develop\\\\guildflow\\\\frontend\\\\public\\\\i18n\\\\en.json' | ConvertFrom-Json\\).USERS\")",
+      "Bash(find /c/Develop/guildflow/backend/src/main/java/com/guildflow/backend/repository -maxdepth 1 -type f -name *.java)",
+      "Bash(xargs -I {} basename {})"
     ]
   }
 }

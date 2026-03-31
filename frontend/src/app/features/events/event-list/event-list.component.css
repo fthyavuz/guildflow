@@ -125,9 +125,27 @@
 .card-top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 2rem;
     z-index: 10;
+}
+
+.class-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    flex: 1;
+}
+
+.class-badge {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.65rem;
+}
+
+.creator-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
 }
 
 .level-badge {

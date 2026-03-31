@@ -148,6 +148,11 @@ export class EventDetailComponent implements OnInit {
         }
     }
 
+    canManageEvent(event: any, user: any): boolean {
+        if (!user || !event) return false;
+        return user.role === 'ADMIN' || (user.role === 'MENTOR' && event.createdById === user.id);
+    }
+
     deleteEvent(): void {
         if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
             this.eventService.deleteEvent(this.eventId).subscribe({

@@ -43,6 +43,7 @@ _(Meeting management is functional — no pending improvements)_
 
 ### Events
 
+- [x] **Class-based event invitations** — events can now invite multiple specific classes; replaced single targetClassId with a multi-class picker; mentors can create/edit/delete their own events; students and parents only see events where their class is invited (or open events with no target classes)
 - [ ] **Participant list** — view the RSVP list for a specific event (currently no way to see who has joined)
 
 ### Rooms
@@ -153,7 +154,7 @@ _(No features implemented yet — planned for a future phase)_
 
 | Section              | Total  | Done   |
 | -------------------- | ------ | ------ |
-| 🛡️ Admin Dashboard   | 18     | 16     |
+| 🛡️ Admin Dashboard   | 19     | 17     |
 | 👨‍🏫 Mentor Dashboard  | 3      | 3      |
 | 🎓 Student Dashboard | 7      | 7      |
 | 👨‍👩‍👧 Parent Dashboard  | 0      | 0      |

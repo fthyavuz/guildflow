@@ -4,14 +4,16 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { EventService } from '../../../core/services/event.service';
 import { ClassService } from '../../../core/services/class.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-event-form',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
+    imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, TranslateModule],
     templateUrl: './event-form.component.html',
     styleUrl: './event-form.component.css'
 })
@@ -19,6 +21,7 @@ export class EventFormComponent implements OnInit {
     private fb = inject(FormBuilder);
     private eventService = inject(EventService);
     private classService = inject(ClassService);
+    private authService = inject(AuthService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private notifications = inject(NotificationService);
@@ -27,10 +30,15 @@ export class EventFormComponent implements OnInit {
     isEditMode = false;
     eventId: number | null = null;
     isSubmitting = false;
-    classes: ClassResponse[] = [];
+
+    // Class picker
+    allClasses: ClassResponse[] = [];
+    levelFilter = '';
+    nameFilter = '';
+    selectedClassIds: Set<number> = new Set();
 
     readonly educationLevels = [
-        { value: '', label: 'All levels (no restriction)' },
+        { value: '', label: 'All Levels' },
         { value: 'PRIMARY', label: 'Primary' },
         { value: 'SECONDARY', label: 'Secondary' },
         { value: 'HIGH_SCHOOL', label: 'High School' },
@@ -42,28 +50,30 @@ export class EventFormComponent implements OnInit {
             title: ['', [Validators.required]],
             description: [''],
             startTime: ['', [Validators.required]],
-            endTime: ['', [Validators.required]],
-            educationLevel: [''],
-            targetClassId: ['']
+            endTime: ['', [Validators.required]]
         });
     }
 
     ngOnInit(): void {
-        this.classService.getClasses().subscribe(c => this.classes = c);
+        this.classService.getAllClassesForEvents().subscribe(classes => {
+            this.allClasses = classes;
 
-        this.eventId = Number(this.route.snapshot.paramMap.get('id'));
+            // Auto-select mentor's own class on new event creation
+            if (!this.isEditMode) {
+                this.authService.currentUser$.subscribe(user => {
+                    if (user?.role === 'MENTOR') {
+                        classes.filter(c => c.mentorId === user.id)
+                            .forEach(c => this.selectedClassIds.add(c.id));
+                    }
+                });
+            }
+        });
+
+        this.eventId = Number(this.route.snapshot.paramMap.get('id')) || null;
         if (this.eventId) {
             this.isEditMode = true;
             this.loadEvent(this.eventId);
         }
-
-        // When a specific class is chosen, clear the level restriction and vice-versa
-        this.eventForm.get('targetClassId')!.valueChanges.subscribe(val => {
-            if (val) this.eventForm.get('educationLevel')!.setValue('', { emitEvent: false });
-        });
-        this.eventForm.get('educationLevel')!.valueChanges.subscribe(val => {
-            if (val) this.eventForm.get('targetClassId')!.setValue('', { emitEvent: false });
-        });
     }
 
     private snapTo15(dateStr: string): string {
@@ -80,13 +90,56 @@ export class EventFormComponent implements OnInit {
                     title: event.title,
                     description: event.description,
                     startTime: this.snapTo15(event.startTime),
-                    endTime: this.snapTo15(event.endTime),
-                    educationLevel: event.educationLevel ?? '',
-                    targetClassId: event.targetClassId ?? ''
+                    endTime: this.snapTo15(event.endTime)
                 });
+                this.selectedClassIds = new Set(event.targetClassIds);
             },
             error: (err) => this.notifications.error(this.notifications.extractErrorMessage(err, 'Failed to load event'))
         });
+    }
+
+    get filteredClasses(): ClassResponse[] {
+        return this.allClasses.filter(c => {
+            const levelMatch = !this.levelFilter || c.educationLevel === this.levelFilter;
+            const nameMatch = !this.nameFilter ||
+                c.name.toLowerCase().includes(this.nameFilter.toLowerCase());
+            return levelMatch && nameMatch;
+        });
+    }
+
+    isSelected(classId: number): boolean {
+        return this.selectedClassIds.has(classId);
+    }
+
+    toggleClass(classId: number): void {
+        if (this.selectedClassIds.has(classId)) {
+            this.selectedClassIds.delete(classId);
+        } else {
+            this.selectedClassIds.add(classId);
+        }
+    }
+
+    selectAllFiltered(): void {
+        this.filteredClasses.forEach(c => this.selectedClassIds.add(c.id));
+    }
+
+    deselectAllFiltered(): void {
+        this.filteredClasses.forEach(c => this.selectedClassIds.delete(c.id));
+    }
+
+    allFilteredSelected(): boolean {
+        return this.filteredClasses.length > 0 &&
+            this.filteredClasses.every(c => this.selectedClassIds.has(c.id));
+    }
+
+    get levelGroups(): string[] {
+        const levels = new Set(this.allClasses.map(c => c.educationLevel as string));
+        return Array.from(levels).sort();
+    }
+
+    selectByLevel(level: string): void {
+        this.allClasses.filter(c => c.educationLevel === level)
+            .forEach(c => this.selectedClassIds.add(c.id));
     }
 
     onSubmit(): void {
@@ -95,8 +148,7 @@ export class EventFormComponent implements OnInit {
             const raw = this.eventForm.value;
             const request = {
                 ...raw,
-                educationLevel: raw.educationLevel || null,
-                targetClassId: raw.targetClassId ? Number(raw.targetClassId) : null
+                targetClassIds: [...this.selectedClassIds]
             };
 
             const obs$ = this.isEditMode

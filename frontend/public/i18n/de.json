@@ -204,7 +204,13 @@
             "EMPTY_MSG": "Ihr Mentor hat noch keine Hausaufgaben zugewiesen.",
             "TASKS": "Aufgaben",
             "PROGRESS": "Fortschritt",
-            "OPEN_HINT": "Klicken Sie, um den täglichen Fortschritt einzugeben"
+            "OPEN_HINT": "Klicken Sie, um den täglichen Fortschritt einzugeben",
+            "NO_ACTIVE_TITLE": "Keine aktiven Hausaufgaben",
+            "NO_ACTIVE_MSG": "Alle Ihre Hausaufgaben sind abgeschlossen.",
+            "PAST_TITLE": "Vergangene Aufgaben",
+            "PAST_BADGE": "Abgeschlossen",
+            "FINAL_PROGRESS": "Endgültiger Fortschritt",
+            "VIEW_HINT": "Klicken Sie, um Details anzuzeigen"
         },
         "DETAIL": {
             "BACK": "Zurück zu den Hausaufgaben",
@@ -221,7 +227,9 @@
             "SAVE_DAY": "Tag speichern",
             "SAVING": "Wird gespeichert...",
             "DAILY_LIMIT": "Tageslimit",
-            "EXCEEDS_LIMIT": "Wert überschreitet das Tageslimit"
+            "EXCEEDS_LIMIT": "Wert überschreitet das Tageslimit",
+            "PREV_DAY": "Vorheriger Tag",
+            "NEXT_DAY": "Nächster Tag"
         }
     },
     "REPORT": {

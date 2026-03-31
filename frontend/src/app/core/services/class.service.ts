@@ -21,6 +21,10 @@ export class ClassService {
             .pipe(map(res => res.content));
     }
 
+    getAllClassesForEvents(): Observable<ClassResponse[]> {
+        return this.http.get<ClassResponse[]>(`${this.apiUrl}/all`);
+    }
+
     getMentorClasses(): Observable<ClassResponse[]> {
         return this.getClasses();
     }

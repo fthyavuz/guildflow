@@ -76,6 +76,10 @@ export class DashboardComponent {
         })
     );
 
+    totalStudentsAcrossClasses(classes: { studentCount?: number }[]): number {
+        return (classes ?? []).reduce((sum, c) => sum + (c.studentCount ?? 0), 0);
+    }
+
     setLanguage(lang: string): void {
         this.languageService.setLanguage(lang as SupportedLanguage);
     }

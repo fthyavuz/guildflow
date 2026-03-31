@@ -33,6 +33,12 @@ public class ClassController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    public ResponseEntity<List<ClassResponse>> getAllActiveClasses() {
+        return ResponseEntity.ok(classService.getAllActiveClasses());
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
     public ResponseEntity<Page<ClassResponse>> getClasses(
@@ -61,7 +67,7 @@ public class ClassController {
     }
 
     @PostMapping("/{id}/students/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> addStudentToClass(
             @PathVariable Long id,
             @PathVariable Long studentId,
@@ -71,7 +77,7 @@ public class ClassController {
     }
 
     @DeleteMapping("/{id}/students/{studentId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> removeStudentFromClass(
             @PathVariable Long id,
             @PathVariable Long studentId,

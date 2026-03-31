@@ -4,9 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EventService } from '../../../core/services/event.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ClassService } from '../../../core/services/class.service';
 import { EventResponse, EventFilterParams } from '../../../core/models/event.model';
-import { ClassResponse } from '../../../core/models/class.model';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -20,10 +18,8 @@ import { TranslateModule } from '@ngx-translate/core';
 export class EventListComponent implements OnInit {
     private eventService = inject(EventService);
     private authService = inject(AuthService);
-    private classService = inject(ClassService);
 
     user$ = this.authService.currentUser$;
-    classes: ClassResponse[] = [];
 
     readonly timeFilters: { value: EventFilterParams['filter']; label: string }[] = [
         { value: 'UPCOMING', label: 'Upcoming' },
@@ -46,24 +42,18 @@ export class EventListComponent implements OnInit {
 
     get activeFilter() { return this.filters$.value; }
 
-    ngOnInit(): void {
-        this.classService.getClasses().subscribe(c => this.classes = c);
-    }
+    ngOnInit(): void {}
 
     setTimeFilter(filter: EventFilterParams['filter']): void {
         this.filters$.next({ ...this.filters$.value, filter });
     }
 
     setLevelFilter(educationLevel: string): void {
-        this.filters$.next({ ...this.filters$.value, educationLevel: educationLevel || undefined, classId: undefined });
+        this.filters$.next({ ...this.filters$.value, educationLevel: educationLevel || undefined });
     }
 
-    setClassFilter(classId: string): void {
-        this.filters$.next({ ...this.filters$.value, classId: classId || undefined, educationLevel: undefined });
-    }
-
-    levelLabel(level: string | null): string {
-        if (!level) return '';
-        return this.educationLevels.find(l => l.value === level)?.label ?? level;
+    canManageEvent(event: any, user: any): boolean {
+        if (!user) return false;
+        return user.role === 'ADMIN' || (user.role === 'MENTOR' && event.createdById === user.id);
     }
 }

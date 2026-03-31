@@ -36,12 +36,19 @@
             </svg>
             {{ 'HOMEWORK.DETAIL.SELECT_DATE' | translate }}
         </label>
-        <input type="date"
-            class="glass-input date-input"
-            [(ngModel)]="selectedDate"
-            [min]="minDate"
-            [max]="maxDate"
-            (change)="onDateChange()" />
+        <div class="date-nav">
+            <button class="day-nav-btn" (click)="prevDay()" [disabled]="!canGoPrev" title="{{ 'HOMEWORK.DETAIL.PREV_DAY' | translate }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <span class="date-display">{{ selectedDate | date:'EEE, dd MMM yyyy' }}</span>
+            <button class="day-nav-btn" (click)="nextDay()" [disabled]="!canGoNext" title="{{ 'HOMEWORK.DETAIL.NEXT_DAY' | translate }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
         <span class="locked-pill" *ngIf="isDayLocked">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>

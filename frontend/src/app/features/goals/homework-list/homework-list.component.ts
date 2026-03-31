@@ -22,6 +22,16 @@ export class HomeworkListComponent implements OnInit {
 
     homeworks: HomeworkSummary[] = [];
     isLoading = true;
+    showPast = false;
+
+    get activeHomeworks(): HomeworkSummary[] {
+        return this.homeworks.filter(hw => this.isActive(hw));
+    }
+
+    get pastHomeworks(): HomeworkSummary[] {
+        const today = new Date().toISOString().split('T')[0];
+        return this.homeworks.filter(hw => hw.endDate && hw.endDate < today);
+    }
 
     ngOnInit(): void {
         this.goalService.getMyGoals()

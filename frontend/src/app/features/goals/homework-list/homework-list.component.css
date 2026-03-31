@@ -145,3 +145,68 @@
 .empty-state h3    { color: var(--text-secondary); margin-bottom: 0.4rem; }
 
 .loader-container { display: flex; justify-content: center; padding: 4rem 0; }
+
+/* ── Past homeworks ── */
+.section-divider {
+    margin: 2rem 0 1.25rem;
+}
+
+.past-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.past-toggle:hover { color: var(--text-primary); }
+
+.history-icon { width: 17px; height: 17px; flex-shrink: 0; }
+
+.past-count {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text-muted);
+}
+
+.chevron-icon {
+    width: 16px; height: 16px;
+    transition: transform 0.2s;
+    margin-left: auto;
+}
+
+.chevron-icon.open { transform: rotate(180deg); }
+
+.past-grid { margin-top: 0; }
+
+.hw-card-past {
+    opacity: 0.75;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s, border-color 0.2s;
+}
+
+.hw-card-past:hover {
+    opacity: 1;
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.past-pill {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.07);
+    color: var(--text-muted);
+}

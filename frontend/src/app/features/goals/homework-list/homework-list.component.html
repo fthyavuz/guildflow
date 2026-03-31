@@ -29,60 +29,128 @@
         <p>{{ 'HOMEWORK.LIST.EMPTY_MSG' | translate }}</p>
     </div>
 
-    <!-- Homework cards -->
-    <div *ngIf="!isLoading" class="hw-grid">
-        <div class="hw-card glass-card" *ngFor="let hw of homeworks" (click)="openHomework(hw)">
-            <div class="card-glow"></div>
+    <!-- Active homework cards -->
+    <ng-container *ngIf="!isLoading">
+        <div *ngIf="activeHomeworks.length === 0 && homeworks.length > 0" class="empty-state glass-card">
+            <div class="icon">✅</div>
+            <h3>{{ 'HOMEWORK.LIST.NO_ACTIVE_TITLE' | translate }}</h3>
+            <p>{{ 'HOMEWORK.LIST.NO_ACTIVE_MSG' | translate }}</p>
+        </div>
 
-            <div class="card-top-row">
-                <span class="freq-badge" *ngIf="hw.frequency">{{ hw.frequency }}</span>
-                <span class="status-dot" [class.active]="isActive(hw)" [title]="isActive(hw) ? 'Active' : 'Inactive'"></span>
-            </div>
-
-            <h3 class="hw-title">{{ hw.title }}</h3>
-            <p class="hw-desc" *ngIf="hw.description">{{ hw.description }}</p>
-
-            <div class="hw-meta">
-                <span class="meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    {{ dateRange(hw) }}
-                </span>
-                <span class="meta-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="9 11 12 14 22 4"></polyline>
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                    </svg>
-                    {{ hw.taskCount }} {{ 'HOMEWORK.LIST.TASKS' | translate }}
-                </span>
-            </div>
-
-            <div class="progress-section">
-                <div class="progress-labels">
-                    <span class="label-text">{{ 'HOMEWORK.LIST.PROGRESS' | translate }}</span>
-                    <span class="pct-text" [style.color]="getProgressColor(hw.overallProgress)">
-                        {{ hw.overallProgress | number:'1.0-0' }}%
+        <div class="hw-grid" *ngIf="activeHomeworks.length > 0">
+            <div class="hw-card glass-card" *ngFor="let hw of activeHomeworks" (click)="openHomework(hw)">
+                <div class="card-glow"></div>
+                <div class="card-top-row">
+                    <span class="freq-badge" *ngIf="hw.frequency">{{ hw.frequency }}</span>
+                    <span class="status-dot active"></span>
+                </div>
+                <h3 class="hw-title">{{ hw.title }}</h3>
+                <p class="hw-desc" *ngIf="hw.description">{{ hw.description }}</p>
+                <div class="hw-meta">
+                    <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        {{ dateRange(hw) }}
+                    </span>
+                    <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        {{ hw.taskCount }} {{ 'HOMEWORK.LIST.TASKS' | translate }}
                     </span>
                 </div>
-                <div class="progress-bar-container">
-                    <div class="progress-fill"
-                        [style.width.%]="hw.overallProgress"
-                        [style.background-color]="getProgressColor(hw.overallProgress)">
+                <div class="progress-section">
+                    <div class="progress-labels">
+                        <span class="label-text">{{ 'HOMEWORK.LIST.PROGRESS' | translate }}</span>
+                        <span class="pct-text" [style.color]="getProgressColor(hw.overallProgress)">
+                            {{ hw.overallProgress | number:'1.0-0' }}%
+                        </span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill"
+                            [style.width.%]="hw.overallProgress"
+                            [style.background-color]="getProgressColor(hw.overallProgress)">
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="card-footer">
-                <span class="open-hint">{{ 'HOMEWORK.LIST.OPEN_HINT' | translate }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
+                <div class="card-footer">
+                    <span class="open-hint">{{ 'HOMEWORK.LIST.OPEN_HINT' | translate }}</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </div>
             </div>
         </div>
-    </div>
+
+        <!-- Past homeworks section -->
+        <div class="section-divider" *ngIf="pastHomeworks.length > 0">
+            <button class="past-toggle" (click)="showPast = !showPast">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="history-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                {{ 'HOMEWORK.LIST.PAST_TITLE' | translate }}
+                <span class="past-count">{{ pastHomeworks.length }}</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chevron-icon" [class.open]="showPast">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <div class="hw-grid past-grid" *ngIf="showPast && pastHomeworks.length > 0">
+            <div class="hw-card hw-card-past glass-card" *ngFor="let hw of pastHomeworks" (click)="openHomework(hw)">
+                <div class="card-top-row">
+                    <span class="freq-badge" *ngIf="hw.frequency">{{ hw.frequency }}</span>
+                    <span class="past-pill">{{ 'HOMEWORK.LIST.PAST_BADGE' | translate }}</span>
+                </div>
+                <h3 class="hw-title">{{ hw.title }}</h3>
+                <p class="hw-desc" *ngIf="hw.description">{{ hw.description }}</p>
+                <div class="hw-meta">
+                    <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        {{ dateRange(hw) }}
+                    </span>
+                    <span class="meta-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                        {{ hw.taskCount }} {{ 'HOMEWORK.LIST.TASKS' | translate }}
+                    </span>
+                </div>
+                <div class="progress-section">
+                    <div class="progress-labels">
+                        <span class="label-text">{{ 'HOMEWORK.LIST.FINAL_PROGRESS' | translate }}</span>
+                        <span class="pct-text" [style.color]="getProgressColor(hw.overallProgress)">
+                            {{ hw.overallProgress | number:'1.0-0' }}%
+                        </span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-fill"
+                            [style.width.%]="hw.overallProgress"
+                            [style.background-color]="getProgressColor(hw.overallProgress)">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="open-hint">{{ 'HOMEWORK.LIST.VIEW_HINT' | translate }}</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </ng-container>
 </div>

@@ -8,7 +8,7 @@ import { GoalService } from '../../../core/services/goal.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ClassResponse } from '../../../core/models/class.model';
 import { User } from '../../../core/models/auth.model';
-import { Observable, switchMap, forkJoin, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, switchMap, forkJoin, BehaviorSubject, combineLatest, of, take } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -63,11 +63,16 @@ export class ClassDetailComponent implements OnInit {
         this.classId = Number(this.route.snapshot.paramMap.get('id'));
 
         this.data$ = this.refresh$.pipe(
-            switchMap(() => combineLatest({
-                class: this.classService.getClassById(this.classId!),
-                students: this.classService.getClassProgressSummary(this.classId!),
-                allStudents: this.userService.getStudents()
-            }))
+            switchMap(() => this.user$.pipe(
+                take(1),
+                switchMap(user => combineLatest({
+                    class: this.classService.getClassById(this.classId!),
+                    students: this.classService.getClassProgressSummary(this.classId!),
+                    allStudents: user?.role === 'ADMIN'
+                        ? this.userService.getStudents()
+                        : of([] as User[])
+                }))
+            ))
         );
 
         this.loadAssignments();

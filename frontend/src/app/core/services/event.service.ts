@@ -26,7 +26,6 @@ export class EventService {
         let httpParams = new HttpParams();
         if (params.filter) httpParams = httpParams.set('filter', params.filter);
         if (params.educationLevel) httpParams = httpParams.set('educationLevel', params.educationLevel);
-        if (params.classId) httpParams = httpParams.set('classId', params.classId);
         return this.http.get<PagedResponse<EventResponse>>(this.apiUrl, { params: httpParams })
             .pipe(map(res => res.content));
     }

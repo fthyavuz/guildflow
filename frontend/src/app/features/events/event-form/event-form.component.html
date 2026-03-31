@@ -12,8 +12,8 @@
 
     <div class="form-wrapper">
         <header class="form-header glass">
-            <h1 class="grad-text">{{ isEditMode ? 'Modify Organization Event' : 'Schedule New Event' }}</h1>
-            <p class="subtitle">{{ isEditMode ? 'Adjust the details of the upcoming activity' : 'Plan an exciting new activity for the entire guild' }}</p>
+            <h1 class="grad-text">{{ isEditMode ? 'Edit Event' : 'Schedule New Event' }}</h1>
+            <p class="subtitle">{{ isEditMode ? 'Update the event details and invited classes' : 'Plan a new activity and invite the classes that should participate' }}</p>
         </header>
 
         <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="glass-card form-card">
@@ -39,21 +39,61 @@
                     <textarea id="description" formControlName="description" class="glass-input" rows="4"
                         placeholder="Describe the plan, what to bring, etc."></textarea>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="educationLevel">Target Level</label>
-                    <select id="educationLevel" formControlName="educationLevel" class="glass-input">
-                        <option *ngFor="let l of educationLevels" [value]="l.value">{{ l.label }}</option>
-                    </select>
-                    <span class="form-hint">Or target a specific class below — choosing one clears the other.</span>
+            <!-- Class Invitation Panel -->
+            <div class="class-picker-section">
+                <div class="picker-header">
+                    <div>
+                        <h3 class="picker-title">Invite Classes</h3>
+                        <p class="picker-subtitle">
+                            {{ selectedClassIds.size === 0 ? 'No classes selected — event will be visible to everyone.' : selectedClassIds.size + ' class(es) invited' }}
+                        </p>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="targetClassId">Target Class</label>
-                    <select id="targetClassId" formControlName="targetClassId" class="glass-input">
-                        <option value="">All classes</option>
-                        <option *ngFor="let c of classes" [value]="c.id">{{ c.name }} ({{ c.educationLevel }})</option>
+                <!-- Quick-select by level -->
+                <div class="level-quick-select" *ngIf="levelGroups.length > 0">
+                    <span class="quick-label">Select all by level:</span>
+                    <button type="button" class="level-chip" *ngFor="let lvl of levelGroups" (click)="selectByLevel(lvl)">
+                        {{ lvl | titlecase }}
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="picker-filters">
+                    <select class="glass-input filter-select" [(ngModel)]="levelFilter" [ngModelOptions]="{standalone: true}">
+                        <option *ngFor="let l of educationLevels" [value]="l.value">{{ l.label }}</option>
                     </select>
+                    <input type="text" class="glass-input filter-input" placeholder="Search by name..."
+                        [(ngModel)]="nameFilter" [ngModelOptions]="{standalone: true}">
+                    <button type="button" class="btn-select-all"
+                        [class.deselect]="allFilteredSelected()"
+                        (click)="allFilteredSelected() ? deselectAllFiltered() : selectAllFiltered()">
+                        {{ allFilteredSelected() ? 'Deselect All' : 'Select All' }}
+                    </button>
+                </div>
+
+                <!-- Class list -->
+                <div class="class-picker-list">
+                    <div class="empty-picker" *ngIf="filteredClasses.length === 0">
+                        No classes match the current filter.
+                    </div>
+                    <label class="class-pick-item" *ngFor="let cls of filteredClasses"
+                        [class.selected]="isSelected(cls.id)"
+                        (click)="toggleClass(cls.id)">
+                        <div class="pick-check">
+                            <svg *ngIf="isSelected(cls.id)" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                        </div>
+                        <div class="pick-info">
+                            <span class="pick-name">{{ cls.name }}</span>
+                            <span class="pick-meta">{{ cls.educationLevel | titlecase }} · {{ cls.mentorName }} · {{ cls.studentCount }} students</span>
+                        </div>
+                    </label>
                 </div>
             </div>
 
